@@ -1,0 +1,12 @@
+---
+title: "Forecasting crime for strategic crime analysis"
+date: '2023-08-29'
+---
+
+Online seminar for students at the German Police University comparing different methods for forecasting the frequency of crime to support strategic crime analysis.
+
+[**Presentation slides**](https://lesscrime.info/slides/forecasting-dhpol/)
+
+```{=html}
+<iframe width="800" height="500" src="https://lesscrime.info/slides/forecasting-dhpol/"></iframe>
+```

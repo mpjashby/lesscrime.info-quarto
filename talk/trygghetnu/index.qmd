@@ -1,0 +1,13 @@
+---
+title: "What effects do CCTV cameras have in criminal investigations?"
+date: '2022-04-07'
+---
+
+Presentation to the [Trygghetnu conference](https://www.securityuser.com/se/eventkalendarium/Konferenser/TrygghetNu) in Stockholm, Sweden, on the effectiveness of CCTV in assisting criminal investigations. 
+
+[**Presentation slides**](https://lesscrime.info/slides/trygghetnu/)
+
+```{=html}
+<iframe src="https://lesscrime.info/slides/trygghetnu/" width="800" height="500" allowfullscreen frameborder="0"></iframe>
+```
+

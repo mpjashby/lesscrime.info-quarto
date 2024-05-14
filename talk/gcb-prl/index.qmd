@@ -1,0 +1,12 @@
+---
+title: "Benchmarking crime in London against other global cities"
+date: '2023-04-25'
+---
+
+Presentation at the Policing Research in London seminar comparing rates of serious violence in London with rates in other global cities.
+
+[**Presentation slides**](https://lesscrime.info/slides/gcb-prl/)
+
+```{=html}
+<iframe width="800" height="500" src="https://lesscrime.info/slides/gcb-prl/"></iframe>
+```

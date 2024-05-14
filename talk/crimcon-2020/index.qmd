@@ -1,0 +1,12 @@
+---
+title: "Three quarters of new criminological knowledge is hidden from policy makers"
+date: '2020-11-19'
+---
+
+Online presentation at CrimCon 2020 on the state of open access publishing in criminology, based on my paper [The open-access availability of criminological research to practitioners and policy makers](https://lesscrime.info/publication/criminology-oa/).
+
+[**Presentation slides**](https://doi.org/10.6084/m9.figshare.13259609.v1)
+
+```{=html}
+<iframe src="https://widgets.figshare.com/articles/13259609/embed?show_title=1" width="800" height="500" allowfullscreen frameborder="0"></iframe>
+```

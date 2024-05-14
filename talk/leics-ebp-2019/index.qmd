@@ -1,0 +1,12 @@
+---
+title: Problem solving in Op Pioneer
+date: '2019-03-13'
+---
+
+Presentation at the Leicestershire Police Evidence-Based Policing Conference 2019 on how to apply police problem-solving techniques to thefts from motor vehicles.
+
+[**Presentation slides**](https://doi.org/10.6084/m9.figshare.8863526.v1)
+
+```{=html}
+<iframe src="https://widgets.figshare.com/articles/8863526/embed?show_title=1" width="800" height="500" allowfullscreen frameborder="0"></iframe>
+```

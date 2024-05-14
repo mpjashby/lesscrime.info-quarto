@@ -1,0 +1,12 @@
+---
+title: 'Indoors and outdoors: weather and the spatial displacement of crime'
+date: "2019-09-19"
+---
+
+Presentation to the European Society of Criminology annual meeting in Ghent, Belgium, on whether the relative frequency of crime indoors and outdoors is related to the weather.
+
+[**Presentation slides**](https://lesscrime.info/slides/esc-2019.html)
+
+```{=html}
+<iframe width="800" height="500" src="https://lesscrime.info/slides/esc-2019.html"></iframe>
+```

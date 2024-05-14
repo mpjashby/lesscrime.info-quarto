@@ -1,0 +1,19 @@
+---
+title: "What can security consultants learn from how police solve problems?"
+date: '2024-05-15'
+---
+
+Presentation to the International Association of Professional Security 
+Consultants Annual Conference in Jacksonville, Florida, outlining what lessons 
+security consultants can learn from police experience of solving crime and 
+security problems.
+
+[**Presentation slides** (Powerpoint)](/slides/iapsc_2024.pptx)
+
+Links to resources mentioned in the presentation:
+
+  * [College of Policing Crime Reduction Toolkit](https://www.college.police.uk/research/crime-reduction-toolkit).
+  * [Arizona State University Center for Problem-Oriented Policing](https://popcenter.asu.edu/).
+  * [*Practical Psychology for Policing*](https://policy.bristoluniversitypress.co.uk/practical-psychology-for-policing) by Prof Jason Roach.
+
+

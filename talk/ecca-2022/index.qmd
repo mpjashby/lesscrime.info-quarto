@@ -1,0 +1,12 @@
+---
+title: "Comparing harm-spots and hot-spots for crime analysis"
+date: '2022-06-22'
+---
+
+Presentation to the Environmental Criminology and Crime Analysis symposium in Harrogate, England, on whether harmspots are a potentially useful addition to existing crime analysis tools such as hotspot mapping.
+
+[**Presentation slides**](https://lesscrime.info/slides/ecca-2022/)
+
+```{=html}
+<iframe width="800" height="500" src="https://lesscrime.info/slides/ecca-2022/"></iframe>
+```

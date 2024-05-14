@@ -1,0 +1,12 @@
+---
+title: "Hot spots: how they form and ways to analyse them"
+date: '2020-10-20'
+---
+
+Online presentation at a workshop organised by the National Police Chiefs' Council on using data analysis to solve serious violent crime. 
+
+[**Presentation slides**](https://doi.org/10.6084/m9.figshare.13114475.v1)
+
+```{=html}
+<iframe src="https://widgets.figshare.com/articles/13114475/embed?show_title=1" width="800" height="500" allowfullscreen frameborder="0"></iframe>
+```

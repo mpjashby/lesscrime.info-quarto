@@ -1,0 +1,7 @@
+---
+title: "Talks"
+listing: 
+  fields: [title, date, description]
+  sort: "date desc"
+---
+

@@ -1,0 +1,12 @@
+---
+title: "Changes in police calls for service during the early months of the 2020 coronavirus pandemic"
+date: '2020-12-08'
+---
+
+Online presentation at a COVID-19 and Crime research seminar on changes in calls for service during the early months of the COVID-19 pandemic, based on my paper [Changes in Police Calls for Service During the Early Months of the 2020 Coronavirus Pandemic](http://lesscrime.info/publication/coronavirus-and-police-calls/).
+
+[**Presentation slides**](https://lesscrime.info/slides/covid-calls/)
+
+```{=html}
+<iframe src="https://lesscrime.info/slides/covid-calls/" width="800" height="500" allowfullscreen frameborder="0"></iframe>
+```

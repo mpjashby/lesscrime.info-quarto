@@ -1,0 +1,12 @@
+---
+title: "Sports events and violence in large cities in the United States"
+date: '2023-06-13'
+---
+
+Presentation at the Stockholm Criminology Symposium 2023 presenting early results of a study into the relationship between violence and sporting events in large US cities.
+
+[**Presentation slides**](https://lesscrime.info/slides/stockholm-2023/)
+
+```{=html}
+<iframe width="800" height="500" src="https://lesscrime.info/slides/stockholm-2023/"></iframe>
+```

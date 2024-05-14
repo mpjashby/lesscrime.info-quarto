@@ -1,0 +1,8 @@
+---
+title: "10 tips for effective police problem solving"
+date: '2023-04-17'
+---
+
+Presentation at the London Problem Solving Conference 2023 on how police can effectively solve crime problems.
+
+[**Presentation slides** (PowerPoint)](/slides/london-pop-2023/problem_solving_tips.pptx)

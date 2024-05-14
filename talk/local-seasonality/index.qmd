@@ -1,0 +1,12 @@
+---
+title: Local variations in crime seasonality
+date: '2018-08-29'
+---
+
+Presentation to the European Society of Criminology annual meeting in Sarajevo, Bosnia and Herzegovina, on how the seasonality of crime varies between places.
+
+[**Presentation slides**](https://lesscrime.info/slides/esc_2018.html)
+
+```{=html}
+<iframe width="800" height="500" src="https://lesscrime.info/slides/esc_2018.html"></iframe>
+```

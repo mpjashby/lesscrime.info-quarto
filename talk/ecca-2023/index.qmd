@@ -1,0 +1,12 @@
+---
+title: "Forecasting crime for strategic crime analysis: a comparison of methods"
+date: '2023-06-15'
+---
+
+Presentation to the Environmental Criminology and Crime Analysis 2023 symposium in Stockholm, Sweden, comparing different methods for forecasting the frequency of crime to support strategic crime analysis.
+
+[**Presentation slides**](https://lesscrime.info/slides/ecca-2023/)
+
+```{=html}
+<iframe width="800" height="500" src="https://lesscrime.info/slides/ecca-2023/"></iframe>
+```

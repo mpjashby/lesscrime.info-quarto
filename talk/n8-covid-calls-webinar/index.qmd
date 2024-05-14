@@ -1,0 +1,20 @@
+---
+title: "Changes to police demand in COVID-19 pandemic"
+date: '2022-03-24'
+author: 
+  - 'Réka Solymosi'
+  - 'Matt Ashby'
+  - 'Eon Kim'
+  - 'Nadia Kennar'
+  - 'Karen Byrom'
+  - 'Alex McMillan'
+  - 'Phoebe Liebelt'
+---
+
+Joint online presentation with staff from Cheshire Constabulary at a N8 Policing Research Project small grants webinar on [how demand for policing changed during the first year of the COVID pandemic](https://bit.ly/n8-covid-calls-report).
+
+[**Presentation slides**](https://maczokni.github.io/n8_cov/)
+
+```{=html}
+<iframe src="https://maczokni.github.io/n8_cov/" width="800" height="500" allowfullscreen frameborder="0"></iframe>
+```

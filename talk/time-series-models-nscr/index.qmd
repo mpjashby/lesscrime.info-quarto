@@ -1,0 +1,12 @@
+---
+title: "Modelling and forecasting time series in R"
+date: '2021-10-28'
+---
+
+Online presentation as part of the NSC-R seminar series on using time-series models in R.
+
+[**Presentation slides**](https://lesscrime.info/slides/time-series-models-nscr/)
+
+```{=html}
+<iframe src="https://lesscrime.info/slides/time-series-models-nscr/" width="800" height="500" allowfullscreen frameborder="0"></iframe>
+```
