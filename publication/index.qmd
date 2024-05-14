@@ -1,0 +1,13 @@
+---
+title: "Publications"
+listing: 
+  id: publist
+  categories: true
+  fields: [title, date]
+  sort: "date desc"
+---
+
+I have been a (co-)author on the following publications. Click the title of a publication for more details, including links to free-to-read versions.
+
+:::{#publist}
+:::

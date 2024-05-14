@@ -1,0 +1,15 @@
+/*-- scss:rules --*/
+
+#title-block-header.quarto-title-block.default .description>p:last-of-type {
+  margin-top: 1em;
+  margin-bottom: 2em;
+  font-size: 1em;
+}
+
+.big p, .big li {
+  font-size: 140%;
+}
+
+.big-blub {
+  margin-bottom: 4em;
+}

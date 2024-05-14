@@ -1,0 +1,28 @@
+project:
+  type: website
+
+website:
+  title: "Matt Ashby"
+  navbar:
+    left:
+      - href: index.qmd
+        text: Home
+      - post/index.qmd
+      - publication/index.qmd
+      - talk/index.qmd
+  comments: false
+  page-footer: | 
+    The content on this website is licensed under a 
+    [Creative Commons Attribution Licence](https://creativecommons.org/licenses/by/4.0/)
+
+format:
+  html:
+    theme: 
+      - sandstone
+      - custom.scss
+    css: styles.css
+    date-format: "D MMM YYYY"
+    toc: true
+
+author:
+  - name: Matt Ashby

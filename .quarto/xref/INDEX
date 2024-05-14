@@ -1,0 +1,362 @@
+{
+  "index.qmd": {
+    "index.html": "355822ea"
+  },
+  "about.qmd": {
+    "about.html": "6143ee68"
+  },
+  "post/asb-trends/index.Rmd": {
+    "index.html": "cd9cdf82"
+  },
+  "publication/stop-and-search-london-2022-q1.md": {
+    "stop-and-search-london-2022-q1.html": "c50492d6"
+  },
+  "talk/iapsc-problem-solving.md": {
+    "iapsc-problem-solving.html": "78bcd0fa"
+  },
+  "talk/index.qmd": {
+    "index.html": "ada93bf0"
+  },
+  "talk/swedish-police-2024.md": {
+    "swedish-police-2024.html": "0d3423ec"
+  },
+  "talk/forecasting-dhpol.md": {
+    "forecasting-dhpol.html": "9879923a"
+  },
+  "talk/gcb-prl.md": {
+    "gcb-prl.html": "cabb3389"
+  },
+  "talk/stockholm-2023.md": {
+    "stockholm-2023.html": "4cfeeb3f"
+  },
+  "talk/ecca-2023.md": {
+    "ecca-2023.html": "6c435daf"
+  },
+  "talk/forecasting-dhpol/index.qmd": {
+    "index.html": "e5bf306d"
+  },
+  "talk/iapsc-problem-solving/index.qmd": {
+    "index.html": "71bc3719"
+  },
+  "talk/gcb-prl/index.qmd": {
+    "index.html": "90c2b2ab"
+  },
+  "talk/swedish-police-2024/index.qmd": {
+    "index.html": "cd843810"
+  },
+  "talk/stockholm-2023/index.qmd": {
+    "index.html": "5bc7cd39"
+  },
+  "talk/ecca-2023/index.qmd": {
+    "index.html": "aae77151"
+  },
+  "talk/crimcon-2020/index.qmd": {
+    "index.html": "e5944615"
+  },
+  "talk/trygghetnu/index.qmd": {
+    "index.html": "8b2f68c7"
+  },
+  "talk/solving-problems-using-evidence-based-policing/index.qmd": {
+    "index.html": "d716c53b"
+  },
+  "talk/crime-around-schools/index.qmd": {
+    "index.html": "cbe75094"
+  },
+  "talk/esc-2019/index.qmd": {
+    "index.html": "a318d6bb"
+  },
+  "talk/time-series-models-nscr/index.qmd": {
+    "index.html": "b1e5e182"
+  },
+  "talk/leics-ebp-2019/index.qmd": {
+    "index.html": "26f2ca91"
+  },
+  "talk/n8-covid-calls/index.qmd": {
+    "index.html": "ed48686b"
+  },
+  "talk/n8-covid-calls-webinar/index.qmd": {
+    "index.html": "a4db972a"
+  },
+  "talk/london-pop-2023/index.qmd": {
+    "index.html": "ea325691"
+  },
+  "talk/local-seasonality/index.qmd": {
+    "index.html": "e259c0f7"
+  },
+  "talk/ecca-2022/index.qmd": {
+    "index.html": "0d22aef9"
+  },
+  "talk/pop-hotspots/index.qmd": {
+    "index.html": "8b58b98c"
+  },
+  "talk/unodc-kostat/index.qmd": {
+    "index.html": "3e6bcafe"
+  },
+  "talk/npcc-hotspots/index.qmd": {
+    "index.html": "821adf82"
+  },
+  "publication/index.qmd": {
+    "index.html": "40400a76"
+  },
+  "publication/40-years-of-pop.md": {
+    "40-years-of-pop.html": "29c80077"
+  },
+  "publication/scrap_metal_dealers.md": {
+    "scrap_metal_dealers.html": "cdfdc1d4"
+  },
+  "publication/stop-and-search-london-2021-q4.md": {
+    "stop-and-search-london-2021-q4.html": "d53296df"
+  },
+  "publication/uk_open_source_crime_data.md": {
+    "uk_open_source_crime_data.html": "e69eb475"
+  },
+  "publication/alternative-denominators-in-transport-crime-rates/index.qmd": {
+    "index.html": "1af1ea9d"
+  },
+  "publication/40-years-of-pop/index.qmd": {
+    "index.html": "b7b6df4e"
+  },
+  "publication/aoristic_methods/index.qmd": {
+    "index.html": "a0c9386e"
+  },
+  "publication/coronavirus-and-police-calls/index.qmd": {
+    "index.html": "23fd8204"
+  },
+  "publication/problem-solving-practice-guide/index.qmd": {
+    "index.html": "0d7d8f63"
+  },
+  "publication/children_gender_and_cse/index.qmd": {
+    "index.html": "1ddf0cd9"
+  },
+  "publication/uk_open_source_crime_data/index.qmd": {
+    "index.html": "de11199f"
+  },
+  "publication/crime_science_for_metal_theft/index.qmd": {
+    "index.html": "8ac2816c"
+  },
+  "publication/research_on_cse_of_boys/index.qmd": {
+    "index.html": "2b3b2bcb"
+  },
+  "publication/immaterial_boys/index.qmd": {
+    "index.html": "85e1e2cd"
+  },
+  "publication/metal_price_theft_hypothesis/index.qmd": {
+    "index.html": "417ece35"
+  },
+  "publication/police_searches_and_routine_activities/index.qmd": {
+    "index.html": "46e033c1"
+  },
+  "publication/criminology-oa/index.qmd": {
+    "index.html": "12fd3d23"
+  },
+  "publication/pop-barriers-and-facilitators/index.qmd": {
+    "index.html": "3656ab58"
+  },
+  "publication/coronavirus-and-crime/index.qmd": {
+    "index.html": "566f6bdd"
+  },
+  "publication/pop-in-england-and-wales/index.qmd": {
+    "index.html": "8c2013ef"
+  },
+  "publication/not_just_a_girl_thing/index.qmd": {
+    "index.html": "1f87c17a"
+  },
+  "publication/police-perceptions-of-pop/index.qmd": {
+    "index.html": "f77562ce"
+  },
+  "publication/measuring_crime_harm/index.qmd": {
+    "index.html": "ae9f5788"
+  },
+  "publication/violence_around_schools/index.qmd": {
+    "index.html": "048b7ae5"
+  },
+  "publication/stop-and-search-london-2022-q1/index.qmd": {
+    "index.html": "deb7e189"
+  },
+  "publication/cctv_as_an_investigative_tool/index.qmd": {
+    "index.html": "53fc0bc2"
+  },
+  "publication/metal_theft_when_and_where/index.qmd": {
+    "index.html": "24138b3a"
+  },
+  "publication/n8-covid-calls/index.qmd": {
+    "index.html": "1054fcd0"
+  },
+  "publication/crime-open-database/index.qmd": {
+    "index.html": "3aa73733"
+  },
+  "publication/self_guardianship_at_atms/index.qmd": {
+    "index.html": "c87b1157"
+  },
+  "publication/metal_theft_and_organised_crime/index.qmd": {
+    "index.html": "cd88b352"
+  },
+  "publication/stop-and-search-london-2021-q2/index.qmd": {
+    "index.html": "d36abd78"
+  },
+  "publication/weather_and_stop_and_frisk/index.qmd": {
+    "index.html": "992437cb"
+  },
+  "publication/scrap_metal_dealers/index.qmd": {
+    "index.html": "6ea6d553"
+  },
+  "publication/stop-and-search-london-2021-q4/index.qmd": {
+    "index.html": "18baa58e"
+  },
+  "publication/stop-and-search-london-2021-q3/index.qmd": {
+    "index.html": "d9d732bf"
+  },
+  "publication/implementing-problem-oriented-policing/index.qmd": {
+    "index.html": "2a54e696"
+  },
+  "publication/stop-search-london-2020-q3/index.qmd": {
+    "index.html": "ac5839ce"
+  },
+  "publication/time-crime-place/index.qmd": {
+    "index.html": "fb39c78e"
+  },
+  "publication/knife-crime-problem-solving/index.qmd": {
+    "index.html": "c03ae3d7"
+  },
+  "publication/knife-crime-challenges/index.qmd": {
+    "index.html": "525e8390"
+  },
+  "publication/official-police-data/index.qmd": {
+    "index.html": "81e239f3"
+  },
+  "publication/global-city-crime-benchmarking/index.qmd": {
+    "index.html": "3b79cdb4"
+  },
+  "publication/global-city-officer-benchmarking/index.qmd": {
+    "index.html": "26c9e2de"
+  },
+  "publication/concentrations-trafficking-harm/index.qmd": {
+    "index.html": "136160e6"
+  },
+  "post/breath-tests/index.Rmd": {
+    "index.html": "dc302ae7"
+  },
+  "post/crime-pressure-force/index.Rmd": {
+    "index.html": "cf718009"
+  },
+  "post/police-uplift-2021/index.Rmd": {
+    "index.html": "d6459aa7"
+  },
+  "post/index.qmd": {
+    "index.html": "22936189"
+  },
+  "post/common-prosecutions/index.Rmd": {
+    "index.html": "4f8f1af5"
+  },
+  "post/business-crime/index.Rmd": {
+    "index.html": "1db45be9"
+  },
+  "post/cleaning-ons-data/index.Rmd": {
+    "index.html": "9dcae09e"
+  },
+  "post/police-uplift-2022/index.Rmd": {
+    "index.html": "219a7120"
+  },
+  "post/crime-pressure-force-2022/index.Rmd": {
+    "index.html": "8f7eed96"
+  },
+  "post/crime-since-2010/index.Rmd": {
+    "index.html": "738e0b7b"
+  },
+  "post/drug-seizures/index.Rmd": {
+    "index.html": "aeb757a8"
+  },
+  "post/dna-database/index.Rmd": {
+    "index.html": "bbedb40f"
+  },
+  "post/custody-deaths/index.Rmd": {
+    "index.html": "45dee344"
+  },
+  "post/crime-reporting/index.Rmd": {
+    "index.html": "f7dcbc95"
+  },
+  "post/crime-trends/index.Rmd": {
+    "index.html": "bdaf3104"
+  },
+  "post/homicide-europe/index.Rmd": {
+    "index.html": "a961b736"
+  },
+  "post/football-arrests/index.Rmd": {
+    "index.html": "ecc1200d"
+  },
+  "post/drug-use/index.Rmd": {
+    "index.html": "500f2efc"
+  },
+  "post/fairness-perception/index.Rmd": {
+    "index.html": "66958c29"
+  },
+  "post/homicide-methods/index.Rmd": {
+    "index.html": "4776c6f7"
+  },
+  "post/locator-maps-for-met-police-bcus/index.Rmd": {
+    "index.html": "09fc01cc"
+  },
+  "post/knife-sentencing/index.Rmd": {
+    "index.html": "9237c9e0"
+  },
+  "post/homicide-trends/index.Rmd": {
+    "index.html": "797d2771"
+  },
+  "post/police-numbers/index.Rmd": {
+    "index.html": "d28e6fe6"
+  },
+  "post/police-arrests/index.Rmd": {
+    "index.html": "1418a4ab"
+  },
+  "post/police-assaults/index.Rmd": {
+    "index.html": "3faf4ec9"
+  },
+  "post/partner-abuse/index.Rmd": {
+    "index.html": "9d1e0351"
+  },
+  "post/how-to-stop-hiding-your-research/index.md": {
+    "index.html": "222a49b2"
+  },
+  "post/police-pay/index.Rmd": {
+    "index.html": "26d9796c"
+  },
+  "post/police-pay-2022/index.Rmd": {
+    "index.html": "7b580f01"
+  },
+  "post/police-strength/index.Rmd": {
+    "index.html": "527d87d0"
+  },
+  "post/police-pay-2023-proposal/police-pay-2023-proposal.Rmd": {
+    "police-pay-2023-proposal.html": "cbb02a1b"
+  },
+  "post/prosecution-times/index.Rmd": {
+    "index.html": "77852c65"
+  },
+  "post/prisoner-types/index.Rmd": {
+    "index.html": "04dbecfc"
+  },
+  "post/rape-prosecution-times/index.Rmd": {
+    "index.html": "fa636993"
+  },
+  "post/prison-likelihood/index.Rmd": {
+    "index.html": "46336722"
+  },
+  "post/reoffending-rates/index.Rmd": {
+    "index.html": "4513f8a0"
+  },
+  "post/prison-europe/index.Rmd": {
+    "index.html": "495803fa"
+  },
+  "post/violence-prosecutions/index.Rmd": {
+    "index.html": "08ae2d3a"
+  },
+  "post/tracking-crime-changes/index.Rmd": {
+    "index.html": "2f1fdcec"
+  },
+  "post/use-of-force/index.Rmd": {
+    "index.html": "f52735f1"
+  },
+  "bio/index.md": {
+    "index.html": "4a349d05"
+  }
+}

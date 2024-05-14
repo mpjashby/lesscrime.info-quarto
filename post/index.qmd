@@ -1,0 +1,7 @@
+---
+title: "Blog posts"
+listing: 
+  fields: [title, date, image]
+  sort: "date desc"
+---
+

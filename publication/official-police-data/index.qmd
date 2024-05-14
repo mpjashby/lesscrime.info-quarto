@@ -1,0 +1,6 @@
+---
+title: "Official Police Data"
+date: "2023-03-24"
+---
+
+Citation: L Tompson, M Ashby. 2023. Official Police Data. In _Understanding Crime and Place: A Methods Handbook_. Philadelphia: Temple University Press.

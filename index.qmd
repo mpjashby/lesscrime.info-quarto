@@ -1,0 +1,123 @@
+---
+title: "Matt Ashby"
+author: ""
+toc: false
+about: 
+  template: trestles
+  image: files/matt_ashby_profile_image_square.jpg
+  image-alt: "Matt Ashby"
+  image-width: 15em
+  image-shape: round
+  links:
+    - icon: envelope
+      text: "Get in touch"
+      href: "#contact"
+    - icon: twitter
+      text: Twitter
+      href: https://twitter.com/lesscrime
+    - icon: orcid
+      text: ORCID
+      href: http://orcid.org/0000-0003-4201-9239
+    - icon: google-scholar
+      text: "Google Scholar"
+      href: https://scholar.google.co.uk/citations?user=dwcesrQAAAAJ
+    - icon: github
+      text: Github
+      href: https://github.com/mpjashby
+    - icon: instagram
+      text: Instagram
+      href: https://www.instagram.com/matt_ashby_pics/
+    - icon: cv
+      text: CV
+      href: files/cv.pdf
+format: 
+  html:
+    page-layout: full
+listing: 
+  - id: post
+    contents: "post"
+    type: grid
+    date-format: "DD MMM YYYY"
+    fields: [title, date, image]
+    max-items: 3
+    sort: "date desc"
+  - id: publication
+    contents: "publication"
+    type: table
+    date-format: "MMM YYYY"
+    exclude: 
+      - categories: "index*"
+    fields: [title, date]
+    filter-ui: false
+    max-items: 5
+    sort: "date desc"
+    sort-ui: false
+  - id: talk
+    contents: "talk"
+    type: table
+    date-format: "MMM YYYY"
+    fields: [title, date]
+    filter-ui: false
+    max-items: 5
+    sort: "date desc"
+    sort-ui: false
+execute:
+  echo: false
+---
+
+
+```{r setup}
+#| include: false
+
+library(leaflet)
+```
+
+
+::: {.big .big-blub}
+
+I am a lecturer in crime science at the [Jill Dando Institute of Security and Crime Science](https://ucl.ac.uk/jill-dando-institute/) at [University College London (UCL)](https://ucl.ac.uk/). I do research on how police can use data to reduce crime.
+
+:::
+
+
+
+
+## Recent blog posts
+
+::: {#post}
+:::
+
+[more posts …](post)
+
+
+## Recent publications and reports
+
+::: {#publication}
+:::
+
+[more publications …](publication/)
+
+
+## Recent talks
+
+::: {#talk}
+:::
+
+[more talks …](talk/)
+
+
+## Get in touch {#contact}
+
+<i class="bi bi-envelope"></i> matthew.ashby@ucl.ac.uk<br>
+<i class="bi bi-telephone"></i> +44 (0) 20 3108 3890<br>
+<i class="bi bi-pin-map"></i> 35 Tavistock Square, London, WC1H 9EZ<br>
+<i class="bi bi-calendar-check"></i> [Book an appointment](http://lesscrime.info/office-hours/)
+
+
+```{r office-map}
+leaflet() |> 
+  addProviderTiles(providers$CartoDB.Voyager) |>
+  setView(-0.1298, 51.5249, zoom = 15) |> 
+  addMarkers(-0.1298, 51.5249)
+```
+

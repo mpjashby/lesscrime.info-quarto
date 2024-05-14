@@ -1,0 +1,729 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en"><head>
+
+<meta charset="utf-8">
+<meta name="generator" content="quarto-1.4.551">
+
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+
+<meta name="author" content="Matt Ashby">
+<meta name="dcterms.date" content="2020-05-13">
+
+<title>Matt Ashby - Why you can’t identify changes in crime by comparing this month to last month</title>
+<style>
+code{white-space: pre-wrap;}
+span.smallcaps{font-variant: small-caps;}
+div.columns{display: flex; gap: min(4vw, 1.5em);}
+div.column{flex: auto; overflow-x: auto;}
+div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+ul.task-list{list-style: none;}
+ul.task-list li input[type="checkbox"] {
+  width: 0.8em;
+  margin: 0 0.8em 0.2em -1em; /* quarto-specific, see https://github.com/quarto-dev/quarto-cli/issues/4556 */ 
+  vertical-align: middle;
+}
+</style>
+
+
+<script src="../../site_libs/quarto-nav/quarto-nav.js"></script>
+<script src="../../site_libs/quarto-nav/headroom.min.js"></script>
+<script src="../../site_libs/clipboard/clipboard.min.js"></script>
+<script src="../../site_libs/quarto-search/autocomplete.umd.js"></script>
+<script src="../../site_libs/quarto-search/fuse.min.js"></script>
+<script src="../../site_libs/quarto-search/quarto-search.js"></script>
+<meta name="quarto:offset" content="../../">
+<script src="../../site_libs/quarto-html/quarto.js"></script>
+<script src="../../site_libs/quarto-html/popper.min.js"></script>
+<script src="../../site_libs/quarto-html/tippy.umd.min.js"></script>
+<script src="../../site_libs/quarto-html/anchor.min.js"></script>
+<link href="../../site_libs/quarto-html/tippy.css" rel="stylesheet">
+<link href="../../site_libs/quarto-html/quarto-syntax-highlighting.css" rel="stylesheet" id="quarto-text-highlighting-styles">
+<script src="../../site_libs/bootstrap/bootstrap.min.js"></script>
+<link href="../../site_libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
+<link href="../../site_libs/bootstrap/bootstrap.min.css" rel="stylesheet" id="quarto-bootstrap" data-mode="light">
+<script id="quarto-search-options" type="application/json">{
+  "location": "navbar",
+  "copy-button": false,
+  "collapse-after": 3,
+  "panel-placement": "end",
+  "type": "overlay",
+  "limit": 50,
+  "keyboard-shortcut": [
+    "f",
+    "/",
+    "s"
+  ],
+  "show-item-context": false,
+  "language": {
+    "search-no-results-text": "No results",
+    "search-matching-documents-text": "matching documents",
+    "search-copy-link-title": "Copy link to search",
+    "search-hide-matches-text": "Hide additional matches",
+    "search-more-match-text": "more match in this document",
+    "search-more-matches-text": "more matches in this document",
+    "search-clear-button-title": "Clear",
+    "search-text-placeholder": "",
+    "search-detached-cancel-button-title": "Cancel",
+    "search-submit-button-title": "Submit",
+    "search-label": "Search"
+  }
+}</script>
+
+
+<link rel="stylesheet" href="../../styles.css">
+</head>
+
+<body class="nav-fixed">
+
+<div id="quarto-search-results"></div>
+  <header id="quarto-header" class="headroom fixed-top">
+    <nav class="navbar navbar-expand-lg " data-bs-theme="dark">
+      <div class="navbar-container container-fluid">
+      <div class="navbar-brand-container mx-auto">
+    <a class="navbar-brand" href="../../index.html">
+    <span class="navbar-title">Matt Ashby</span>
+    </a>
+  </div>
+            <div id="quarto-search" class="" title="Search"></div>
+          <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarCollapse" aria-controls="navbarCollapse" aria-expanded="false" aria-label="Toggle navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">
+  <span class="navbar-toggler-icon"></span>
+</button>
+          <div class="collapse navbar-collapse" id="navbarCollapse">
+            <ul class="navbar-nav navbar-nav-scroll me-auto">
+  <li class="nav-item">
+    <a class="nav-link" href="../../index.html"> 
+<span class="menu-text">Home</span></a>
+  </li>  
+  <li class="nav-item">
+    <a class="nav-link" href="../../post/index.html"> 
+<span class="menu-text">Blog posts</span></a>
+  </li>  
+  <li class="nav-item">
+    <a class="nav-link" href="../../publication/index.html"> 
+<span class="menu-text">Publications</span></a>
+  </li>  
+  <li class="nav-item">
+    <a class="nav-link" href="../../talk/index.html"> 
+<span class="menu-text">Talks</span></a>
+  </li>  
+</ul>
+          </div> <!-- /navcollapse -->
+          <div class="quarto-navbar-tools">
+</div>
+      </div> <!-- /container-fluid -->
+    </nav>
+</header>
+<!-- content -->
+<div id="quarto-content" class="quarto-container page-columns page-rows-contents page-layout-article page-navbar">
+<!-- sidebar -->
+<!-- margin-sidebar -->
+    <div id="quarto-margin-sidebar" class="sidebar margin-sidebar">
+        <nav id="TOC" role="doc-toc" class="toc-active">
+    <h2 id="toc-title">On this page</h2>
+   
+  <ul>
+  <li><a href="#throwing-away-useful-information" id="toc-throwing-away-useful-information" class="nav-link active" data-scroll-target="#throwing-away-useful-information">1. Throwing away useful information</a></li>
+  <li><a href="#ignoring-trends" id="toc-ignoring-trends" class="nav-link" data-scroll-target="#ignoring-trends">2. Ignoring trends</a></li>
+  <li><a href="#months-are-a-terrible-unit-of-analysis" id="toc-months-are-a-terrible-unit-of-analysis" class="nav-link" data-scroll-target="#months-are-a-terrible-unit-of-analysis">3. Months are a terrible unit of analysis</a></li>
+  <li><a href="#seasons-matter" id="toc-seasons-matter" class="nav-link" data-scroll-target="#seasons-matter">4. Seasons matter</a></li>
+  <li><a href="#crime-data-are-noisy" id="toc-crime-data-are-noisy" class="nav-link" data-scroll-target="#crime-data-are-noisy">5. Crime data are noisy</a></li>
+  <li><a href="#what-to-do-instead" id="toc-what-to-do-instead" class="nav-link" data-scroll-target="#what-to-do-instead">What to do instead</a></li>
+  </ul>
+</nav>
+    </div>
+<!-- main -->
+<main class="content" id="quarto-document-content">
+
+<header id="title-block-header" class="quarto-title-block default">
+<div class="quarto-title">
+<h1 class="title">Why you can’t identify changes in crime by comparing this month to last month</h1>
+</div>
+
+
+
+<div class="quarto-title-meta">
+
+    <div>
+    <div class="quarto-title-meta-heading">Author</div>
+    <div class="quarto-title-meta-contents">
+             <p>Matt Ashby </p>
+          </div>
+  </div>
+    
+    <div>
+    <div class="quarto-title-meta-heading">Published</div>
+    <div class="quarto-title-meta-contents">
+      <p class="date">13 May 2020</p>
+    </div>
+  </div>
+  
+    
+  </div>
+  
+
+
+</header>
+
+
+<p><em>This post first appeared on the <a href="https://the-sra.org.uk/SRA/Blog/whyyoucantidentifychangesincrimebycomparingthismonthtolastmonth.aspx" title="Version of this post on the SRA Blog">Social Research Association blog</a>.</em></p>
+<p>Understanding if some event is associated with a change in the frequency of crime is a common question, both in practice and in research. A crime analyst might need to understand the impact of a change in tactics, a local journalist might want to check the truth of the mayor’s claims that her policies are working, while an academic might seek to find patterns associated with trends in socio-economic changes.</p>
+<p>Often, attempts to identify changes in crime frequency involve simply comparing the number of crimes this week/month/year to the number that occurred last week/month/year, or comparing this week, month etc to the same period last year. In recent weeks, we’ve seen these comparisons made to attempt to answer the topical question of how the COVID-19 pandemic is influencing crime. For example, police in San Jose told local news that <a href="https://sanjosespotlight.com/san-jose-police-chief-talks-crime-trends-during-covid-19-shutdown/" title="San Jose Police Chief talks crime trends during COVID-19 shutdown">violent crime had dropped 22% in the month to 18 April 2020 compared to the same period in 2019</a>, while radio station WBUR reported that the <a href="https://www.wbur.org/news/2020/04/17/boston-coronavirus-covid-19-crime-rate" title="'This Is Too Much': Crime Continues Despite Pandemic">frequency of shootings in Boston was broadly similar in March 2020 in comparison to the previous March</a>. In Scotland, police reported <a href="https://www.sundaypost.com/fp/violent-crime-falls-in-lockdown-but-police-reveal-fraud-is-up-as-crooks-exploit-coronavirus-crisis/" title="Violent crime falls in lockdown but police reveal fraud is up as crooks exploit coronavirus crisis">overall violence fell in April 2020 compared to the year before, but fraud increased</a>.</p>
+<p>Binary comparisons of one period to another are common, but can be seriously misleading. I’m going to outline five reasons why you should avoid binary comparisons, then suggest some alternative methods that can produce more-reliable results. All the examples in this article use <a href="https://www.atlantapd.org/i-want-to/crime-data-downloads">open data from the Atlanta Police Department</a>.</p>
+<section id="throwing-away-useful-information" class="level1">
+<h1>1. Throwing away useful information</h1>
+<p>The first problem with binary comparisons is that they typically ignore a great deal of other information about crime frequency. Take this chart of how the number of homicides in Atlanta changed from 2016 to 2017:</p>
+<div class="cell" data-layout-align="center">
+<div class="cell-output cell-output-stderr">
+<pre><code>Warning: Using `size` aesthetic for lines was deprecated in ggplot2 3.4.0.
+ℹ Please use `linewidth` instead.</code></pre>
+</div>
+<div class="cell-output-display">
+<div class="quarto-figure quarto-figure-center">
+<figure class="figure">
+<p><img src="index_files/figure-html/unnamed-chunk-1-1.png" class="img-fluid quarto-figure quarto-figure-center figure-img" width="576"></p>
+</figure>
+</div>
+</div>
+</div>
+<p>At first glance, the decrease of 25% in homicides between 2016 and 2017 looks impressive. Whatever the police, mayor, church group, etc is doing to reduce homicide must be very successful, right? But put in the context of previous years, the picture looks quite different:</p>
+<div class="cell" data-layout-align="center">
+<div class="cell-output-display">
+<div class="quarto-figure quarto-figure-center">
+<figure class="figure">
+<p><img src="index_files/figure-html/unnamed-chunk-3-1.png" class="img-fluid quarto-figure quarto-figure-center figure-img" width="576"></p>
+</figure>
+</div>
+</div>
+</div>
+<p>By including all the available data on homicide frequency between 2010 and 2018, we can now see that actually the decrease from 2016 to 2017 was a return to the expected number of homicides after an exceptionally violent year (the 86 homicides in 2017 is almost identical to the median of 87 homicides per year between 2010 and 2018). Maybe whatever the police, mayor etc were doing in 2017 didn’t have the effect we first thought – our impressive-looking decrease might simply be <a href="https://doi.org/10.1093/ije/dyh299" title="Regression to the mean: what it is and how to deal with it">regression to the mean</a>. The 25% drop is probably real (although it’s always worth checking for changes in recording methods), but making a binary comparison threw out useful information that might have completely changed our conclusions about why it happened.</p>
+<p>Whenever you see a binary comparison, try asking yourself ‘yes, but what happened the year before?’ The 25% decrease in homicide between 2016 in 2017 could easily have been announced as a great success, but that year-on-year decrease could be part of any of these very-different scenarios – without more information, it’s impossible to know which is true.</p>
+<div class="cell" data-layout-align="center">
+<div class="cell-output-display">
+<div class="quarto-figure quarto-figure-center">
+<figure class="figure">
+<p><img src="index_files/figure-html/unnamed-chunk-4-1.png" class="img-fluid quarto-figure quarto-figure-center figure-img" width="672"></p>
+</figure>
+</div>
+</div>
+</div>
+</section>
+<section id="ignoring-trends" class="level1">
+<h1>2. Ignoring trends</h1>
+<p>Another reason binary comparisons can be misleading is that they ignore any long-term trend in the data. For example, we can see that the general trend in Atlanta over the past decade has been for the number of burglaries to decrease (although there is also seasonal variation, which we’ll get back to):</p>
+<div class="cell" data-layout-align="center">
+<div class="cell-output cell-output-stderr">
+<pre><code>Warning: There were 2 warnings in `filter()`.
+The first warning was:
+ℹ In argument: `offense_month &gt;= yearmonth(ymd("2010-01-01"))`.
+Caused by warning:
+! Incompatible methods ("&gt;=.Date", "&gt;=.vctrs_vctr") for "&gt;="
+ℹ Run `dplyr::last_dplyr_warnings()` to see the 1 remaining warning.</code></pre>
+</div>
+<div class="cell-output-display">
+<div class="quarto-figure quarto-figure-center">
+<figure class="figure">
+<p><img src="index_files/figure-html/unnamed-chunk-5-1.png" class="img-fluid quarto-figure quarto-figure-center figure-img" width="576"></p>
+</figure>
+</div>
+</div>
+</div>
+<p>A researcher might attempt to understand the effect of some change or intervention (maybe a new anti-burglary initiative) by comparing the number of burglaries in a given month this year to the same month last year. This is very common, for example, in <a href="https://nymag.com/intelligencer/2018/03/the-crime-fighting-program-that-changed-new-york-forever.html" title="New York magazine: The Controversial Crime-Fighting Program That Changed Big-City Policing Forever">CompStat-style processes used to measure police performance</a>. For example, <a href="https://www1.nyc.gov/site/nypd/stats/crime-statistics/citywide-crime-stats.page" title="NYPD: Citywide Crime Statistics">New York City’s weekly CompStat report</a> includes a comparison of crime frequency over the past 28 days with the same 28 days last year.</p>
+<p>By ignoring pre-existing trends in crime, year-on-year comparisons such as this are very likely to produce misleading results. Over the period 2010–19, the average monthly year-on-year reduction in burglary in Atlanta was about 13%. A researcher doing a simple year-on-year comparison could easily conclude an anti-burglary intervention had been effective when it had actually made no difference at all. If the long-term trend had instead been for burglary to increase, a year-on-year comparison could easily have led to the (equally wrong) conclusion that a new program was making the problem worse.</p>
+</section>
+<section id="months-are-a-terrible-unit-of-analysis" class="level1">
+<h1>3. Months are a terrible unit of analysis</h1>
+<p>Months are a very common unit of analysis for measuring crime. For example, almost all the academic research on how much crime varies across seasons uses monthly crime counts. But months are a terrible unit of analysis for temporal data. The most obvious reason for this is that not all months are the same length. A <a href="https://edition.cnn.com/2020/04/04/us/domestic-violence-coronavirus-calls-cases-increase-invs/" title="CNN: Some cities see jumps in domestic violence during the pandemic">recent CNN article on domestic violence during the coronavirus pandemic</a> noted:</p>
+<blockquote class="blockquote">
+<p>“[of] 20 large metropolitan police departments that provided data to CNN, nine saw double-digit percentage jumps in domestic violence cases or 911 calls in March, either compared to the previous year or to earlier months in 2020”</p>
+</blockquote>
+<p>but this ignores that March is 11% longer than February, so even if crime occurred at the same rate on every day in both months we’d expect a double-digit increase in crime in March (it also ignores that 11 departments did not see such an increase, but that’s a separate problem).</p>
+<p>The second problem with measuring the frequency of crime by month is that not all months have the same number of each weekday, and many types of crime vary by day of the week. For example, aggravated assaults in Atlanta are concentrated at weekends:</p>
+<div class="cell" data-layout-align="center">
+<div class="cell-output-display">
+<div class="quarto-figure quarto-figure-center">
+<figure class="figure">
+<p><img src="index_files/figure-html/unnamed-chunk-7-1.png" class="img-fluid quarto-figure quarto-figure-center figure-img" width="576"></p>
+</figure>
+</div>
+</div>
+</div>
+<p>The varying number of each weekday across months can easily generate changes in crime. October 2010 had 31 days, including five Saturdays and five Sundays, while November had 30 days including four Saturdays and four Sundays, which may go some way to explaining why aggravated assaults decreased by 15% from October to November that year.</p>
+<p>The only good reason to use months as units of analysis is if you only have access to monthly data (e.g.&nbsp;if you’re using published monthly administrative data). If you have access to incident-level data, it is much better to use a unit of analysis that doesn’t have these problems, such as weeks or 28-day periods.</p>
+</section>
+<section id="seasons-matter" class="level1">
+<h1>4. Seasons matter</h1>
+<p>Many social phenomena, crime included, are more common at some times of year than others. Sticking with aggravated assaults, we can see that they tend to be more common in the summer than the winter (although there is a lot of noise):</p>
+<div class="cell" data-layout-align="center">
+<div class="cell-output-display">
+<div class="quarto-figure quarto-figure-center">
+<figure class="figure">
+<p><img src="index_files/figure-html/unnamed-chunk-9-1.png" class="img-fluid quarto-figure quarto-figure-center figure-img" width="576"></p>
+</figure>
+</div>
+</div>
+</div>
+<p>Over the decade 2010–19, on average the frequency of aggravated assault increased slightly (by about 1.7% per month) in the first half of the year and decreased slightly (by about 4.2% per month) in the second. This means that if we were comparing assaults in March to assaults in February (even if we corrected for the number of days in each month, and the different number of weekdays), we’d expect assaults to increase even if nothing had changed except the seasons.</p>
+</section>
+<section id="crime-data-are-noisy" class="level1">
+<h1>5. Crime data are noisy</h1>
+<p>Perhaps the most-important reason why comparing one year/month/week/day to the next is that crime data are typically quite noisy. Looking at larceny from vehicles in Atlanta, we’d expect a week-to-week change of at least 10% about every other week, at least 17% about once a month and at least 35% about once a year:</p>
+<div class="cell" data-layout-align="center">
+<div class="cell-output-display">
+<div class="quarto-figure quarto-figure-center">
+<figure class="figure">
+<p><img src="index_files/figure-html/unnamed-chunk-12-1.png" class="img-fluid quarto-figure quarto-figure-center figure-img" width="576"></p>
+</figure>
+</div>
+</div>
+</div>
+<p>Noise is likely to be higher when analysing shorter time periods, smaller geographic areas or more-serious crimes, because in each case the number of crimes is likely to be lower. Most police crime analysts will have a story of a local commander who came to them in a panic about a 100% week-on-week increase in a particular crime type, only to be reminded that the number of crimes had simply increased from one to two. Analysing small areas, short time periods and serious crimes might well be important, but it requires dealing with a greater degree of noise in the data.</p>
+</section>
+<section id="what-to-do-instead" class="level1">
+<h1>What to do instead</h1>
+<p>Knowing the limitations of binary comparisons, some of the reported changes in crime during the coronavirus lockdown seem unremarkable. For example, the <a href="https://time.com/5819507/crime-drop-coronavirus/" title="Time: Crime Rates Plummet Around the World as the Coronavirus Keeps People Inside">10% year-on-year drop in crime in Chicago reported by <em>Time</em></a> and the <a href="http://www.washingtonpost.com/world/national-security/coronavirus-new-york-city-crime/2020/03/26/6a408e94-6f9a-11ea-a3ec-70d7479d83f0_story.html" title="The Washington Post: NYPD data shows sharp decline in crime rates">18% week-on-week decrease in burglaries and assaults in New York City reported by <em>The Washington Post</em></a> both seem like they could be entirely unrelated to the virus. There are plenty of theoretical reasons for thinking crime will change during the pandemic, but identifying changes reliably means using all the available information and taking into account trends, seasonality and noise.</p>
+<p>There are several options for robustly identifying changes in crime associated with particular events or interventions. In some circumstances, you can run a randomised controlled trial, with people or places being allocated at random to either receive the intervention (be it an anti-violence initiative or new door locks) or not. Intervention areas can then be compared to non-intervention areas with a high degree of confidence that any systematic difference (other than the intervention) has been eliminated. Randomised trials have been used extensively in some areas, such as <a href="https://www.jratcliffe.net/philadelphia-foot-patrol-experiment" title="Jerry Ratcliffe: The Philadelphia Foot Patrol Experiment">understanding the effectiveness of hotspot policing</a>. However, randomised trials can only be run where you can choose where to target the intervention – you can’t randomise which cities are most affected by a global pandemic.</p>
+<p>When a randomised trial is impossible, you can use quasi-experimental approaches, such as <a href="https://towardsdatascience.com/causal-inference-using-difference-in-differences-causal-impact-and-synthetic-control-f8639c408268">difference-in-difference</a> or <a href="https://conjointly.com/kb/regression-discontinuity-design/">regression discontinuity designs</a>. These approaches involve comparing the people/places/groups that experienced a particular change to people/places/groups that didn’t experience the change but are otherwise similar to those people/places/groups that did.</p>
+<p>Quasi-experimental designs rely on the availability of a comparison group. If this is impossible, as in the case of trying to analyse the effect of a global phenomenon, alternative approaches are needed. <a href="https://doi.org/10.1136/bmj.h2750" title="British Medical Journal: Regression based quasi-experimental approach when randomisation is not an option: interrupted time series analysis">Interrupted time-series designs</a> use earlier data (from before whatever you’re interested in happened) as a comparison, but are only useful for measuring the impact of sudden changes.</p>
+<p>One approach I used recently to understand <a href="https://doi.org/10.31235/osf.io/ep87s" title="Initial evidence on the relationship between the coronavirus pandemic and crime in the United States">how crime changed in large US cities in the early months of the COVID-19 pandemic</a> was to create a synthetic comparison group by using previous crime data to build a model that forecast how much crime would have occurred in the absence of the pandemic. The <a href="https://github.com/mpjashby/covid19-crime/" title="Initial evidence on COVID-19 and crime in the United States">code to replicate that analysis is available online</a>.</p>
+<p>Some of these methods might be beyond the capabilities of some people who need to work out if some event was associated with a change in crime. The increasing number of <a href="https://doi.org/10.1093/police/paw029" title="Unearthing Hidden Keys: Why Pracademics Are an Invaluable (If Underutilized) Resource in Policing Research">pracademics</a> working in (for example) police forces means more agencies have the capability to carry out this sort of analysis. Many universities are also happy to partner with agencies for this type of work.</p>
+<p>Binary comparisons are easy to make, but there is little point if the results might be misleading. The extra work to produce reliable results is almost invariably worth it to avoid being misled, especially when those results are going to be used to make important decisions. Use the links here to identify a method that is going to work for your circumstances, or look for more detail in a textbook such as the free <a href="https://www.scunning.com/causalinference_norap.pdf"><em>Causal Inference: the mixtape</em></a> by <a href="https://www.scunning.com/" title="Scott Cunningham's website">Scott Cunningham</a>. If you have any questions, feel free to ask me <a href="https://twitter.com/LessCrime">on Twitter</a> or contact me via <a href="http://lesscrime.info/">my website</a>.</p>
+<p><em>The <a href="https://github.com/mpjashby/lesscrime.info/blob/master/content/post/tracking-crime-changes.Rmd">annotated R code to reproduce these charts and figures</a> is available on GitHub.</em></p>
+<style>
+img[style*="margin: auto"] {
+  padding-top: 3em;
+  padding-bottom: 3em;
+}
+</style>
+
+
+</section>
+
+</main> <!-- /main -->
+<script id="quarto-html-after-body" type="application/javascript">
+window.document.addEventListener("DOMContentLoaded", function (event) {
+  const toggleBodyColorMode = (bsSheetEl) => {
+    const mode = bsSheetEl.getAttribute("data-mode");
+    const bodyEl = window.document.querySelector("body");
+    if (mode === "dark") {
+      bodyEl.classList.add("quarto-dark");
+      bodyEl.classList.remove("quarto-light");
+    } else {
+      bodyEl.classList.add("quarto-light");
+      bodyEl.classList.remove("quarto-dark");
+    }
+  }
+  const toggleBodyColorPrimary = () => {
+    const bsSheetEl = window.document.querySelector("link#quarto-bootstrap");
+    if (bsSheetEl) {
+      toggleBodyColorMode(bsSheetEl);
+    }
+  }
+  toggleBodyColorPrimary();  
+  const icon = "";
+  const anchorJS = new window.AnchorJS();
+  anchorJS.options = {
+    placement: 'right',
+    icon: icon
+  };
+  anchorJS.add('.anchored');
+  const isCodeAnnotation = (el) => {
+    for (const clz of el.classList) {
+      if (clz.startsWith('code-annotation-')) {                     
+        return true;
+      }
+    }
+    return false;
+  }
+  const clipboard = new window.ClipboardJS('.code-copy-button', {
+    text: function(trigger) {
+      const codeEl = trigger.previousElementSibling.cloneNode(true);
+      for (const childEl of codeEl.children) {
+        if (isCodeAnnotation(childEl)) {
+          childEl.remove();
+        }
+      }
+      return codeEl.innerText;
+    }
+  });
+  clipboard.on('success', function(e) {
+    // button target
+    const button = e.trigger;
+    // don't keep focus
+    button.blur();
+    // flash "checked"
+    button.classList.add('code-copy-button-checked');
+    var currentTitle = button.getAttribute("title");
+    button.setAttribute("title", "Copied!");
+    let tooltip;
+    if (window.bootstrap) {
+      button.setAttribute("data-bs-toggle", "tooltip");
+      button.setAttribute("data-bs-placement", "left");
+      button.setAttribute("data-bs-title", "Copied!");
+      tooltip = new bootstrap.Tooltip(button, 
+        { trigger: "manual", 
+          customClass: "code-copy-button-tooltip",
+          offset: [0, -8]});
+      tooltip.show();    
+    }
+    setTimeout(function() {
+      if (tooltip) {
+        tooltip.hide();
+        button.removeAttribute("data-bs-title");
+        button.removeAttribute("data-bs-toggle");
+        button.removeAttribute("data-bs-placement");
+      }
+      button.setAttribute("title", currentTitle);
+      button.classList.remove('code-copy-button-checked');
+    }, 1000);
+    // clear code selection
+    e.clearSelection();
+  });
+    var localhostRegex = new RegExp(/^(?:http|https):\/\/localhost\:?[0-9]*\//);
+    var mailtoRegex = new RegExp(/^mailto:/);
+      var filterRegex = new RegExp('/' + window.location.host + '/');
+    var isInternal = (href) => {
+        return filterRegex.test(href) || localhostRegex.test(href) || mailtoRegex.test(href);
+    }
+    // Inspect non-navigation links and adorn them if external
+ 	var links = window.document.querySelectorAll('a[href]:not(.nav-link):not(.navbar-brand):not(.toc-action):not(.sidebar-link):not(.sidebar-item-toggle):not(.pagination-link):not(.no-external):not([aria-hidden]):not(.dropdown-item):not(.quarto-navigation-tool)');
+    for (var i=0; i<links.length; i++) {
+      const link = links[i];
+      if (!isInternal(link.href)) {
+        // undo the damage that might have been done by quarto-nav.js in the case of
+        // links that we want to consider external
+        if (link.dataset.originalHref !== undefined) {
+          link.href = link.dataset.originalHref;
+        }
+      }
+    }
+  function tippyHover(el, contentFn, onTriggerFn, onUntriggerFn) {
+    const config = {
+      allowHTML: true,
+      maxWidth: 500,
+      delay: 100,
+      arrow: false,
+      appendTo: function(el) {
+          return el.parentElement;
+      },
+      interactive: true,
+      interactiveBorder: 10,
+      theme: 'quarto',
+      placement: 'bottom-start',
+    };
+    if (contentFn) {
+      config.content = contentFn;
+    }
+    if (onTriggerFn) {
+      config.onTrigger = onTriggerFn;
+    }
+    if (onUntriggerFn) {
+      config.onUntrigger = onUntriggerFn;
+    }
+    window.tippy(el, config); 
+  }
+  const noterefs = window.document.querySelectorAll('a[role="doc-noteref"]');
+  for (var i=0; i<noterefs.length; i++) {
+    const ref = noterefs[i];
+    tippyHover(ref, function() {
+      // use id or data attribute instead here
+      let href = ref.getAttribute('data-footnote-href') || ref.getAttribute('href');
+      try { href = new URL(href).hash; } catch {}
+      const id = href.replace(/^#\/?/, "");
+      const note = window.document.getElementById(id);
+      if (note) {
+        return note.innerHTML;
+      } else {
+        return "";
+      }
+    });
+  }
+  const xrefs = window.document.querySelectorAll('a.quarto-xref');
+  const processXRef = (id, note) => {
+    // Strip column container classes
+    const stripColumnClz = (el) => {
+      el.classList.remove("page-full", "page-columns");
+      if (el.children) {
+        for (const child of el.children) {
+          stripColumnClz(child);
+        }
+      }
+    }
+    stripColumnClz(note)
+    if (id === null || id.startsWith('sec-')) {
+      // Special case sections, only their first couple elements
+      const container = document.createElement("div");
+      if (note.children && note.children.length > 2) {
+        container.appendChild(note.children[0].cloneNode(true));
+        for (let i = 1; i < note.children.length; i++) {
+          const child = note.children[i];
+          if (child.tagName === "P" && child.innerText === "") {
+            continue;
+          } else {
+            container.appendChild(child.cloneNode(true));
+            break;
+          }
+        }
+        if (window.Quarto?.typesetMath) {
+          window.Quarto.typesetMath(container);
+        }
+        return container.innerHTML
+      } else {
+        if (window.Quarto?.typesetMath) {
+          window.Quarto.typesetMath(note);
+        }
+        return note.innerHTML;
+      }
+    } else {
+      // Remove any anchor links if they are present
+      const anchorLink = note.querySelector('a.anchorjs-link');
+      if (anchorLink) {
+        anchorLink.remove();
+      }
+      if (window.Quarto?.typesetMath) {
+        window.Quarto.typesetMath(note);
+      }
+      // TODO in 1.5, we should make sure this works without a callout special case
+      if (note.classList.contains("callout")) {
+        return note.outerHTML;
+      } else {
+        return note.innerHTML;
+      }
+    }
+  }
+  for (var i=0; i<xrefs.length; i++) {
+    const xref = xrefs[i];
+    tippyHover(xref, undefined, function(instance) {
+      instance.disable();
+      let url = xref.getAttribute('href');
+      let hash = undefined; 
+      if (url.startsWith('#')) {
+        hash = url;
+      } else {
+        try { hash = new URL(url).hash; } catch {}
+      }
+      if (hash) {
+        const id = hash.replace(/^#\/?/, "");
+        const note = window.document.getElementById(id);
+        if (note !== null) {
+          try {
+            const html = processXRef(id, note.cloneNode(true));
+            instance.setContent(html);
+          } finally {
+            instance.enable();
+            instance.show();
+          }
+        } else {
+          // See if we can fetch this
+          fetch(url.split('#')[0])
+          .then(res => res.text())
+          .then(html => {
+            const parser = new DOMParser();
+            const htmlDoc = parser.parseFromString(html, "text/html");
+            const note = htmlDoc.getElementById(id);
+            if (note !== null) {
+              const html = processXRef(id, note);
+              instance.setContent(html);
+            } 
+          }).finally(() => {
+            instance.enable();
+            instance.show();
+          });
+        }
+      } else {
+        // See if we can fetch a full url (with no hash to target)
+        // This is a special case and we should probably do some content thinning / targeting
+        fetch(url)
+        .then(res => res.text())
+        .then(html => {
+          const parser = new DOMParser();
+          const htmlDoc = parser.parseFromString(html, "text/html");
+          const note = htmlDoc.querySelector('main.content');
+          if (note !== null) {
+            // This should only happen for chapter cross references
+            // (since there is no id in the URL)
+            // remove the first header
+            if (note.children.length > 0 && note.children[0].tagName === "HEADER") {
+              note.children[0].remove();
+            }
+            const html = processXRef(null, note);
+            instance.setContent(html);
+          } 
+        }).finally(() => {
+          instance.enable();
+          instance.show();
+        });
+      }
+    }, function(instance) {
+    });
+  }
+      let selectedAnnoteEl;
+      const selectorForAnnotation = ( cell, annotation) => {
+        let cellAttr = 'data-code-cell="' + cell + '"';
+        let lineAttr = 'data-code-annotation="' +  annotation + '"';
+        const selector = 'span[' + cellAttr + '][' + lineAttr + ']';
+        return selector;
+      }
+      const selectCodeLines = (annoteEl) => {
+        const doc = window.document;
+        const targetCell = annoteEl.getAttribute("data-target-cell");
+        const targetAnnotation = annoteEl.getAttribute("data-target-annotation");
+        const annoteSpan = window.document.querySelector(selectorForAnnotation(targetCell, targetAnnotation));
+        const lines = annoteSpan.getAttribute("data-code-lines").split(",");
+        const lineIds = lines.map((line) => {
+          return targetCell + "-" + line;
+        })
+        let top = null;
+        let height = null;
+        let parent = null;
+        if (lineIds.length > 0) {
+            //compute the position of the single el (top and bottom and make a div)
+            const el = window.document.getElementById(lineIds[0]);
+            top = el.offsetTop;
+            height = el.offsetHeight;
+            parent = el.parentElement.parentElement;
+          if (lineIds.length > 1) {
+            const lastEl = window.document.getElementById(lineIds[lineIds.length - 1]);
+            const bottom = lastEl.offsetTop + lastEl.offsetHeight;
+            height = bottom - top;
+          }
+          if (top !== null && height !== null && parent !== null) {
+            // cook up a div (if necessary) and position it 
+            let div = window.document.getElementById("code-annotation-line-highlight");
+            if (div === null) {
+              div = window.document.createElement("div");
+              div.setAttribute("id", "code-annotation-line-highlight");
+              div.style.position = 'absolute';
+              parent.appendChild(div);
+            }
+            div.style.top = top - 2 + "px";
+            div.style.height = height + 4 + "px";
+            div.style.left = 0;
+            let gutterDiv = window.document.getElementById("code-annotation-line-highlight-gutter");
+            if (gutterDiv === null) {
+              gutterDiv = window.document.createElement("div");
+              gutterDiv.setAttribute("id", "code-annotation-line-highlight-gutter");
+              gutterDiv.style.position = 'absolute';
+              const codeCell = window.document.getElementById(targetCell);
+              const gutter = codeCell.querySelector('.code-annotation-gutter');
+              gutter.appendChild(gutterDiv);
+            }
+            gutterDiv.style.top = top - 2 + "px";
+            gutterDiv.style.height = height + 4 + "px";
+          }
+          selectedAnnoteEl = annoteEl;
+        }
+      };
+      const unselectCodeLines = () => {
+        const elementsIds = ["code-annotation-line-highlight", "code-annotation-line-highlight-gutter"];
+        elementsIds.forEach((elId) => {
+          const div = window.document.getElementById(elId);
+          if (div) {
+            div.remove();
+          }
+        });
+        selectedAnnoteEl = undefined;
+      };
+        // Handle positioning of the toggle
+    window.addEventListener(
+      "resize",
+      throttle(() => {
+        elRect = undefined;
+        if (selectedAnnoteEl) {
+          selectCodeLines(selectedAnnoteEl);
+        }
+      }, 10)
+    );
+    function throttle(fn, ms) {
+    let throttle = false;
+    let timer;
+      return (...args) => {
+        if(!throttle) { // first call gets through
+            fn.apply(this, args);
+            throttle = true;
+        } else { // all the others get throttled
+            if(timer) clearTimeout(timer); // cancel #2
+            timer = setTimeout(() => {
+              fn.apply(this, args);
+              timer = throttle = false;
+            }, ms);
+        }
+      };
+    }
+      // Attach click handler to the DT
+      const annoteDls = window.document.querySelectorAll('dt[data-target-cell]');
+      for (const annoteDlNode of annoteDls) {
+        annoteDlNode.addEventListener('click', (event) => {
+          const clickedEl = event.target;
+          if (clickedEl !== selectedAnnoteEl) {
+            unselectCodeLines();
+            const activeEl = window.document.querySelector('dt[data-target-cell].code-annotation-active');
+            if (activeEl) {
+              activeEl.classList.remove('code-annotation-active');
+            }
+            selectCodeLines(clickedEl);
+            clickedEl.classList.add('code-annotation-active');
+          } else {
+            // Unselect the line
+            unselectCodeLines();
+            clickedEl.classList.remove('code-annotation-active');
+          }
+        });
+      }
+  const findCites = (el) => {
+    const parentEl = el.parentElement;
+    if (parentEl) {
+      const cites = parentEl.dataset.cites;
+      if (cites) {
+        return {
+          el,
+          cites: cites.split(' ')
+        };
+      } else {
+        return findCites(el.parentElement)
+      }
+    } else {
+      return undefined;
+    }
+  };
+  var bibliorefs = window.document.querySelectorAll('a[role="doc-biblioref"]');
+  for (var i=0; i<bibliorefs.length; i++) {
+    const ref = bibliorefs[i];
+    const citeInfo = findCites(ref);
+    if (citeInfo) {
+      tippyHover(citeInfo.el, function() {
+        var popup = window.document.createElement('div');
+        citeInfo.cites.forEach(function(cite) {
+          var citeDiv = window.document.createElement('div');
+          citeDiv.classList.add('hanging-indent');
+          citeDiv.classList.add('csl-entry');
+          var biblioDiv = window.document.getElementById('ref-' + cite);
+          if (biblioDiv) {
+            citeDiv.innerHTML = biblioDiv.innerHTML;
+          }
+          popup.appendChild(citeDiv);
+        });
+        return popup.innerHTML;
+      });
+    }
+  }
+});
+</script>
+</div> <!-- /content -->
+<footer class="footer">
+  <div class="nav-footer">
+    <div class="nav-footer-left">
+      &nbsp;
+    </div>   
+    <div class="nav-footer-center">
+<p>The content on this website is licensed under a <a href="https://creativecommons.org/licenses/by/4.0/">Creative Commons Attribution Licence</a></p>
+</div>
+    <div class="nav-footer-right">
+      &nbsp;
+    </div>
+  </div>
+</footer>
+
+
+
+
+</body></html>

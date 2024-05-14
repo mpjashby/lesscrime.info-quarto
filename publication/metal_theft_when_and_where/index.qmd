@@ -1,0 +1,11 @@
+---
+title: "The when and where of an emerging crime type: the example of metal theft from the railway network of Great Britain"
+date: "2014-11-01"
+---
+
+Citation: M Ashby, K Bowers, H Borrion, T Fujiyama. 2014. The when and where of an emerging crime type: the example of metal theft from the railway network of Great Britain. _Security Journal_ 30:1--12.
+
+[Published version (open access)](https://doi.org/10.1057/sj.2014.43){.btn .btn-primary}
+
+Metal theft has become an increasingly common crime in recent years, but lack of data has limited research into it. The present study used police-recorded crime data to study the spatial and temporal concentration of metal theft from the railway network of Great Britain. Metal theft was found to exhibit only weak seasonality, to be concentrated at night and to cluster in a few locations close to – but not in – major cities. Repeat-victimisation risk continued for longer than has been found for other crime types. These and other features appear to point to metal theft being a planned, rather than opportunistic, offence and to the role of scrap-metal dealers as facilitators.
+

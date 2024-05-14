@@ -1,0 +1,10 @@
+---
+title: "Concentrations of railway metal theft and the locations of scrap-metal dealers"
+date: "2015-09-30"
+---
+
+M Ashby, K Bowers. 2015. Concentrations of railway metal theft and the locations of scrap-metal dealers. _Applied Geography_ 63:283--291.
+
+[Published version (open access)](https://doi.org/10.1016/j.apgeog.2015.07.005){.btn .btn-primary}
+
+Metal theft has become a substantial crime problem in many areas. In response, several countries have introduced legislation to regulate scrap-metal recycling yards. However, at present there is little evidence to support this use of the market reduction approach (MRA) in preventing metal theft. The present study sought to test the underlying assumption of the MRA that the presence of a market for stolen property (in this case provided by scrap yards) drives thefts in a local area. This study tested for a spatial association between the locations of scrap yards and those of metal thefts. The density of industry, local burglary rate and road-accessibility of an area were controlled for. Metal thefts from railway lines in England were shown to be significantly more common in areas with more scrap-metal yards, high road accessibility and high population density. The results support the use of the MRA in relation to metal theft.

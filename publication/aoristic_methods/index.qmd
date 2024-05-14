@@ -1,0 +1,8 @@
+---
+title: "A comparison of methods for temporal analysis of aoristic crime"
+date: "2013-05-23"
+---
+
+Citation: M Ashby, K Bowers. 2013. A comparison of methods for temporal analysis of aoristic crime. _Crime Science_.
+
+[Published version (open access)](http://doi.org/10.1186/2193-7680-2-1){.btn .btn-primary}

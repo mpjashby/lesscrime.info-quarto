@@ -1,0 +1,17 @@
+eurostat
+ggplot2
+ggrepel
+ggtext
+rnaturalearth
+sf
+httr
+janitor
+tidyverse
+tibble
+tidyr
+readr
+purrr
+dplyr
+stringr
+forcats
+lubridate

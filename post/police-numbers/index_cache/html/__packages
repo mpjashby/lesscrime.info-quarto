@@ -1,0 +1,15 @@
+ggplot2
+ggrepel
+lubridate
+reticulate
+ggtext
+httr
+janitor
+tidyverse
+tibble
+tidyr
+readr
+purrr
+dplyr
+stringr
+forcats

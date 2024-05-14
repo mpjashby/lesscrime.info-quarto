@@ -1,0 +1,10 @@
+---
+title: "Concentrations of harm: Geographic and demographic patterning in human trafficking and related victimisation"
+date: "2024-04-16"
+---
+
+Citation: E Cockbain, M Ashby, K Bowers, S Zhang. 2024. Concentrations of harm: Geographic and demographic patterning in human trafficking and related victimisation. _Criminology and Criminal Justice_.
+
+[Published version (open access)](https://doi.org/10.1177/17488958241245311){.btn .btn-primary}
+
+Human trafficking and ‘modern slavery’ cover a wide, varied and poorly delineated range of exploitative practices. Yet, conflating different issues risks obscuring important variation. The geographies of trafficking are surprisingly under-researched, particularly quantitatively. Informed by opportunity theories, we examined geospatial and demographic concentrations in trafficking and related exploitation formally identified in the United Kingdom (UK) over the decade 2009–2019. Taking an exploratory approach, we analysed individual-level data for 26,503 people officially identified as suspected or confirmed victims. Our results reveal a highly complex landscape that likely reflects multiple and intersecting contributing factors, including both systemic drivers and more immediate opportunity structures. Alongside considerable variation overall, we found heavy geographic and demographic concentrations – and notable interactions between variables. Our study emphasises the importance of disaggregation for analysis and responses and underlines the complex systems involved. Limitations notwithstanding, this novel analysis shows the value of large-scale, context-sensitive research into the geographies of trafficking.

@@ -1,0 +1,13 @@
+---
+title: "Stop and Search in London: April 2021 to March 2022"
+date: "2022-06-01"
+---
+
+Citation: M Ashby. 2022. _Stop and Search in London: April 2021 to March 2022_. London: Centre for Global City Policing. 
+
+[Published version (open access)](/files/stop-and-search-london-2022-q1.pdf){.btn .btn-primary}
+[Materials](https://github.com/mpjashby/stop-search-london/){.btn .btn-primary}
+
+*Stop and Search in London* reports summarise how police in London are using their stop-and-search powers. An updated report is issued every three months. 
+
+Police in London stopped and searched 215,423 people and vehicles in the 12 months from April 2021 to March 2022. The number of searches has generally decreased over the past year. 65% of searches in that period were for drugs, with 73% of all searches resulting in no further action. Searches are heavily concentrated in some areas – half of all searches occurred in 9% of neighbourhoods.

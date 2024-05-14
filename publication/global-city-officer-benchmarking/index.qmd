@@ -1,0 +1,10 @@
+---
+title: "Benchmarking police numbers in London against other global cities"
+date: "2023-03-15"
+---
+
+Citation: M Ashby. 2023. _Benchmarking police numbers in London against other global cities_. London: Centre for Global City Policing.
+
+[Published version (open access)](https://discovery.ucl.ac.uk/id/eprint/10183480/){.btn .btn-primary}
+
+This report compares the number of police officers and staff per 10,000 residents in London to the number of officers and staff in 13 other global cities – large cities in developed countries around the world – to better understand the resources available to police in London.

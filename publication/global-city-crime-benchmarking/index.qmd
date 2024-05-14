@@ -1,0 +1,11 @@
+---
+title: "Benchmarking crime in London against other global cities"
+date: "2022-12-20"
+---
+
+Citation: M Ashby, M Bal, G Croci, A Fuller, N Mantl, Y Lee. 2022. _Benchmarking crime in London against other global cities_. London: Centre for Global City Policing.
+
+[Published version (open access)](https://discovery.ucl.ac.uk/id/eprint/10183479/){.btn .btn-primary}
+
+This report compares serious crime recorded by police in London to serious crime in 19 other global cities – large cities in developed countries around the world – to better understand changing patterns of serious crime.
+
