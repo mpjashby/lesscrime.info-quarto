@@ -1,0 +1,20 @@
+# History files
+.Rproj.user
+.Rhistory
+
+# Session Data files
+.RData
+.Ruserdata
+
+# knitr and R markdown default cache directories
+/*_cache/
+/cache/
+*/index_cache/*
+
+# Temporary files created by R markdown
+*.utf8.md
+*.knit.md
+
+# Raw data files
+*-raw.csv
+*-raw-data.csv
