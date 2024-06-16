@@ -1,0 +1,12 @@
+---
+title: "Benchmarking crime data for global cities"
+date: '2024-06-17'
+---
+
+Presentation at the Environmental Criminology and Crime Analysis symposium in Yerevan, Armenia, outlining the technical challenges of comparing crime data across global cities.
+
+[**Presentation slides** (HTML)](/slides/ecca-2024/)
+
+[**Report** with methods and results](https://discovery.ucl.ac.uk/id/eprint/10183479/)
+
+[**Twitter threads** discussing methods](https://x.com/LessCrime/status/1777675075879051643) and [explaining results](https://x.com/LessCrime/status/1783822181077545367)

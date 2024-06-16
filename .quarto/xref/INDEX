@@ -358,5 +358,8 @@
   },
   "bio/index.md": {
     "index.html": "4a349d05"
+  },
+  "talk/ecca-2024/index.qmd": {
+    "index.html": "85dbd856"
   }
 }

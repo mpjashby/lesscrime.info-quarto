@@ -18,3 +18,5 @@
 # Raw data files
 *-raw.csv
 *-raw-data.csv
+
+/.quarto/
