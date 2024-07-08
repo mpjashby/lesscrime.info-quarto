@@ -477,7 +477,7 @@ if (!file.exists("perception.csv") | !file.exists("visibility.csv")) {
 
 
 
-Last week saw the end of 14 years of Conservative-led government in the UK. So how has policing changed in that time? These seven charts tell some of that story.
+Last week saw the end of 14 years of Conservative-led government in the UK. So how has policing changed in that time? These eight charts tell some of that story.
 
 
 
@@ -609,6 +609,8 @@ ggsave(
 )
 ```
 
+Source: [Institute for Government](https://www.instituteforgovernment.org.uk/publication/performance-tracker-2023/police).
+
 
 
 ```{r police workforce}
@@ -684,6 +686,10 @@ ggsave(
   bg = "white"
 )
 ```
+
+Source: [Home Office](https://www.gov.uk/government/statistics/police-workforce-england-and-wales-31-march-2023)
+
+
 
 ```{r police pay}
 #| fig-alt: "Three bar charts showing pay for police officers after initial training, after 5 years' service and after 10 years' service, for each year from 2010 to 2024. Taking inflation into account, pay for police officers at all levels of seniority has fallen substantially, with the lowest-paid officers (those who have just completed their initial training) having lost the most pay. A newly qualified police officer in 2024 earns about £8,800 less (at 2024 prices) than they would have done in 2010, while an officer with 5 years' experience earns about £5,400 less and an officer with 10 years' experience earns about £6,700 less."
@@ -784,6 +790,8 @@ ggsave(
 )
 ```
 
+Source: author tracking of police pay from each year's pay announcements.
+
 
 
 ```{r csew crime}
@@ -846,6 +854,8 @@ ggsave(
   bg = "white"
 )
 ```
+
+Source: https://www.ons.gov.uk/peoplepopulationandcommunity/crimeandjustice/datasets/crimeinenglandandwalesappendixtables
 
 
 
@@ -997,9 +1007,12 @@ ggsave(
 )
 ```
 
+Source: [Office for National Statistics](https://www.ons.gov.uk/peoplepopulationandcommunity/crimeandjustice/datasets/crimeseverityscoreexperimentalstatistics)
+
+
 
 ```{r crime outcomes}
-#| fig-alt: "A time-series chart showing the proportion of crimes in England and Wales that were solved each year from 2010 to 2023. The proportion of solved crimes (i.e. crimes where there was enough evidence to send the suspect to court) has dropped substantially: in 2023 only 7% of crimes were solved, compared to 28% in 2010"
+#| fig-alt: "A time-series chart showing the proportion of crimes in England and Wales that were solved each year from 2010 to 2023. The proportion of solved crimes (i.e. crimes where there was enough evidence to send the suspect to court) has dropped substantially: in 2023 only 7% of crimes were solved, compared to 28% in 2010."
 
 outcomes_drop <- outcomes |>
   filter(year >= ym("2010-01")) |> 
@@ -1055,6 +1068,9 @@ ggsave(
   bg = "white"
 )
 ```
+
+Source: Home Office, [before 2015](https://www.gov.uk/government/statistics/crime-outcomes-in-england-and-wales-2014-to-2015) and [since 2015](https://www.gov.uk/government/statistics/crime-outcomes-year-to-december-2023-data-tables)
+
 
 
 ```{r perception}
@@ -1140,6 +1156,9 @@ ggsave(
   bg = "white"
 )
 ```
+
+Souce: [Office for National Statistics](https://www.ons.gov.uk/peoplepopulationandcommunity/crimeandjustice/datasets/crimeinenglandandwalesannualsupplementarytables)
+
 
 
 ```{r visibility}
@@ -1237,3 +1256,11 @@ ggsave(
   bg = "white"
 )
 ```
+
+Souce: [Office for National Statistics](https://www.ons.gov.uk/peoplepopulationandcommunity/crimeandjustice/datasets/crimeinenglandandwalesannualsupplementarytables)
+
+
+
+### Notes
+
+Population data for [England and Wales](https://www.ons.gov.uk/peoplepopulationandcommunity/populationandmigration/populationestimates/timeseries/ewpop/pop) and for [local authority districts](https://www.ons.gov.uk/peoplepopulationandcommunity/populationandmigration/populationestimates/datasets/populationestimatesforukenglandandwalesscotlandandnorthernireland) (which can be used to create estimates for police-force areas) are mid-year estimates from the Office for National Statistics. [Inflation data are from the Bank of England](https://www.ons.gov.uk/generator?format=csv&uri=/economy/inflationandpriceindices/timeseries/l522/mm23).
