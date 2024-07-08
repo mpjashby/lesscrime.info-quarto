@@ -1,0 +1,1239 @@
+---
+title: "What happened to policing between 2010 and 2024?"
+date: "2024-07-08"
+execute: 
+  echo: false
+---
+
+```{r load packages and helper}
+#| include: false
+
+# custom packages not loaded by helpers.R
+library(fable)
+library(ggrepel)
+library(readODS)
+library(readxl)
+
+# load this after loading custom packages
+source(here::here("helpers.R"))
+
+# Define colour to use when not specified as an aesthetic
+default_colour <- RColorBrewer::brewer.pal(3, "Set1")[2]
+```
+
+```{r load data}
+#| include: false
+
+
+# LOOKUP TABLES ----------------------------------------------------------------
+if (!file.exists("lad_pfa_lookup.csv")) {
+  
+  # Source: https://geoportal.statistics.gov.uk/documents/ons::lad-to-community-safety-partnership-to-pfa-december-2021-lookup-in-ew/about
+  request("https://www.arcgis.com/sharing/rest/content/items/d4dfcff185914156bcfcee976c37e410/data") |> 
+    req_perform("lad_pfa_lookup.xlsx")
+  
+  lad_pfa_lookup <- read_excel(
+    path = "lad_pfa_lookup.xlsx", 
+    sheet = "LAD21_CSP21_PFA21_EW"
+  ) |> 
+    clean_names() |> 
+    select(lad21cd, pfa21cd, pfa21nm) |> 
+    unique() |> 
+    write_csv("lad_pfa_lookup.csv")
+  
+} else {
+  
+  lad_pfa_lookup <- read_csv("lad_pfa_lookup.csv")
+  
+}
+
+
+
+# POPULATION DATA --------------------------------------------------------------
+if (!file.exists("population_ew.csv")) {
+  
+  # Download file
+  # Source: https://www.ons.gov.uk/peoplepopulationandcommunity/populationandmigration/populationestimates/timeseries/ewpop/pop
+  pop_ew_raw <- read_csv(
+    file = "https://www.ons.gov.uk/generator?format=csv&uri=/peoplepopulationandcommunity/populationandmigration/populationestimates/timeseries/ewpop/pop", 
+    skip = 7
+  ) |> 
+    set_names(c("year", "population"))
+  
+  pop_forecast <- pop_ew_raw |> 
+    tsibble::as_tsibble(index = year) |> 
+    model(pop_mod = TSLM(population ~ year)) |> 
+    forecast(h = 2) |> 
+    as_tibble() |> 
+    select(year, population = .mean)
+  
+  pop_ew <- pop_ew_raw |> 
+    bind_rows(pop_forecast) |> 
+    mutate(year = make_date(year, month = 7, day = 1)) |> 
+    write_csv("population_ew.csv")
+
+} else {
+  
+  pop_ew <- read_csv("population_ew.csv")
+  
+}
+
+if (!file.exists("population_pfa.csv")) {
+  
+  # Download data
+  # Source: https://www.ons.gov.uk/peoplepopulationandcommunity/populationandmigration/populationestimates/datasets/populationestimatesforukenglandandwalesscotlandandnorthernireland
+  request("https://www.ons.gov.uk/file?uri=/peoplepopulationandcommunity/populationandmigration/populationestimates/datasets/populationestimatesforukenglandandwalesscotlandandnorthernireland/mid2001tomid2020detailedtimeseries/ukdetailedtimeseries2001to2020.zip") |> 
+    req_perform(path = "ukdetailedtimeseries2001to2020.zip")
+  
+  archive::archive_extract(
+    archive = "ukdetailedtimeseries2001to2020.zip", 
+    dir = tempdir(),
+    files = "MYEB1_detailed_population_estimates_series_UK_(2020_geog21).csv"
+  )
+
+  pop_pfa_raw <- str_glue(
+    "{tempdir()}/",
+    "MYEB1_detailed_population_estimates_series_UK_(2020_geog21).csv"
+  ) |>   
+    read_csv() |> 
+    select(-laname21, -country) |> 
+    pivot_longer(
+      cols = -c(ladcode21, sex, age), 
+      names_to = "year",
+      values_to = "pop",
+      names_prefix = "population_"
+    ) |> 
+    summarise(pop = sum(pop), .by = c(ladcode21, year)) |> 
+    mutate(year = parse_number(year))
+  
+  pop_pfa_forecast <- pop_pfa_raw |> 
+    as_tsibble(index = year, key = ladcode21) |> 
+    model(model = ARIMA(pop ~ year)) |> 
+    forecast(h = 3) |> 
+    as_tibble() |> 
+    select(ladcode21, year, pop = .mean)
+  
+  pop_pfa <- pop_pfa_raw |> 
+    bind_rows(pop_pfa_forecast) |> 
+    left_join(lad_pfa_lookup, by = c("ladcode21" = "lad21cd")) |> 
+    summarise(pop = sum(pop), .by = c(pfa21cd, pfa21nm, year))
+  
+} else {
+  
+  pop_pfa <- read_csv("population_pfa.csv")
+  
+}
+
+
+
+# INFLATION --------------------------------------------------------------------
+if (!file.exists("inflation.csv")) {
+  
+  inflation <- read_csv(
+    file = "https://www.ons.gov.uk/generator?format=csv&uri=/economy/inflationandpriceindices/timeseries/l522/mm23",
+    skip = 7
+  ) |> 
+    set_names(c("year", "price_2015")) |> 
+    mutate(year = make_date(str_sub(year, end = 4), month = 7)) |> 
+    summarise(deflator = mean(price_2015) / 100, .by = year) |> 
+    write_csv("inflation.csv")
+  
+} else {
+  
+  inflation <- read_csv("inflation.csv")
+  
+}
+
+
+
+# POLICE FUNDING DATA ----------------------------------------------------------
+if (!file.exists("police_funding.csv")) {
+  
+  # Manually downloaded from: https://www.instituteforgovernment.org.uk/publication/performance-tracker-2023/police
+  funding <- read_csv("data-iOOax.csv") |> 
+    clean_names() |> 
+    mutate(
+      year = make_date(year = str_sub(year, start = -2), month = 3, day = 31) + 
+        years(2000)
+    ) |> 
+    write_csv("police_funding.csv")
+  
+} else {
+  
+  funding <- read_csv("police_funding.csv")
+  
+}
+
+
+
+# POLICE WORKFORCE DATA --------------------------------------------------------
+if (!file.exists("police_workforce_numbers.csv")) {
+  
+  # Download file
+  # Source: https://www.gov.uk/government/statistics/police-workforce-england-and-wales-31-march-2023
+  request("https://assets.publishing.service.gov.uk/media/65fb16dc9316f5001164c458/police-workforce-mar23-tables-280324-second-edition.ods") |> 
+    req_perform(path = "police-workforce-mar23-tables-280324-second-edition.ods")
+  
+  # Load data
+  workforce <- read_ods(
+    path = "police-workforce-mar23-tables-280324-second-edition.ods", 
+    sheet = "Table_H3",
+    skip = 4
+  ) |> 
+    select(
+      date = `...1`, 
+      officers = Total, 
+      staff = `Police staff and designated officers4`,
+      pcsos = `Police community support officer`
+    ) |> 
+    slice(1:21) |> 
+    mutate(date = as_date(date, format = "%d %m %Y")) |> 
+    pivot_longer(cols = -date, names_to = "type", values_to = "number") |> 
+    write_csv("police_workforce_numbers.csv")
+  
+} else {
+  
+  workforce <- read_csv("police_workforce_numbers.csv")
+  
+}
+
+if (!file.exists("police_workforce_pfa.csv")) {
+  
+  # Source: https://www.gov.uk/government/statistics/police-workforce-open-data-tables
+  request("https://assets.publishing.service.gov.uk/media/64ba640bef5371000d7af05f/open-data-table-police-workforce-260723.ods") |> 
+    req_perform(path = "open-data-table-police-workforce-260723.ods")
+  
+  workforce_pfa <- read_ods(
+    path = "open-data-table-police-workforce-260723.ods", 
+    sheet = "Data",
+    na = c("N/A", "-")
+  ) |> 
+    clean_names() |> 
+    filter(worker_type == "Police Officer") |> 
+    select(year = as_at_31_march, geo_code, force_name, total_fte) |> 
+    summarise(
+      officers = sum(total_fte, na.rm = TRUE), 
+      .by = c(year, geo_code, force_name)
+    )
+  
+} else {
+  
+  workforce_pfa <- read_csv("police_workforce_pfa.csv")
+  
+}
+
+
+
+# POLICE PAY DATA --------------------------------------------------------------
+police_pay <- tribble(
+  ~date, ~new, ~mid, ~top,
+  # "2005-04-01", 22107, 31092,
+  "2005-09-01", 22770, 27213, 32025,
+  "2006-09-01", 23454, 28029, 32985,
+  "2007-12-01", 24039, 28731, 33810,
+  "2008-09-01", 24675, 29493, 34707,
+  "2009-09-01", 25317, 30261, 35610,
+  "2010-09-01", 25962, 31032, 36519,
+  "2011-09-01", 25962, 31032, 36519,
+  "2012-09-01", 25962, 31032, 36519,
+  # "2013-04-01", 22000, 36885,
+  "2013-09-01", 22221, 31341, 36885,
+  "2014-09-01", 22443, 31653, 37254,
+  "2015-09-01", 22668, 31971, 37626,
+  "2016-09-01", 22896, 31971, 37626,
+  "2017-09-01", 23124, 32616, 38382,
+  # From 2018 onwards, PCs with 5 years' service are on post-2013 pay scale
+  # Officers with 5 years' service will be at point 6 on new scale
+  "2018-09-01", 23586, 33267, 39150,
+  "2019-09-01", 24177, 34098, 40128,
+  "2020-09-01", 24780, 34950, 41130,
+  "2021-09-01", 24780, 34950, 41130,
+  "2022-09-01", 26682, 36852, 43032,
+  # Home Office is proposing a 3.5% pay increase
+  "2023-09-01", 26682 * 1.035, 36852 * 1.035, 43032 * 1.035
+) |> 
+  pivot_longer(cols = -date, names_to = "service", values_to = "pay") |> 
+  mutate(date = ymd(date))
+
+
+
+# CSEW CRIME -------------------------------------------------------------------
+
+if (!file.exists("csew_crime.csv")) {
+  
+  # Source: https://www.ons.gov.uk/peoplepopulationandcommunity/crimeandjustice/datasets/crimeinenglandandwalesappendixtables
+  csew <- openxlsx::read.xlsx(
+    "https://www.ons.gov.uk/file?uri=/peoplepopulationandcommunity/crimeandjustice/datasets/crimeinenglandandwalesappendixtables/yearendingseptember2023/appendixtablessep23final.xlsx", 
+    sheet = "Table A2",
+    startRow = 9
+  ) |> 
+    janitor::clean_names() |> 
+    select(1:30) |> 
+    as_tibble() |> 
+    filter(
+      !str_detect(offence_group_note_4, "Unweighted base"), 
+      oct_2022_to_sep_2023 != "[x]"
+    ) |> 
+    rename(offence_group = offence_group_note_4) |> 
+    pivot_longer(cols = -offence_group, names_to = "year", values_to = "rate") |> 
+    mutate(
+      offence_group = case_match(
+        offence_group,
+        "Wounding" ~ "serious injury",
+        "Assault with minor injury" ~ "minor injury",
+        "Violence without injury" ~ "no injury",
+        "ROBBERY" ~ "personal robbery",
+        "Bank and credit account fraud" ~ "bank/credit-card fraud",
+        "Consumer and retail fraud [note 10]" ~ "consumer/retail fraud",
+        "Advance fee fraud" ~ "advanced-fee fraud",
+        "Computer virus" ~ "computer virus",
+        "Unauthorised access to personal information (including hacking) [note 11]" ~ "identity theft/hacking",
+        "Other fraud [note 11]" ~ "other fraud",
+        .default = str_to_lower(offence_group)
+      ),
+      rate = as.numeric(rate),
+      year = my(str_sub(year, start = 13, end = 20))
+    ) |>
+    write_csv("csew_crime.csv")
+  
+} else {
+  
+  csew <- read_csv("csew_crime.csv")
+  
+}
+
+
+# CRIME SEVERITY ---------------------------------------------------------------
+if (!file.exists("crime_severity.csv")) {
+  
+  # Download data
+  # Source: https://www.ons.gov.uk/peoplepopulationandcommunity/crimeandjustice/datasets/crimeseverityscoreexperimentalstatistics
+  request("https://www.ons.gov.uk/file?uri=/peoplepopulationandcommunity/crimeandjustice/datasets/crimeseverityscoreexperimentalstatistics/current/datatool.xls") |> 
+    req_perform(path = "crime_severity.xls")
+  
+  # Load data
+  severity <- read_excel(
+    "crime_severity.xls", 
+    sheet = "Data - reg + pfa", 
+    skip = 1,
+    na = ":"
+  ) |> 
+    clean_names() |> 
+    filter(
+      offence_group == "Total recorded crime", 
+      (str_detect(code, "^E23") | str_detect(code, "^W15"))
+    ) |> 
+    select(2:24) |> 
+    pivot_longer(
+      cols = -c(code, name), 
+      names_to = "year", 
+      values_to = "score"
+    ) |> 
+    mutate(year = as.numeric(str_sub(year, start = 15, end = 16)) + 2000) |> 
+    write_csv("crime_severity.csv")
+  
+} else {
+  
+  severity <- read_csv("crime_severity.csv")
+  
+}
+
+
+# OUTCOMES DATA ----------------------------------------------------------------
+if (!file.exists("outcomes.csv")) {
+  
+  # Source: https://www.gov.uk/government/statistics/crime-outcomes-in-england-and-wales-2014-to-2015
+  request("https://assets.publishing.service.gov.uk/media/5a816c7c40f0b623026973a8/hosb0115-tabs.ods") |> 
+    req_perform(path = "hosb0115-tabs.ods")
+  
+  outcomes_early <- read_ods(
+    path = "hosb0115-tabs.ods", 
+    sheet = "Table_B", 
+    skip = 3, 
+    na = "..", 
+    col_types = cols(.default = col_character())
+  ) |> 
+    clean_names() |> 
+    slice(11:16) |> 
+    pivot_longer(cols = -outcome_type, names_to = "year", values_to = "pct") |> 
+    filter(year != "x2013_14_to_2014_15") |> 
+    mutate(
+      outcome = case_match(
+        outcome_type,
+        "Charge/summons (Outcome 1)" ~ "charged",
+        c(
+          "Cautions (Outcomes 2 & 3)", 
+          "TICs1 (Outcome 4)", 
+          "PNDs2 3(Outcome 6)",
+          "Cannabis/Khat Warnings3 (Outcome 7)"
+        ) ~ "other positive outcome"
+      ),
+      pct = parse_number(pct) / 100,
+      year = make_date(str_sub(year, start = -2), month = 3, day = 31) + 
+        years(2000)
+    ) |> 
+    filter(year <= ym("2015-01")) |> 
+    drop_na(outcome) |> 
+    summarise(pct = sum(pct, na.rm = TRUE), .by = c(year, outcome))
+  
+  # Source: https://www.gov.uk/government/statistics/crime-outcomes-year-to-december-2023-data-tables
+  request("https://assets.publishing.service.gov.uk/media/6628ed2fb0ace32985a7e5e2/outcomes-dec23-tables-250424.ods") |> 
+    req_perform(path = "outcomes-dec23-tables-250424.ods")
+  
+  outcomes_late <- read_ods(
+    path = "outcomes-dec23-tables-250424.ods", 
+    sheet = "Table_2_3", 
+    skip = 6,
+    col_types = cols(.default = col_character())
+  ) |> 
+    clean_names() |> 
+    slice(1:25) |> 
+    pivot_longer(
+      cols = -c(outcome_number, outcome_type), 
+      names_to = "year", 
+      values_to = "pct",
+      names_prefix = "year_ending_"
+    ) |> 
+    mutate(
+      outcome = case_match(
+        outcome_number, 
+        "1" ~ "charged",
+        c("2", "3", "4", "6", "7") ~ "other positive outcome"
+      ),
+      pct = parse_number(pct),
+      year = parse_date(str_remove(year, "_note_.+$"), format = "%b_%Y")
+    ) |> 
+    filter(month(year) == 3) |> 
+    drop_na(outcome) |> 
+    summarise(pct = sum(pct, na.rm = TRUE), .by = c(year, outcome))
+  
+  outcomes <- outcomes_early |> 
+    bind_rows(outcomes_late) |> 
+    write_csv("outcomes.csv")
+  
+} else {
+  
+  outcomes <- read_csv("outcomes.csv")
+  
+}
+
+
+# PERCEPTIONS ------------------------------------------------------------------
+
+if (!file.exists("perception.csv") | !file.exists("visibility.csv")) {
+  
+  # Source: https://www.ons.gov.uk/peoplepopulationandcommunity/crimeandjustice/datasets/crimeinenglandandwalesannualsupplementarytables
+  request("https://www.ons.gov.uk/file?uri=/peoplepopulationandcommunity/crimeandjustice/datasets/crimeinenglandandwalesannualsupplementarytables/march2023/annualsupplementarytablemar23correction.xlsx") |> 
+    req_perform(path = "annualsupplementarytablemar23correction.xlsx")
+  
+  perception <- read_excel(
+    path = "annualsupplementarytablemar23correction.xlsx", 
+    sheet = "Table S1", 
+    skip = 7,
+    col_types = "text"
+  ) |> 
+    clean_names() |> 
+    slice(1:5) |> 
+    pivot_longer(
+      cols = -trends_in_ratings, 
+      names_to = "year", 
+      values_to = "pct"
+    ) |> 
+    filter(!str_detect(year, "compared")) |> 
+    mutate(
+      pct = parse_number(pct) / 100,
+      year = str_sub(str_remove(year, "_note_.+$"), start = -8),
+      year = parse_date(year, format = "%b_%Y")
+    ) |> 
+    write_csv("perception.csv")
+  
+  visibility <- read_excel(
+    path = "annualsupplementarytablemar23correction.xlsx", 
+    sheet = "Table S10", 
+    skip = 7,
+    col_types = "text"
+  ) |> 
+    clean_names() |> 
+    rename("visibility" = 1) |> 
+    filter(
+      visibility %in% c("High visibility", "Medium visibility", "Low visibility (Never)")
+    ) |> 
+    pivot_longer(cols = -visibility, names_to = "year", values_to = "pct") |> 
+    filter(!str_detect(year, "compared")) |> 
+    mutate(
+      pct = parse_number(pct) / 100,
+      year = str_remove(year, "_note_\\d+$"),
+      year = make_date(str_sub(year, start = -4), 3, 1)
+    ) |> 
+    write_csv("visibility.csv")
+  
+} else {
+  
+  perception <- read_csv("perception.csv")
+  visibility <- read_csv("visibility.csv")
+  
+}
+```
+
+
+
+Last week saw the end of 14 years of Conservative-led government in the UK. So how has policing changed in that time? These seven charts tell some of that story.
+
+
+
+```{r police funding}
+#| fig-alt: "A bar chart showing government spending on policing each year from 2010 to 2024, in 2023 prices. After taking into account inflation, police funding per person in England and Wales in 2024 is around 9% lower than in 2010. Funding dropped sharply while David Cameron was prime minister, stayed lower under Theresa May, and has increased since (although not to the level seen in 2010). If police funding had been maintained at 2010 levels, spending today would be about £1.0bn higher than it is."
+
+funding_rate <- funding |> 
+  filter(year <= ym("2024-04")) |> 
+  left_join(pop_ew, by = join_by(closest(x$year <= y$year))) |> 
+  select(year = year.x, spending = real_spending, population) |> 
+  mutate(
+    rate = spending / population,
+    rate_change = abs((rate - first(rate)) / first(rate)),
+    spending_target = population * first(rate), 
+    target_diff = spending_target - first(spending)
+  )
+
+funding_diff <- funding_rate |> 
+  slice_tail(n = 1) |> 
+  pluck("rate_change") |> 
+  percent()
+
+funding_gap <- funding_rate |> 
+  slice_tail(n = 1) |> 
+  pluck("target_diff", 1) |> 
+  dollar(accuracy = 0.1, scale = 1/1000000000, prefix = "£", suffix = "bn")
+
+ggplot(funding_rate, aes(x = year, y = rate)) +
+  annotate(
+    "label", 
+    x = ymd("2010-05-11"), 
+    y = 350, 
+    label = "Cameron", 
+    fontface = "bold", 
+    hjust = 0, 
+    label.size = NA, 
+    size = 3
+  ) +
+  geom_vline(xintercept = ymd("2010-05-11"), colour = "white") +
+  geom_vline(xintercept = ymd("2010-05-11"), linetype = "22") +
+  annotate(
+    "label", 
+    x = ymd("2016-07-13"), 
+    y = 350, 
+    label = "May", 
+    fontface = "bold", 
+    hjust = 0, 
+    label.size = NA, 
+    size = 3
+  ) +
+  geom_vline(xintercept = ymd("2016-07-13"), colour = "white") +
+  geom_vline(xintercept = ymd("2016-07-13"), linetype = "22") +
+  annotate(
+    "label", 
+    x = ymd("2019-07-24"), 
+    y = 350, 
+    label = "Johnson", 
+    fontface = "bold", 
+    hjust = 0, 
+    label.size = NA, 
+    size = 3
+  ) +
+  geom_vline(xintercept = ymd("2019-07-24"), colour = "white") +
+  geom_vline(xintercept = ymd("2019-07-24"), linetype = "22") +
+  annotate(
+    "label", 
+    x = ymd("2022-10-25"), 
+    y = 330, 
+    label = "Sunak", 
+    fontface = "bold", 
+    hjust = 0, 
+    label.size = NA, 
+    size = 3
+  ) +
+  geom_vline(xintercept = ymd("2022-10-25"), colour = "white") +
+  geom_vline(xintercept = ymd("2022-10-25"), linetype = "22") +
+  annotate(
+    "label", 
+    x = ymd("2022-09-06"), 
+    y = 350, 
+    label = "Truss", 
+    fontface = "bold", 
+    hjust = 0, 
+    label.size = NA, 
+    size = 3
+  ) +
+  geom_vline(xintercept = ymd("2022-09-06"), colour = "white") +
+  geom_vline(xintercept = ymd("2022-09-06"), linetype = "22") +
+  geom_col(fill = RColorBrewer::brewer.pal(3, "Set1")[2]) +
+  geom_label(
+    aes(y = 0, label = dollar(rate, accuracy = 1, prefix = "£")), 
+    colour = "white",
+    fill = RColorBrewer::brewer.pal(3, "Set1")[2],
+    label.size = NA,
+    size = 3,
+    vjust = 0
+  ) +
+  scale_x_date(
+    date_breaks = "1 year", 
+    date_labels = "%Y",
+    expand = c(0, 0)
+  ) +
+  scale_y_continuous(
+    labels = label_currency(accuracy = 1, prefix = "£"), 
+    expand = expansion(c(0, 0.02)), 
+    position = "right"
+  ) +
+  labs(
+    title = str_glue("Police funding now is {funding_diff} (about {funding_gap}) lower than in 2010"),
+    subtitle = str_glue("After taking into account inflation, police funding per person in England and Wales in 2024 is around {funding_diff} lower than in 2010. Funding dropped sharply while David Cameron was prime minister, stayed low under Theresa May, and has increased since (although not to the level seen in 2010). If police funding had been mainted at 2010 levels, spending today would be about {funding_gap} higher than it is."),
+    caption = "Data sources: Institute for Government, Office for National Statistics<br>Chart: Dr Matt Ashby, UCL Centre for Global City Policing",
+    x = NULL,
+    y = "central and local government spending\non policing per person (2023 prices)"
+  ) +
+  theme_cjcharts() +
+  theme(
+    axis.title.y = element_text(hjust = 0),
+    plot.caption = element_textbox_simple(margin = margin(t = 6)),
+    plot.subtitle = element_textbox_simple(lineheight = 1, margin = margin(t = 6, b = 6))
+  )
+
+ggsave(
+  filename = "tory_policing_funding.png", 
+  width = 1200, 
+  height = 800, 
+  units = "px", 
+  dpi = 150, 
+  bg = "white"
+)
+```
+
+
+
+```{r police workforce}
+#| fig-alt: "A line chart with three lines showing the number of police officers, police staff and community support officers (PCSOs) each year from 2010 to 2023, relative to the number that were employed in 2010 and after adjusting for increases in the population of England and Wales. There are about 23,000 fewer police workers now than there were in 2010. The number of PCSOs in particular has dropped by more than half, and has continued to drop even as the number of police officers has increased by about 20,000 between 2019 and 2022."
+
+workforce_rate <- workforce |> 
+  filter(date >= ym("2010-01")) |> 
+  left_join(pop_ew, by = join_by(closest(x$date <= y$year))) |> 
+  mutate(
+    rate = number / (population / 100000),
+    type = case_match(
+      type, 
+      "officers" ~ "police officers", 
+      "staff" ~ "police staff",
+      "pcsos" ~ "community support officers (PCSOs)"
+    )
+  )
+
+workforce_diff <- workforce_rate |> 
+  summarise(number = sum(number), population = first(population), .by = date) |> 
+  mutate(
+    rate = number / population, 
+    target = first(rate) * population, 
+    diff = target - number
+  ) |> 
+  slice_tail(n = 1) |> 
+  pluck("diff", 1)
+
+workforce_rate |> 
+  mutate(rate_index = (rate / first(rate)), .by = type) |> 
+  mutate(
+    label = if_else(
+      date == max(date), 
+      percent(rate_index, accuracy = 1, prefix = " "), 
+      NA_character_
+    )
+  ) |> 
+  ggplot(aes(x = date, y = rate_index, colour = type, label = label)) +
+  geom_label(na.rm = TRUE, hjust = 0, label.size = NA, show.legend = FALSE) +
+  geom_line() +
+  geom_point(fill = "white", shape = 21, size = 2) +
+  scale_x_date(
+    date_breaks = "1 year", 
+    date_labels = "%Y", 
+    expand = expansion(c(0.01, 0.07))
+  ) +
+  scale_y_continuous(labels = label_percent(), position = "right") +
+  scale_colour_brewer(type = "qual", palette = "Set1") +
+  labs(
+    title = str_glue(
+      "{comma(workforce_diff, accuracy = 1000)} fewer people work in policing ",
+      "compared to 2010"
+    ),
+    subtitle = str_glue("After adjusting for increases in the population of England and Wales, there are the equivalent of {comma(workforce_diff, accuracy = 1000)} fewer polce officers and staff now than there were in 2010. The number of police community support officers (PCSOs) has dropped by more than half, and has continued to drop even as the number of police officers has increased by about 20,000 between 2019 and 2022."),
+    caption = "Data sources: Home Office, Office for National Statistics<br>Chart: Dr Matt Ashby, UCL Centre for Global City Policing",
+    x = NULL,
+    y = "number of police officers/staff/PCSOs related to March 2010",
+    colour = NULL
+  ) +
+  theme_cjcharts() +
+  theme(
+    axis.title.y = element_text(hjust = 0),
+    plot.caption = element_textbox_simple(margin = margin(t = 6)),
+    plot.subtitle = element_textbox_simple(lineheight = 1, margin = margin(t = 6, b = 6))
+  )
+
+ggsave(
+  filename = "tory_policing_workforce.png", 
+  width = 1200, 
+  height = 800, 
+  units = "px", 
+  dpi = 150, 
+  bg = "white"
+)
+```
+
+```{r police pay}
+#| fig-alt: "Three bar charts showing pay for police officers after initial training, after 5 years' service and after 10 years' service, for each year from 2010 to 2024. Taking inflation into account, pay for police officers at all levels of seniority has fallen substantially, with the lowest-paid officers (those who have just completed their initial training) having lost the most pay. A newly qualified police officer in 2024 earns about £8,800 less (at 2024 prices) than they would have done in 2010, while an officer with 5 years' experience earns about £5,400 less and an officer with 10 years' experience earns about £6,700 less."
+
+pay <- police_pay |> 
+  filter(date >= ym("2010-04")) |> 
+  left_join(inflation, , by = join_by(closest(x$date <= y$year))) |> 
+  mutate(
+    real_pay = pay / (deflator / last(deflator)),
+    service = case_match(
+      service, 
+			"new" ~ "pay after initial training",
+			"mid" ~ "pay after 5 years' service",
+			"top" ~ "pay after 10 years' service"
+    ),
+    service = factor(
+      service, 
+      levels = c("pay after initial training", "pay after 5 years' service", "pay after 10 years' service")
+    )
+  ) |> 
+  mutate(
+    diff_cash = real_pay - lag(real_pay), 
+    diff_pct = diff_cash / first(real_pay), 
+    .by = service
+  ) |> 
+  mutate(
+    cash_label = dollar(
+      diff_cash, 
+      accuracy = 1,
+      prefix = '£', 
+      style_negative = "minus"
+    ),
+    cash_label = if_else(diff_cash >= 0, str_glue("+{cash_label}"), cash_label),
+    pct_label = percent(
+      diff_pct, 
+      accuracy = 0.1,
+      style_positive = "plus", 
+      style_negative = "minus"
+    ),
+    label = if_else(
+      is.na(diff_cash),
+      dollar(real_pay, prefix = " £", suffix = " in 2024 terms"),
+      if_else(
+        diff_cash == 0, 
+        cash_label, 
+        str_glue(" {cash_label} ({pct_label})")
+      )
+    )
+  ) |> 
+  mutate(
+    overall_change = dollar(
+      last(real_pay) - first(real_pay), 
+      accuracy = 1, 
+      prefix = '£', 
+      style_negative = "minus"
+    ),
+    label = if_else(
+      year == max(year), 
+      str_glue("{label} = {overall_change}"),
+      label
+    ), 
+    .by = service
+  )
+
+ggplot(pay, aes(x = date, y = real_pay, fill = service, label = label)) +
+  geom_col() +
+  geom_text(angle = -90, colour = "white", hjust = 0, size = 2.75) +
+  facet_grid(cols = vars(service)) +
+  scale_x_date(date_breaks = "3 years", date_labels = "%Y") +
+  scale_y_continuous(
+    labels = label_currency(scale = 1/1000, prefix = "£", suffix = "k"),
+    expand = expansion(c(0, 0.05)),
+    position = "right"
+  ) +
+  scale_fill_brewer(type = "qual", palette = "Set1", guide = guide_none()) +
+  labs(
+    title = "Pay for new police officers has fallen by a quarter since 2010",
+    subtitle = "Taking inflation into account, pay for police officers at all levels of seniority has fallen substantially since 2010, with the lowest-paid officers (those who have joined recently) losing the most money.",
+    caption = "Data sources: Home Office, Office for National Statistics<br>Chart: Dr Matt Ashby, UCL Centre for Global City Policing",
+    x = NULL,
+    y = "annual gross salary before allowances (2024 prices)",
+    colour = NULL
+  ) +
+  theme_cjcharts() +
+  theme(
+    axis.title.y = element_text(hjust = 0),
+    plot.caption = element_textbox_simple(margin = margin(t = 6)),
+    plot.subtitle = element_textbox_simple(lineheight = 1, margin = margin(t = 6, b = 6))
+  )
+
+ggsave(
+  filename = "tory_policing_pay.png", 
+  width = 1200, 
+  height = 800, 
+  units = "px", 
+  dpi = 150, 
+  bg = "white"
+)
+```
+
+
+
+```{r csew crime}
+#| warning: false
+#| fig-alt: "Three time-series charts showing the rate of violent crimes in England and Wales per 1,000 people aged 16+ in each year from 2010 to 2024. The charts show that violence without injury, with minor injury and with serious injury have all decreased consistently over that period. The data are from the Crime Survey for England and Wales, which estimates that all types of non-sexual violence have been decreasing since 1993. These estimates are *not* affected by in police recording practices or by the likelihood of victims reporting crimes to the police."
+
+csew |> 
+  filter(
+    offence_group %in% c("no injury", "minor injury", "serious injury"),
+    year >= ym("2010-01")
+  ) |> 
+  mutate(
+    offence_group = factor(
+      offence_group, 
+      levels = c("no injury", "minor injury", "serious injury"))
+  ) |> 
+  mutate(
+    rate = slider::slide_vec(
+      rate, 
+      mean, 
+      .before = 1, 
+      .after = 1, 
+      .complete = TRUE
+    ),
+    .by = offence_group
+  ) |> 
+  ggplot(aes(x = year, y = rate)) +
+  geom_area(fill = "white") +
+  geom_area(alpha = 0.5, fill = default_colour) +
+  geom_line(colour = default_colour, linewidth = 1) +
+  facet_wrap(vars(offence_group)) +
+  scale_x_date(
+    date_breaks = "3 years", 
+    date_labels = "%Y", 
+    expand = expansion(c(0, 0))
+  ) +
+  scale_y_continuous(expand = expansion(c(0, 0.05)), position = "right") +
+  labs(
+    title = "Non-sexual violence has decreased consistently since 2010",
+    subtitle = "The Crime Survey for England and Wales estimates that all types of non-sexual violence have been decreasing since 1993. These estimates are *not* affected by in police recording practices or by the likelihood of victims reporting crimes to the police.",
+    caption = "Data sources: Office for National Statistics<br>Chart: Dr Matt Ashby, UCL Centre for Global City Policing<br>\\* three-year centre-weighted moving average",
+    x = NULL,
+    y = "crimes per 1,000 people aged 16+*"
+  ) +
+  theme_cjcharts() +
+  theme(
+    axis.title.y = element_text(hjust = 0),
+    plot.caption = element_textbox_simple(margin = margin(t = 6)),
+    plot.subtitle = element_textbox_simple(lineheight = 1, margin = margin(t = 6, b = 6)),
+    strip.placement = "outside",
+    strip.text.x.top = element_text(face = "bold", hjust = 0, size = 10)
+  )
+
+ggsave(
+  filename = "tory_policing_crime.png", 
+  width = 1200, 
+  height = 800, 
+  units = "px", 
+  dpi = 150, 
+  bg = "white"
+)
+```
+
+
+
+```{r crime pressure}
+#| fig-alt: "Time-series chart showing how the total severity of police-recorded crime per officer changed in each police force in England and Wales between 2010 and 2023. This is a measure of the police workload generated by responding to an investigating crime. Many types of crime have fallen since 2010, but a higher proportion of all crimes have been recorded by police. Combined with cuts to police-officer numbers, these extra recorded crimes mean the workload of responding to and investigating crime _per officer available to deal with that work_ is 62% higher across England and Wales now than it was in 2010."
+
+crime_severity_raw <- severity |> 
+  filter(year >= 2010) |> 
+  left_join(pop_pfa, by = c("code" = "pfa21cd", "year")) |> 
+  left_join(workforce_pfa, by = c("code" = "geo_code", "year")) |> 
+  select(code, name, year, severity_rate = score, pop, officers) |> 
+  mutate(
+    name = str_replace(name, "Yorkshire", "Yorks"),
+    name = case_match(
+      name,
+      "Avon and Somerset" ~ "Avon & Som.",
+      "Bedfordshire" ~ "Beds",
+      "Cambridgeshire" ~ "Cambs",
+      "Devon and Cornwall" ~ "Devon & Corn.",
+      "Gloucestershire" ~ "Gloucs",
+      "Greater Manchester" ~ "G. Manchester",
+      "Hertfordshire" ~ "Herts",
+      "Lancashire" ~ "Lancs",
+      "Leicestershire" ~ "Leics",
+      "Lincolnshire" ~ "Lincs",
+      "Metropolitan Police" ~ "Met Police",
+      "Northamptonshire" ~ "Northants",
+      "Nottinghamshire" ~ "Notts",
+      "Staffordshire" ~ "Staffs",
+      "Warwickshire" ~ "Warks",
+      "West Midlands" ~ "West Mids",
+      .default = name
+    ),
+    severity = severity_rate * (pop / 1000),
+    pressure = severity / officers,
+    year = make_date(year, month = 7),
+  )
+
+crime_severity <- crime_severity_raw |> 
+  summarise(
+    name = "England &\nWales", 
+    pressure = sum(severity, na.rm = TRUE) / sum(officers, na.rm = TRUE), 
+    .by = year
+  ) |> 
+  bind_rows(crime_severity_raw) |> 
+  mutate(pressure_index = (pressure / first(pressure)) - 1, .by = name)
+
+crime_severity_label <- crime_severity |> 
+  filter(year == max(year)) |> 
+  mutate(
+    pressure_rank = min_rank(desc(pressure)),
+    label = if_else(
+      pressure_rank %in% 1:5 |
+        pressure_rank %in% 39:42 |
+        name %in% c(
+          "England &\nWales", 
+          "G. Manchester", 
+          "Merseyside", 
+          "Met Police", 
+          "West Mids"
+        ),
+      str_glue(
+        "{name} ",
+        "({percent(pressure_index, accuracy = 1, style_positive = 'plus')})"
+      ),
+      NA_character_
+    )
+  ) |> 
+  filter(!is.na(label))
+
+ggplot(
+  crime_severity, 
+  aes(
+    x = year, 
+    y = pressure, 
+    colour = name == "England &\nWales", 
+    group = name, 
+    linewidth = name == "England &\nWales"
+  )
+) +
+  annotate(
+    "label",
+    x = ym("2011-01"),
+    y = 9.75,
+    label = "each line represents\none police force",
+    hjust = 0,
+    lineheight = 1,
+    label.size = NA,
+    size = 3
+  ) +
+  geom_label_repel(
+    aes(label = label), 
+    data = crime_severity_label, 
+    na.rm = TRUE,
+    direction = "y",
+    hjust = 0, 
+    label.size = NA,
+    lineheight = 1,
+    max.iter = 10^7,
+    min.segment.length = 0,
+    segment.colour = "grey75",
+    size = 2.75,
+    xlim = c(ym("2024-09"), NA)
+  ) +
+  geom_line(
+    data = filter(crime_severity, name != "England &\nWales"), 
+    na.rm = TRUE,
+    alpha = 0.5,
+    colour = default_colour
+  ) +
+  geom_line(
+    data = filter(crime_severity, name == "England &\nWales"), 
+    na.rm = TRUE,
+    colour = default_colour
+  ) +
+  geom_point(data = crime_severity_label, na.rm = TRUE) +
+  scale_x_date(
+    breaks = seq.Date(from = ym("2010-01"), to = ym("2024-01"), by = "years"),
+    date_labels = "%Y",
+    expand = expansion(c(0, 0.3))
+  ) +
+  scale_colour_manual(
+    values = c(`TRUE` = "black", `FALSE` = "grey30")
+  ) +
+  scale_linewidth_manual(
+    values = c(`TRUE` = 1, `FALSE` = 0.33)
+  ) +
+  labs(
+    title = "Police crime-related workload is much higher than in 2010",
+    subtitle = "Many types of crime have fallen since 2010, but a higher proportion of all crimes have been recorded by police. Combined with cuts to police-officer numbers, these extra recorded crimes mean the workload of responding to and investigating crime _per officer available to deal with that work_ is 62% higher across England and Wales now than it was in 2010.",
+    caption = "Data sources: Home Office, Office for National Statistics<br>Chart: Dr Matt Ashby, UCL Centre for Global City Policing",
+    x = NULL, 
+    y = "crime severity per officer"
+  ) +
+  theme_cjcharts() +
+  theme(
+    legend.position = "none",
+    plot.caption = element_textbox_simple(margin = margin(t = 6)),
+    plot.subtitle = element_textbox_simple(lineheight = 1, margin = margin(t = 6, b = 6))
+  )
+
+ggsave(
+  filename = "tory_policing_crime_pressure.png", 
+  width = 1200, 
+  height = 800, 
+  units = "px", 
+  dpi = 150, 
+  bg = "white"
+)
+```
+
+
+```{r crime outcomes}
+#| fig-alt: "A time-series chart showing the proportion of crimes in England and Wales that were solved each year from 2010 to 2023. The proportion of solved crimes (i.e. crimes where there was enough evidence to send the suspect to court) has dropped substantially: in 2023 only 7% of crimes were solved, compared to 28% in 2010"
+
+outcomes_drop <- outcomes |>
+  filter(year >= ym("2010-01")) |> 
+  filter(year %in% range(year)) |> 
+  summarise(pct = sum(pct), .by = year) |> 
+  mutate(year = c("first", "last")) |> 
+  deframe() |> 
+  percent()
+
+outcomes |> 
+  filter(year >= ym("2010-01")) |> 
+  mutate(
+    outcome = case_match(
+      outcome,
+      "charged" ~ "charged or summonsed to court",
+      "other positive outcome" ~ "cautioned, issued with a fixed penalty, etc."
+    )
+  ) |> 
+  ggplot(aes(x = year, y = pct, fill = outcome)) +
+  geom_area(colour = "white") +
+  scale_x_date(
+    date_breaks = "1 year", 
+    date_labels = "%Y", 
+    expand = expansion(c(0, 0))
+  ) +
+  scale_y_continuous(
+    labels = label_percent(), 
+    expand = c(0, 0), 
+    position = "right"
+  ) +
+  scale_fill_brewer(type = "qual", palette = "Set1") +
+  labs(
+    title = "The number of crimes that are solved has dropped substantially",
+    subtitle = str_glue("The proportion of all crimes that are 'solved' (i.e. where there is enough evidence against a suspect to send them to court) has dropped substantially since 2014 -- in 2023 only {outcomes_drop[['last']]} of crimes were solved, compared to {outcomes_drop[['first']]} in 2010*."),
+    caption = "Data sources: Home Office<br>Chart: Dr Matt Ashby, UCL Centre for Global City Policing<br>* The proportion of 2023 crimes that are solved will creep up slightly in future because some 2023 crimes are still being investigated, but this is not the main reason for the drop in how many crimes are solved.",
+    x = NULL, 
+    y = "percent of recorded crimes",
+    fill = NULL
+  ) +
+  theme_cjcharts() +
+  theme(
+    axis.title.y = element_text(hjust = 0),
+    plot.caption = element_textbox_simple(margin = margin(t = 6)),
+    plot.subtitle = element_textbox_simple(lineheight = 1, margin = margin(t = 6, b = 6))
+  )
+
+ggsave(
+  filename = "tory_policing_crime_detections.png", 
+  width = 1200, 
+  height = 800, 
+  units = "px", 
+  dpi = 150, 
+  bg = "white"
+)
+```
+
+
+```{r perception}
+#| fig-alt: "A time-series chart showing the proportion of people who rate their local police as excellent, good, fair, poor or very poor for each year from 2010 to 2023. Since 2016 the proportion of people saying their local police are excellent or good has fallen, while the proportion saying local police are fair, poor or very poor has been rising."
+
+police_perception <- perception |> 
+  rename(rating = trends_in_ratings) |> 
+  filter(year >= ym("2010-01")) |> 
+  mutate(
+    label = if_else(
+      year(year) %in% c(range(year(year)), 2016) & rating != "Very poor",
+      str_glue("  {rating}: {percent(pct, accuracy = 1)}  "),
+      NA_character_
+    ),
+    rating = factor(
+      rating, 
+      levels = c("Excellent", "Good", "Fair", "Poor", "Very poor")
+    )
+  )
+
+police_perception |> 
+  ggplot(
+    aes(x = year, y = pct, colour = rating, fill = rating, label = label)
+  ) +
+  geom_area(colour = "white") +
+  geom_vline(xintercept = ym("2016-03"), colour = "white", linetype = "22") +
+  geom_text(
+    data = filter(police_perception, year == first(year) | year(year) == 2016), 
+    na.rm = TRUE,
+    hjust = 0, 
+    position = position_stack(vjust = 0.5),
+    size = 3
+  ) +
+  geom_text(
+    data = filter(police_perception, year == last(year)), 
+    na.rm = TRUE,
+    hjust = 1, 
+    position = position_stack(vjust = 0.5),
+    size = 3
+  ) +
+  scale_x_date(
+    date_breaks = "1 year", 
+    date_labels = "%Y", 
+    expand = expansion(c(0, 0))
+  ) +
+  scale_y_continuous(
+    labels = label_percent(), 
+    expand = expansion(c(0, 0)), 
+    position = "right"
+  ) +
+  scale_colour_manual(
+    values = c(
+      "Excellent" = "white", 
+      "Good" = "white", 
+      "Fair" = "white", 
+      "Poor" = "white", 
+      "Very poor" = "black"
+    )
+  ) +
+  scale_fill_ordinal() +
+  labs(
+    title = "Fewer people rate their local police highly",
+    subtitle = "Since 2016, the proportion of people who say their local police are 'excellent' or 'good' has been falling, while the proportion saying local police are 'fair', 'poor' or 'very poor' has been rising. ",
+    caption = "Data sources: Office for National Statistics<br>Chart: Dr Matt Ashby, UCL Centre for Global City Policing",
+    x = NULL, 
+    y = "proportion of people",
+    fill = NULL
+  ) +
+  theme_cjcharts() +
+  theme(
+    axis.title.y = element_text(hjust = 0),
+    legend.position = "none",
+    plot.caption = element_textbox_simple(margin = margin(t = 6)),
+    plot.subtitle = element_textbox_simple(lineheight = 1, margin = margin(t = 6, b = 6))
+  )
+
+ggsave(
+  filename = "tory_policing_perception.png", 
+  width = 1200, 
+  height = 800, 
+  units = "px", 
+  dpi = 150, 
+  bg = "white"
+)
+```
+
+
+```{r visibility}
+#| fig-alt: "A time-series chart showing the proportion of people who say they see police on patrol once a week or more, less than once a week, or never, for each year from 2010 to 2023. Between 2010 and 2023, the proportion of people who say they see police on patrol once a week or more has dropped from 39% to 14%, while the proportion of people who say they never see officers on patrol has almost doubled to 50%. Notably, although the number of police officers in England and Wales increased by 20,000 between 2019 and 2022, there has been no increase in the visibility of police patrols."
+
+police_visibility <- visibility |> 
+  filter(year >= ym("2010-03")) |> 
+  mutate(
+    visibility = case_match(
+      visibility,
+      "High visibility" ~ "once a week or more",
+      "Medium visibility" ~ "less than once a week",
+      "Low visibility (Never)" ~ "never"
+    ),
+    visibility = factor(
+      visibility,
+      levels = c("once a week or more", "less than once a week", "never")
+    ),
+    label = if_else(
+      year(year) %in% range(year(year)),
+      str_glue("  {visibility}: {percent(pct, accuracy = 1)}  "),
+      NA_character_
+    )
+  )
+
+high_visibility <- police_visibility |> 
+  filter(visibility == "once a week or more", year %in% range(year)) |> 
+  mutate(year = year(year), pct = percent(pct)) |> 
+  select(year, pct) |> 
+  deframe()
+
+low_visibility <- police_visibility |> 
+  filter(visibility == "never", year %in% range(year)) |> 
+  mutate(year = year(year), pct = percent(pct)) |> 
+  select(year, pct) |> 
+  deframe()
+
+police_visibility |> 
+  ggplot(aes(x = year, y = pct, colour = visibility, fill = visibility, label = label)) +
+  geom_area(colour = "white") +
+  geom_text(
+    data = filter(police_visibility, year == first(year)), 
+    na.rm = TRUE,
+    hjust = 0, 
+    position = position_stack(vjust = 0.5),
+    size = 3
+  ) +
+  geom_text(
+    data = filter(police_visibility, year == last(year)), 
+    na.rm = TRUE,
+    hjust = 1, 
+    position = position_stack(vjust = 0.5),
+    size = 3
+  ) +
+  scale_x_date(
+    date_breaks = "1 year", 
+    date_labels = "%Y", 
+    expand = expansion(c(0, 0))
+  ) +
+  scale_y_continuous(
+    labels = label_percent(), 
+    expand = expansion(c(0, 0)), 
+    position = "right"
+  ) +
+  scale_colour_manual(
+    values = c(
+      "once a week or more" = "white",
+      "less than once a week" = "white",
+      "never" = "black"
+    )
+  ) +
+  scale_fill_ordinal() +
+  labs(
+    title = "Half of people now say they never see police on patrol",
+    subtitle = str_glue("Between 2010 and 2023, the proportion of people who say they see police on patrol once a week or more has dropped from {high_visibility[['2010']]} to  {high_visibility[['2023']]}, while the proportion of people who say they never see officers on patrol has almost doubled to {low_visibility[['2023']]}. Notably, although the number of police officers in England and Wales increased by 20,000 between 2019 and 2022, there has been no increase in the visibility of police patrols."),
+    caption = "Data sources: Office for National Statistics<br>Chart: Dr Matt Ashby, UCL Centre for Global City Policing",
+    x = NULL, 
+    y = "proportion of people",
+    fill = NULL
+  ) +
+  theme_cjcharts() +
+  theme(
+    axis.title.y = element_text(hjust = 0),
+    legend.position = "none",
+    plot.caption = element_textbox_simple(margin = margin(t = 6)),
+    plot.subtitle = element_textbox_simple(lineheight = 1, margin = margin(t = 6, b = 6))
+  )
+
+ggsave(
+  filename = "tory_policing_visibility.png", 
+  width = 1200, 
+  height = 800, 
+  units = "px", 
+  dpi = 150, 
+  bg = "white"
+)
+```

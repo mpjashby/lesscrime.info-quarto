@@ -3,7 +3,9 @@
 # load core packages
 library(ggtext)
 library(httr)
+library(httr2)
 library(janitor)
+library(scales)
 library(tidyverse)
 
 # define colour scheme, based on the UCL colour scheme defined at
