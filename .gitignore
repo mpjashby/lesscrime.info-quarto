@@ -14,9 +14,14 @@
 # Temporary files created by R markdown
 *.utf8.md
 *.knit.md
+*.rmarkdown
 
 # Raw data files
-*-raw.csv
-*-raw-data.csv
+/post/*-raw.csv
+/post/*-raw-data.csv
+/post/policing-2010-2024/*.csv
+/post/policing-2010-2024/*.xls
+/post/policing-2010-2024/*.xlsx
+/post/policing-2010-2024/*.ods
 
 /.quarto/
