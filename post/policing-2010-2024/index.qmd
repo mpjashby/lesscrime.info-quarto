@@ -212,7 +212,7 @@ if (!file.exists("police_workforce_pfa.csv")) {
     filter(worker_type == "Police Officer") |> 
     select(year = as_at_31_march, geo_code, force_name, total_fte) |> 
     summarise(
-      officers = sum(total_fte, na.rm = TRUE), 
+      officers = sum(as.numeric(total_fte), na.rm = TRUE), 
       .by = c(year, geo_code, force_name)
     )
   
@@ -249,7 +249,7 @@ police_pay <- tribble(
   "2020-09-01", 24780, 34950, 41130,
   "2021-09-01", 24780, 34950, 41130,
   "2022-09-01", 26682, 36852, 43032,
-  # Home Office is proposing a 3.5% pay increase
+  # Home Office is proposing a 3.5% pay increase for all ranks
   "2023-09-01", 26682 * 1.035, 36852 * 1.035, 43032 * 1.035
 ) |> 
   pivot_longer(cols = -date, names_to = "service", values_to = "pay") |> 
