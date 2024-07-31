@@ -75,7 +75,7 @@ library(leaflet)
 
 ::: {.big .big-blub}
 
-I am a lecturer in crime science at the [Jill Dando Institute of Security and Crime Science](https://ucl.ac.uk/jill-dando-institute/) at [University College London (UCL)](https://ucl.ac.uk/). I do research on how police can use data to reduce crime.
+I am a lecturer in crime science at the [Jill Dando Institute of Security and Crime Science](https://ucl.ac.uk/jill-dando-institute/) at [University College London (UCL)](https://ucl.ac.uk/). I do research on how police can use data to reduce crime. I also run the [CrimPapers journal-alerts service](/crimpapers/), and maintain the R packages [crimedata](https://pkgs.lesscrime.info/crimedata/) and [sfhotspot](https://pkgs.lesscrime.info/sfhotspot/).
 
 :::
 

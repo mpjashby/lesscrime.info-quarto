@@ -10,6 +10,8 @@ website:
       - post/index.qmd
       - publication/index.qmd
       - talk/index.qmd
+      - href: crimpapers/
+        text: CrimPapers
   comments: false
   page-footer: | 
     The content on this website is licensed under a 
