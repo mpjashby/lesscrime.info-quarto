@@ -263,7 +263,7 @@ add_logo(chart + labs(title = NULL, subtitle = NULL),
 ```
 
 [larger image](`r chart_details$id`.png)
-| [annotated R code to produce this chart](https://github.com/mpjashby/lesscrime.info/blob/master/content/post/`r chart_details$id`.Rmd)
+| [annotated R code to produce this chart](https://github.com/mpjashby/lesscrime.info-quarto/blob/main/post/`r chart_details$id`/index.qmd)
 
 Data source: [`r chart_details$source_title`](`r chart_details$source_url`)
 
