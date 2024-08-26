@@ -1,0 +1,13 @@
+---
+title: "Open access to criminological knowledge: an update"
+date: '2024-09-12'
+---
+
+Presentation at the European Society of Criminology annual meeting in Bucharest, Romania. 
+
+
+[**Presentation slides**](https://lesscrime.info/slides/esc-oa-2024/)
+
+```{=html}
+<iframe width="800" height="500" src="https://lesscrime.info/slides/esc-oa-2024/"></iframe>
+```
