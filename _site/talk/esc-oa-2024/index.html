@@ -7,9 +7,9 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
 
 <meta name="author" content="Matt Ashby">
-<meta name="dcterms.date" content="2024-07-29">
+<meta name="dcterms.date" content="2024-09-12">
 
-<title>Matt Ashby - Chart: Largest real police pay rise in 20 years, but effects of previous cuts linger</title>
+<title>Matt Ashby - Open access to criminological knowledge: an update</title>
 <style>
 code{white-space: pre-wrap;}
 span.smallcaps{font-variant: small-caps;}
@@ -41,9 +41,6 @@ ul.task-list li input[type="checkbox"] {
 <script src="../../site_libs/bootstrap/bootstrap.min.js"></script>
 <link href="../../site_libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
 <link href="../../site_libs/bootstrap/bootstrap.min.css" rel="stylesheet" id="quarto-bootstrap" data-mode="light">
-<script src="../../site_libs/quarto-contrib/glightbox/glightbox.min.js"></script>
-<link href="../../site_libs/quarto-contrib/glightbox/glightbox.min.css" rel="stylesheet">
-<link href="../../site_libs/quarto-contrib/glightbox/lightbox.css" rel="stylesheet">
 <script id="quarto-search-options" type="application/json">{
   "location": "navbar",
   "copy-button": false,
@@ -132,7 +129,7 @@ ul.task-list li input[type="checkbox"] {
 
 <header id="title-block-header" class="quarto-title-block default">
 <div class="quarto-title">
-<h1 class="title">Chart: Largest real police pay rise in 20 years, but effects of previous cuts linger</h1>
+<h1 class="title">Open access to criminological knowledge: an update</h1>
 </div>
 
 
@@ -149,7 +146,7 @@ ul.task-list li input[type="checkbox"] {
     <div>
     <div class="quarto-title-meta-heading">Published</div>
     <div class="quarto-title-meta-contents">
-      <p class="date">29 Jul 2024</p>
+      <p class="date">12 Sep 2024</p>
     </div>
   </div>
   
@@ -161,19 +158,9 @@ ul.task-list li input[type="checkbox"] {
 </header>
 
 
-<p>The Home Office has announced a 4.75% increase in police pay for 2024 (a real-terms rise of about 2.3%). That means a police constable who has just completed initial training in England and Wales will be paid about £7,900 less in 2024 than they would have been in 2010, once inflation is taken into account – a real-terms reduction of 21%. These figures exclude overtime and special allowances, but those are unlikely to have made up for decreases in basic pay.</p>
-<div class="cell">
-<div class="cell-output-display">
-<div>
-<figure class="figure">
-<p><a href="index_files/figure-html/display plot-1.png" class="lightbox" data-gallery="quarto-lightbox-gallery-1"><img src="index_files/figure-html/display plot-1.png" class="img-fluid figure-img" width="672"></a></p>
-</figure>
-</div>
-</div>
-</div>
-<p><a href="police-pay-2024.png">larger image</a> | <a href="https://github.com/mpjashby/lesscrime.info-quarto/blob/main/post/police-pay-2024/index.qmd">annotated R code to produce this chart</a></p>
-<p>Data source: <a href="https://www.gov.uk/government/publications/police-remuneration-review-body-report-2024-england-and-wales">Police Federation, Home Office</a></p>
-<p>Pay for previous years has been adjusted for inflation using the <a href="https://www.ons.gov.uk/economy/inflationandpriceindices/timeseries/l522/mm23">Office for National Statistics preferred CPIH measure</a>.</p>
+<p>Presentation at the European Society of Criminology annual meeting in Bucharest, Romania.</p>
+<p><a href="https://lesscrime.info/slides/esc-oa-2024/"><strong>Presentation slides</strong></a></p>
+<iframe width="800" height="500" src="https://lesscrime.info/slides/esc-oa-2024/"></iframe>
 
 
 
@@ -601,31 +588,6 @@ window.document.addEventListener("DOMContentLoaded", function (event) {
     </div>
   </div>
 </footer>
-<script>var lightboxQuarto = GLightbox({"openEffect":"zoom","loop":false,"descPosition":"bottom","selector":".lightbox","closeEffect":"zoom"});
-window.onload = () => {
-  lightboxQuarto.on('slide_before_load', (data) => {
-    const { slideIndex, slideNode, slideConfig, player, trigger } = data;
-    const href = trigger.getAttribute('href');
-    if (href !== null) {
-      const imgEl = window.document.querySelector(`a[href="${href}"] img`);
-      if (imgEl !== null) {
-        const srcAttr = imgEl.getAttribute("src");
-        if (srcAttr && srcAttr.startsWith("data:")) {
-          slideConfig.href = srcAttr;
-        }
-      }
-    } 
-  });
-
-  lightboxQuarto.on('slide_after_load', (data) => {
-    const { slideIndex, slideNode, slideConfig, player, trigger } = data;
-    if (window.Quarto?.typesetMath) {
-      window.Quarto.typesetMath(slideNode);
-    }
-  });
-
-};
-          </script>
 
 
 
