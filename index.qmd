@@ -12,23 +12,29 @@ about:
     - icon: envelope
       text: "Get in touch"
       href: "#contact"
+    - icon: broadcast
+      text: Bluesky
+      href: https://bsky.app/profile/mattashby.com
     - icon: twitter
       text: Twitter
       href: https://twitter.com/lesscrime
-    - icon: orcid
+    - icon: linkedin
+      text: LinkedIn
+      href: https://www.linkedin.com/in/matt-ashby-2b2773281/
+    - icon: card-text
       text: ORCID
       href: http://orcid.org/0000-0003-4201-9239
-    - icon: google-scholar
+    - icon: google
       text: "Google Scholar"
       href: https://scholar.google.co.uk/citations?user=dwcesrQAAAAJ
     - icon: github
-      text: Github
+      text: GitHub
       href: https://github.com/mpjashby
     - icon: instagram
       text: Instagram
       href: https://www.instagram.com/matt_ashby_pics/
-    - icon: cv
-      text: CV
+    - icon: file-person
+      text: CV/resume
       href: files/cv.pdf
 format: 
   html:
