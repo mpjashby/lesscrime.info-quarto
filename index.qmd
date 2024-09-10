@@ -12,6 +12,9 @@ about:
     - icon: envelope
       text: "Get in touch"
       href: "#contact"
+    - icon: file-earmark-person
+      text: "UCL profile"
+      href: https://profiles.ucl.ac.uk/33629-matt-ashby
     - icon: broadcast
       text: Bluesky
       href: https://bsky.app/profile/mattashby.com
