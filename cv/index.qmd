@@ -1,0 +1,214 @@
+---
+title: "Curriculum Vitae"
+author: Dr Matt Ashby
+date: last-modified
+address: UCL Jill Dando Institute of Security and Crime Science, 35 Tavistock Square, London WC1H 9EZ
+phone: +44 (0) 20 3108 3890
+email: matthew.ashby@ucl.ac.uk
+web: mattashby.com
+format: 
+  quarto-cv-pdf: 
+    include-in-header: 
+      - text: |
+          \usepackage[none]{hyphenat}
+          \renewcommand{\descriptionlabel}[1]{\hspace{\labelsep}\textrm{#1}}
+execute: 
+  echo: false
+---
+
+
+```{r setup}
+#| include: false
+
+library(gt)
+library(rorcid)
+library(tidyverse)
+
+my_orcid <- "0000-0003-4201-9239"
+```
+
+
+
+## Employment
+
+```{r employment}
+employment <- orcid_employments(my_orcid) |> 
+	pluck(my_orcid, "affiliation-group", "summaries") |> 
+  bind_rows() |> 
+  rename_with(\(x) str_remove(x, "^employment-summary.")) |> 
+  janitor::clean_names() |> 
+  mutate(
+    date_start = format(
+      make_date(start_date_year_value, start_date_month_value), 
+      "%b %Y"
+    ),
+    date_end = if_else(
+      !is.na(end_date_year_value),
+      format(make_date(end_date_year_value, end_date_month_value), "%b %Y"),
+      "present"
+    ),
+    when = str_glue("{date_start}--{date_end}"),
+    what = str_glue("**{role_title}**, {department_name}, {organization_name}"),
+    output = str_glue("{when}\n: {what}")
+  ) |> 
+  pull("output")
+```
+
+`r str_flatten(employment, collapse = "\n\n")`
+
+
+
+## Education
+
+```{r education}
+education <- orcid_educations(my_orcid) |> 
+	pluck(my_orcid, "affiliation-group", "summaries") |> 
+  bind_rows() |> 
+  rename_with(\(x) str_remove(x, "^education-summary.")) |> 
+  janitor::clean_names() |> 
+  mutate(
+    date_start = format(
+      make_date(start_date_year_value, start_date_month_value), 
+      "%b %Y"
+    ),
+    date_end = if_else(
+      !is.na(end_date_year_value),
+      format(make_date(end_date_year_value, end_date_month_value), "%b %Y"),
+      "present"
+    ),
+    when = str_glue("{date_start}--{date_end}"),
+    what = str_glue("**{role_title}**, {organization_name}"),
+    output = str_glue("{when}\n: {what}")
+  ) |> 
+  pull("output")
+```
+
+`r str_flatten(education, collapse = "\n\n")`
+
+
+
+## Professional qualifications
+
+```{r qualifications}
+qualifications <- orcid_qualifications(my_orcid) |> 
+	pluck(my_orcid, "affiliation-group", "summaries") |> 
+	bind_rows() |> 
+  rename_with(\(x) str_remove(x, "^qualification-summary.")) |> 
+  janitor::clean_names() |> 
+  mutate(
+    output = str_glue(
+      "{start_date_year_value}\n: **{role_title}**, {organization_name}"
+    )
+  ) |> 
+  pull("output")
+```
+
+`r str_flatten(qualifications, collapse = "\n\n")`
+
+
+
+## Publications
+
+ORCID: [`r my_orcid`](https://orcid.org/`r my_orcid`)
+
+```{r publications}
+publications <- scholar::get_publications("dwcesrQAAAAJ") |> 
+  filter(!is.na(year)) |> 
+  arrange(desc(year)) |> 
+  mutate(
+    authors = str_split(author, ", "),
+    authors = map(
+      authors,
+      function(x) {
+        case_when(
+          str_detect(x, "Ashby") ~ str_glue("**M Ashby**"), 
+          x == "..." ~ "_et al._", 
+          TRUE ~ x
+        )
+      }
+    ),
+    authors = map_chr(authors, \(x) str_flatten(x, collapse = ", ")),
+    publication = str_glue("_{journal}_ {number}"),
+    output = str_glue("{authors} ({year}).\n: [_{str_to_title(title)}_](https://scholar.google.com/citations?view_op=view_citation&hl=en&user=dwcesrQAAAAJ&citation_for_view=dwcesrQAAAAJ:{pubid}). {publication}.")
+  ) |> 
+  pull("output")
+```
+
+`r str_flatten(publications, collapse = "\n\n")`
+
+
+## Funding
+
+Funding awarded, typically jointly with colleagues.
+
+```{r funding}
+funding <- tribble(
+	~type, ~title, ~start_date, ~end_date, ~value, ~funder, ~role,
+	"Knowledge transfer partnership", "Problem Solving for Neighbourhood Policing", 2012, 2013, "£16,000", "Engineering and Physical Sciences Research Council", "co-investigator",
+	"Vice Chancellor's PhD studentship", "Crime reduction and public reassurance in a diverse society", 2017, 2020, "£60,000", "Nottingham Trent University", "supervisor",
+	"Vice Chancellor's PhD studentship", "Building evidence to support police initial response to incidents", 2018, 2021, "£60,000", "Nottingham Trent University", "supervisor",
+	"Research project", "Deciphering and disrupting the social, spatial and temporal systems behind transnational human trafficking: a data-science approach", 2018, 2023, "£365,000", "Economic and Social Research Council", "co-investigator",
+	"Research project", "Problem-Oriented Policing in England and Wales", 2019, 2020, "£246,000", "Police Transformation Fund", "co-investigator",
+	"Research project", "Building blocks for knife crime", 2020, 2021, "£122,000", "College of Policing", "co-investigator",
+	"Knowledge transfer", "Implementing problem-oriented and evidence-based responses for reducing violent crime in London", 2021, 2022, "£264,000", "Metropolitan Police Service", "co-investigator",
+	"Research project", "Benchmarking crime in London against other global cities", 2022, NA, "£10,000", "Metropolitan Police Service", "Principal investigator",
+	"Research project", "National homicide and near-miss homicide problem profile", 2023, 2024, "£63,000", "College of Policing", "Principal investigator"
+) |> 
+	arrange(desc(start_date)) |> 
+  mutate(
+    when = if_else(
+      !is.na(end_date),
+      str_glue("{start_date}--{end_date}"),
+      str_glue("{start_date}")
+    ),
+    what = str_glue(
+      "{type}: **{title}**. {str_to_sentence(role)}, {value} funding from the ",
+      "{funder}."
+    ),
+    output = str_glue("{when}\n: {what}")
+  ) |> 
+  pull("output")
+```
+
+`r str_flatten(funding, collapse = "\n\n")`
+
+
+
+## Software
+
+I maintain the following packages for the R statistical language:
+
+ * `sfhotspot`: a package for analysing geographic hotspots of events such as crimes.
+ * `crimemappingdata`: a package providing open-source datasets from around the world that are suitable for teaching crime mapping.
+
+
+
+## Professional service
+
+```{r service}
+service <- tribble(
+  ~name, ~start_date, ~end_date, ~desc, ~url,
+  "CrimPapers journal alert service", 2017, NA, "I maintain the CrimPapers alert service for new articles in 100+ criminology and criminal justice journals", "https://lesscrime.info/crimpapers/",
+  "Crime Open Database", 2018, NA, "I maintain the Crime Open Database, a dataset of harmonised open crime data for 18 large cities in the United States, as well as the associated `crimedata` R package", "http://osf.io/zyaqn/",
+  "Associate editor of the journal _Crime Science_", 2019, 2024, NA, NA,
+  "Judge at the London Problem Solving Awards", 2019, 2021, "I was a judge for the joint problem-solving awards run by the three main police forces in London", NA,
+  "Sift judge for the Tilley Awards", 2023, NA, "I am a judge for the initial round of the Tilley Awards for problem solving run by UK police forces", NA,
+  "Editorial board of the journal _Criminology_", 2024, NA, NA, NA
+) |> 
+  arrange(desc(start_date)) |> 
+  mutate(
+    when = if_else(
+      !is.na(end_date),
+      str_glue("{start_date}--{end_date}"),
+      str_glue("{start_date}--present")
+    ),
+    desc = if_else(!is.na(desc), str_glue("{desc}."), ""),
+    what = str_glue("**{name}**. {desc}"),
+    output = str_glue("{when}\n: {what}")
+  ) |> 
+  pull("output")
+```
+
+`r str_flatten(service, collapse = "\n\n")`
+
+

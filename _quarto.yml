@@ -10,6 +10,8 @@ website:
       - post/index.qmd
       - publication/index.qmd
       - talk/index.qmd
+      - href: cv/index.qmd
+        text: CV
       - href: crimpapers/
         text: CrimPapers
   comments: false

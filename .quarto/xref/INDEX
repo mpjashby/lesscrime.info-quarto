@@ -340,5 +340,10 @@
   },
   "talk/esc-stadia-2024/index.qmd": {
     "index.html": "38e185d2"
+  },
+  "cv/index.qmd": {
+    "index.html": "f20ae45e",
+    "index.pdf": "69debdbe",
+    "index.tex": "116956e6"
   }
 }
