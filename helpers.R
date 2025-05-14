@@ -5,6 +5,7 @@ library(ggtext)
 library(httr)
 library(httr2)
 library(janitor)
+library(patchwork)
 library(scales)
 library(tidyverse)
 
@@ -60,7 +61,18 @@ theme_cjcharts <- function (...) {
       plot.tag = element_text(size = 12, face = "bold", colour = "grey33",
                               hjust = 0),
       plot.tag.position = c(0.01, 0.01),
-      plot.title = element_text(face = "bold", size = 16, hjust = 0),
+    	plot.subtitle = element_textbox_simple(
+    	  lineheight = 1.1, 
+    	  margin = margin(t = 3, b = 6),
+    	  size = 10
+    	 ),
+      plot.title = element_textbox_simple(
+        face = "bold", 
+        size = 16, 
+        hjust = 0, 
+        lineheight = 1,
+        margin = margin(t = 0, b = 0)
+      ),
     	plot.title.position = "plot",
       strip.text.y = element_text(angle = 0, hjust = 0)
     )
@@ -96,9 +108,34 @@ format_caption <- function (chart_source, chart_id, chart_note = NA) {
 		glue::glue(
 			ifelse(!is.na(chart_note), paste0(chart_note, "\n"), ""),
 			"Data: {chart_source} | ", "Details: lesscrime.info/post/{chart_id}",
-			.sep = " " #, .envir = .GlobalEnv
+			.sep = " "
 		)
 	)
+}
+
+
+# Add plot information
+add_info <- function(chart, chart_source, chart_id) {
+  chart + 
+    patchwork::plot_annotation(
+      caption = stringr::str_glue(
+        "Data: {chart_source}  |  Details: lesscrime.info/post/{chart_id}",
+        "<br>Author: Dr Matt Ashby, UCL Security and Crime Science  |  ",
+        "Licence: Creative Commons Attribution "
+      ),
+      theme = ggplot2::theme(
+        plot.caption = ggtext::element_textbox_simple(
+          colour = "grey20", 
+          family = "Arial", 
+          fill = "grey95",
+          hjust = 0,
+          lineheight = 1.1, 
+          margin = margin(t = 3),
+          padding = margin(t = 5, r = 5, b = 3, l = 5),
+          size = 9
+        )
+      )
+    )
 }
 
 
@@ -114,15 +151,15 @@ add_logo <- function (chart, chart_source, chart_id) {
 		ggpubr::ggarrange(
 			scs_logo,
 			grid::textGrob(
-				glue::glue("Data: {chart_source} | ",
-									 "Details: lesscrime.info/post/{chart_id}",
-									 "\nAuthor: Matt Ashby, University College London | ",
-									 "Licence: Creative Commons Attribution ",
-									 .sep = " "),
+			  stringr::str_glue(
+			    "Data: {chart_source} | Details: lesscrime.info/post/{chart_id}",
+			    "\nAuthor: Matt Ashby, University College London | ",
+			    "Licence: Creative Commons Attribution "
+			  ),
 				x = unit(1, "npc"),
 				hjust = 1,
-				gp = grid::gpar(col = "grey33", fontfamily = "Arial",
-												fontsize = 8, lineheight = 1)
+				gp = grid::gpar(col = "grey20", fontfamily = "Arial", fontsize = 8, 
+				                lineheight = 1)
 			),
 			ncol = 2,
 			nrow = 1,
@@ -166,5 +203,23 @@ perc_change <- function (from, to, format = TRUE, ...) {
 	} else {
 		change
 	}
+}
+
+
+# Save original data file
+download_data <- function(url) {
+  
+  ext <- tools::file_ext(url)
+  
+  temp_file <- tempfile(fileext = stringr::str_glue(".{ext}"))
+  
+  httr2::request(url) |> 
+    httr2::req_progress() |> 
+    httr2::req_timeout(60 * 5) |> 
+    httr2::req_retry(max_tries = 3) |> 
+    httr2::req_perform(path = temp_file)
+  
+  temp_file
+  
 }
 

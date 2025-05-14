@@ -1,0 +1,154 @@
+---
+title: "Chart: Almost 8 million adults have been victims of partner abuse"
+author: Matt Ashby
+date: '2024-10-14'
+categories: ["Crime and justice chart of the week"]
+execute: 
+  echo: false
+  include: false
+draft: true
+---
+
+
+```{r set chart parameters}
+chart_details <- list(
+	id = "partner-abuse",
+	title = "Almost 8 million adults have been victims of partner abuse",
+	subtitle = "Among the 49 million adults in England and Wales aged 16 or over, 2.2 million have been sexually assaulted by a current or former partner, 6.7 million subjected to non-sexual assault or abuse, and 2.5 million have been stalked. In every category, at least twice as many women as men have been victimised.",
+	source_url = "https://www.ons.gov.uk/peoplepopulationandcommunity/crimeandjustice/bulletins/domesticabuseinenglandandwalesoverview/november2023",
+	source_title = "Crime Survey for England and Wales, 2023"
+)
+```
+
+```{r load packages and helper}
+# Custom packages not loaded by helpers.R
+library(readxl)
+
+# Load this after loading custom packages
+source(here::here("helpers.R"))
+```
+
+```{r get and tidy data}
+tidy_data_file <- str_glue("{chart_details$id}-data.csv.gz")
+
+if (!file.exists(tidy_data_file)) {
+  
+	# Download data
+  data_file <- download_data("https://www.ons.gov.uk/file?uri=/peoplepopulationandcommunity/crimeandjustice/datasets/domesticabuseprevalenceandvictimcharacteristicsappendixtables/yearendingmarch2023/domesticabuseprevalenceandvictimcharacteristics2023.xlsx")
+	
+	# Read and tidy data
+  tidy_data <- data_file |> 
+    read_excel(sheet = "Table 2", skip = 6) |> 
+    clean_names() |> 
+    select(
+      type = type_of_abuse, 
+      sex = sex_note_6,
+      number = victims_since_age_of_16_000s
+    ) |> 
+    mutate(
+      number = number * 1000,
+      sex = str_to_lower(sex),
+      type = case_match(
+        type,
+        "Any partner abuse (non-physical abuse, threats, force, sexual assault or stalking)" ~ 
+          "any type",
+        "Sexual assault by rape or penetration (including attempts) by a partner" ~ "rape",
+        "Indecent exposure by partner" ~ "indecent exposure",
+        "Any sexual assault (including attempts) by a partner" ~ "sexual assault",
+        "Stalking by a partner or ex-partner" ~ "stalking",
+        "Partner abuse - non-sexual" ~ "non-sexual assault or abuse"
+      )
+    ) |> 
+    drop_na() |> 
+    write_csv(tidy_data_file)
+	
+} else {
+	
+	# Load tidy data
+	tidy_data <- read_csv(tidy_data_file)
+	
+}		
+```
+
+```{r build plot}
+#| include: true
+
+chart <- tidy_data |> 
+  filter(sex != "all") |> 
+  mutate(sort_num = sum(number), .by = type) |> 
+  mutate(
+    hjust = (sex == "women" & type != "indecent exposure"),
+    victims_label = if_else(
+      number > 100000,
+      number(number, accuracy = 0.1, scale = 1/1e6, suffix = "m"),
+      number(number, accuracy = 1, scale = 1/1e3, suffix = "k")
+    ),
+    type = if_else(
+      type == "any type", 
+      str_glue(" **{type}** ({victims_label} victims)  "), 
+      str_glue(" **{type}** ({victims_label})  ")
+    ),
+    type = fct_reorder(type, sort_num)
+  ) |> 
+  ggplot(aes(x = number, y = type, colour = hjust, fill = sex, label = type)) + 
+	geom_col(colour = NA, width = 0.8) +
+  geom_richtext(
+    aes(hjust = hjust), 
+    fill = NA, 
+    label.size = NA, 
+    size = elements$label_text_size
+  ) +
+  facet_grid(rows = vars(sex), switch = "y", scales = "free_y") +
+	scale_x_continuous(
+		expand = expansion(mult = c(0, 0.02)), 
+		labels = label_number(scale = 1/1e6, suffix = "m")
+	) +
+  scale_colour_manual(values = c(`FALSE` = "grey10", `TRUE` = "white")) +
+  scale_fill_manual(
+    values = unname(ucl_colours_list[c("Orange", "Bright Blue")])
+  ) +
+  labs(
+		title = chart_details$title,
+		subtitle = format_subtitle(chart_details$subtitle),
+		legend = NULL,
+		x = "adults in England and Wales who have been a victim of partner abuse at least once since age 16",
+		y = NULL
+	) +
+  theme_cjcharts() +
+  theme(
+		axis.line.y = element_line(colour = elements$reference_line_colour),
+		axis.text.y = element_blank(),
+		axis.ticks.y = element_blank(),
+    legend.position = "none",
+		panel.grid.major.x = element_line(colour = "grey92"),
+		panel.grid.minor.x = element_line(colour = "grey92"),
+		panel.grid.major.y = element_blank(),
+		strip.placement = "outside",
+		strip.text.y = element_text(angle = 270, hjust = 0.5)
+  )
+```
+
+`r chart_details$subtitle`
+
+```{r display plot, echo=FALSE, include=TRUE}
+add_info(
+  chart + labs(title = NULL, subtitle = NULL),
+  chart_details$source_title, 
+  chart_details$id
+)
+```
+
+[larger image](`r chart_details$id`.png)
+| [annotated R code to produce this chart](https://github.com/mpjashby/lesscrime.info-quarto/blob/master/post/`r chart_details$id`/index.qmd)
+
+Data source: [`r chart_details$source_title`](`r chart_details$source_url`)
+
+
+```{r export chart}
+# save PNG for social media
+ggsave(
+	filename = paste0(chart_details$id, ".png"), 
+	plot = add_info(chart, chart_details$source_title, chart_details$id), 
+	device = "png", width = 600 / 72, height = 400 / 72, units = "in", bg = "white"
+)
+```

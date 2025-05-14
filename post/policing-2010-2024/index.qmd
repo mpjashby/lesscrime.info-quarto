@@ -210,10 +210,10 @@ if (!file.exists("police_workforce_pfa.csv")) {
   ) |> 
     clean_names() |> 
     filter(worker_type == "Police Officer") |> 
-    select(year = as_at_31_march, geo_code, force_name, total_fte) |> 
+    select(year = as_at_31_march, geocode, force_name, total_fte) |> 
     summarise(
       officers = sum(as.numeric(total_fte), na.rm = TRUE), 
-      .by = c(year, geo_code, force_name)
+      .by = c(year, geocode, force_name)
     )
   
 } else {
@@ -865,7 +865,7 @@ Source: [Office for National Statistics](https://www.ons.gov.uk/peoplepopulation
 crime_severity_raw <- severity |> 
   filter(year >= 2010) |> 
   left_join(pop_pfa, by = c("code" = "pfa21cd", "year")) |> 
-  left_join(workforce_pfa, by = c("code" = "geo_code", "year")) |> 
+  left_join(workforce_pfa, by = c("code" = "geocode", "year")) |> 
   select(code, name, year, severity_rate = score, pop, officers) |> 
   mutate(
     name = str_replace(name, "Yorkshire", "Yorks"),

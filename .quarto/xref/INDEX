@@ -345,5 +345,11 @@
     "index.html": "f20ae45e",
     "index.pdf": "69debdbe",
     "index.tex": "116956e6"
+  },
+  "post/partner-abuse/index.qmd": {
+    "index.html": "6d9b1a1a"
+  },
+  "talk/forecasting-intro/index.qmd": {
+    "index.html": "f8953aa6"
   }
 }
