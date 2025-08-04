@@ -1,0 +1,13 @@
+---
+title: "Forecasting crime for strategic crime analysis"
+date: '2025-05-14'
+---
+
+Presentation to data analysts from the UK Home Office introducing time-series forecasting as a tool for strategic crime analysis.
+
+[**Presentation slides**](/slides/forecasting-intro/)
+
+
+```{=html}
+<iframe width="800" height="500" src="/slides/forecasting-intro/"></iframe>
+```

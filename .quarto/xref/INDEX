@@ -351,5 +351,38 @@
   },
   "talk/forecasting-intro/index.qmd": {
     "index.html": "f8953aa6"
+  },
+  "post/sfhotspot-1-0-0/index.qmd": {
+    "index.html": "46fd263e"
+  },
+  "post/sfhotspot-1-0-0/sfhotspot_classify_reprex.R": {
+    "sfhotspot_classify_reprex.html": "84902e41"
+  },
+  "post/sfhotspot-1-0-0/sfhotspot_kde_reprex.md": {
+    "sfhotspot_kde_reprex.html": "32dad856"
+  },
+  "post/sfhotspot-1-0-0/sfhotspot_count_reprex.md": {
+    "sfhotspot_count_reprex.html": "41581145"
+  },
+  "post/sfhotspot-1-0-0/sfhotspot_gistar_reprex.R": {
+    "sfhotspot_gistar_reprex.html": "865a577e"
+  },
+  "post/sfhotspot-1-0-0/sfhotspot_change_reprex.md": {
+    "sfhotspot_change_reprex.html": "f9bcb9a7"
+  },
+  "post/sfhotspot-1-0-0/sfhotspot_count_reprex.R": {
+    "sfhotspot_count_reprex.html": "29ed99d9"
+  },
+  "post/sfhotspot-1-0-0/sfhotspot_gistar_reprex.md": {
+    "sfhotspot_gistar_reprex.html": "215d55e2"
+  },
+  "post/sfhotspot-1-0-0/sfhotspot_change_reprex.R": {
+    "sfhotspot_change_reprex.html": "24bca25c"
+  },
+  "post/sfhotspot-1-0-0/sfhotspot_classify_reprex.md": {
+    "sfhotspot_classify_reprex.html": "b63b984b"
+  },
+  "post/sfhotspot-1-0-0/sfhotspot_kde_reprex.R": {
+    "sfhotspot_kde_reprex.html": "868f383b"
   }
 }

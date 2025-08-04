@@ -115,6 +115,44 @@ I am an associate professor at the [Jill Dando Institute of Security and Crime S
 [more talks …](talk/)
 
 
+## CrimPapers
+
+CrimPapers provides alerts for new articles published in over 100 criminology, criminal justice, crime science, penology and terrorism journals. Alerts are provided as a daily email update or an RSS feed.
+
+[more details …](crimpapers/)
+
+
+## R packages
+
+:::: {.grid}
+
+::: {.g-col-4}
+#### crimedata
+
+The crimedata package provides access to a database of police-recorded crime data from large US cities, sourced from the [Crime Open Database](https://osf.io/zyaqn/).
+
+[Find out more about crimedata …](https://pkgs.lesscrime.info/crimedata/)
+:::
+
+::: {.g-col-4}
+#### crimemappingdata
+
+The crimemappingdata package provides a variety of datasets that are useful in teaching crime mapping in R.
+
+[Find out more about crimemappingdata …](https://pkgs.lesscrime.info/crimemappingdata/)
+:::
+
+::: {.g-col-4}
+#### sfhotspot
+
+The sfhotspot package provides functions for analysing hotspots and other concentrations of crime.
+
+[Find out more about sfhotspot …](https://pkgs.lesscrime.info/sfhotspot/)
+:::
+
+::::
+
+
 ## Get in touch {#contact}
 
 <i class="bi bi-envelope"></i> matthew.ashby@ucl.ac.uk<br>

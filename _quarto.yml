@@ -14,6 +14,14 @@ website:
         text: CV
       - href: crimpapers/
         text: CrimPapers
+      - text: "R Packages"
+        menu:
+        - href: https://pkgs.lesscrime.info/crimedata
+          text: crimedata
+        - href: https://pkgs.lesscrime.info/crimemappingdata
+          text: crimemappingdata
+        - href: https://pkgs.lesscrime.info/sfhotspot
+          text: sfhotspot
   comments: false
   page-footer: | 
     The content on this website is licensed under a 
