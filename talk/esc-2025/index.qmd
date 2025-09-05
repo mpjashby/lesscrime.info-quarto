@@ -1,0 +1,13 @@
+---
+title: "Forecasting crime for strategic crime analysis: a comparison of methods"
+date: '2025-09-06'
+---
+
+Presentation at the European Society of Criminology Annual Meeting in Athens, Greece, comparing different methods for time-series forecasting as a tool for strategic crime analysis.
+
+[**Presentation slides**](/slides/esc-2025/)
+
+
+```{=html}
+<iframe width="800" height="500" src="/slides/esc-2025/"></iframe>
+```
