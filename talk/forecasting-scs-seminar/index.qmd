@@ -1,0 +1,13 @@
+---
+title: "Forecasting crime for strategic crime analysis: a comparison of methods"
+date: '2025-10-29'
+---
+
+Presentation at the the UCL Security and Crime Science departmental research seminar comparing different methods for time-series forecasting as a tool for strategic crime analysis.
+
+[**Presentation slides**](/slides/forecasting-scs-seminar/)
+
+
+```{=html}
+<iframe width="800" height="500" src="/slides/forecasting-scs-seminar/"></iframe>
+```
