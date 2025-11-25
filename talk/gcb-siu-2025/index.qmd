@@ -1,0 +1,15 @@
+---
+title: "Benchmarking crime in London against other global cities"
+date: '2025-11-26'
+---
+
+Presentation to the Metropolitan Police Service Strategic Insights Unit about comparing crime rates in London to rates in other large cities around the world. This includes comparisons of the trends and levels of different types of crime in different cities, and explanation of why such comparisons are difficult and imperfect.
+
+This presentation is an updated version of content presented in more detail in the report [_Benchmarking crime in London against other global cities_](https://lesscrime.info/publication/global-city-crime-benchmarking/) from 2022.
+
+[**Presentation slides**](/slides/gcb-siu-2025/)
+
+
+```{=html}
+<iframe width="800" height="500" src="/slides/gcb-siu-2025/"></iframe>
+```
