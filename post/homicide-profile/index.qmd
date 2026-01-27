@@ -1,0 +1,474 @@
+---
+title: "Homicide in England and Wales, Part 1: Homicide in Context"
+date: 2026-01-26
+fig-cap-location: top
+format: 
+  html:
+    css: "../homicide_theme.css"
+bibliography: "../homicide-bibliography.bib"
+execute:
+  echo: false
+  freeze: auto
+tags: 
+  - homicide
+  - crime
+  - "Homicide problem profile"
+---
+
+```{r}
+#| label: setup
+#| include: false
+
+# Load packages, functions and data
+source("../homicide_functions.R")
+pacman::p_load(scales)
+
+social_post(
+  "We're consumed by stories of murder, but how much do you know about ",
+  "homicide in England and Wales? Every day this week I'm going to post a ",
+  "thread summarising a different aspect of what data can tell us about the ",
+  "nature of homicide.",
+  add = FALSE
+)
+
+social_post(
+  "This first thread puts homicide in context. Future daily threads will ",
+  "cover:\n\n",
+  "homicide victims\nhomicide offenders\nhomicide methods\nconcentrations ",
+  "of homicide in space/time\nhomicide vulnerability\nhomicide ",
+  "enhancers"
+)
+
+social_post(
+  "You might wonder why we're talking about 'homicide' rather than 'murder'.",
+  "\n\nBasically, the difference between murder, manslaughter and infanticide ",
+  "can be highly technical, so it's usually better to analyse these ","
+  offences together."
+)
+```
+
+
+This is the first in a series of blog posts summarising the nature of homicide in England and Wales. There's a lot to cover, so I've broken it down into a series of seven blog posts. Each post will cover a different aspect of homicide:
+
+1. Homicide context (this post)
+2. [Victims of homicide](../homicide-profile-victims/)
+3. [Homicide offenders](../homicide-profile-offenders/)
+4. [Homicide methods](../homicide-profile-methods/)
+5. [Homicide hotspots](../homicide-profile-hotspots/)
+6. [Homicide vulnerability](../homicide-profile-vulnerable/)
+7. [Homicide enhancers](../homicide-profile-enhancers/)
+
+
+::: {.callout collapse="true"}
+#### Why are you writing about homicide, not murder? (click to expand)
+
+You might be wondering why this post uses the term _homicide_ rather other terms like murder. _Murder_ means a person being killed by someone who intended to kill or seriously injure them. However, it's sometimes difficult to know whether the offender intended to kill the victim until the investigation is finished and the case goes to court. That means it can sometimes be many months before we know if a case was really a murder or another type of crime (e.g. manslaughter). 
+
+To be able to analyse crime data without having to wait many months, it has been standard practice for many years to analyse data for homicide (murder + manslaughter + infanticide) rather than just for murder. The national homicide problem profile follows that convention.
+:::
+
+There will be lots of data in these posts, but it's important to remember that every homicide is a tragedy for the victim and their friends and family. Every data point in these posts represents a human being. These are some of the `r comma(nrow(victims))` victims of homicide in England and Wales whose cases are included in this analysis.
+
+::: {.blockquote .homicide-quote}
+
+![](victims_composite_slide.jpg){fig-alt="Pictures of 18 victims of homicide in England and Wales in 2021"}
+
+:::
+
+
+### Homicide rates have dropped over the past 30 years
+
+Compared to many countries around the world, homicide in England and Wales is rare. Since 1900, the rate of homicide in peacetime has fluctuated between a low of `r number(pluck(filter(filter(historical_homicides_rate, wartime == "peace"), rate == min(rate)), "rate"), accuracy = 0.1)` per million people in `r format(pluck(filter(filter(historical_homicides_rate, wartime == "peace"), rate == min(rate)), "year"), "%Y")` and `r number(pluck(filter(filter(historical_homicides_rate, wartime == "peace"), rate == max(rate)), "rate"), accuracy = 0.1)` per million people in `r format(pluck(filter(filter(historical_homicides_rate, wartime == "peace"), rate == max(rate)), "year"), "%Y")` (@fig-long-term-trend). In simpler terms, around one in every 100,000 people is murdered each year in England and Wales. The homicide rate for 2024/25 was `r number(last(pull(historical_homicides_rate, "rate")), accuracy = 0.1)` homicides per million population -- `r number(last(pull(historical_homicides_rate, "homicides")))` homicides across `r number(last(pull(historical_homicides_rate, "persons")), accuracy = 0.1, scale = 1/1e6)` million people. The homicide rate in 2024/25 was among the lowest since the mid 1970s.
+
+
+```{r}
+#| label: fig-long-term-trend
+#| fig-alt: "Line chart showing the homicide rate per million people in England and Wales from 1900 to 2024. Light purple dots represent the annual rate, a thick purple line shows the trend, and black triangles mark spikes during the World Wars. A single black dot in 2003 highlights Harold Shipman’s murders, which were recorded that year despite occurring earlier. The rate generally declined from 1900 to the mid-1960s, then rose until the early 2000s before declining again. Data source: Home Office historical crime data. Base: all recorded homicides, 1900–2024. Vertical axis ranges from 0 to 20 homicides per million people."
+#| fig-cap: Trend in homicides in England and Wales, 1900--2024
+
+fig_long_term_trend <- historical_homicides_rate |> 
+  ggplot(aes(x = year, y = rate, linewidth = "A")) +
+  geom_point(aes(colour = wartime, fill = wartime, shape = wartime)) +
+  geom_smooth(
+    method = "loess",
+    formula = "y ~ x",
+    se = FALSE,
+    colour = ucl_brand[["c"]],
+    span = 0.175
+  ) +
+  scale_x_date(
+    date_breaks = "10 years", 
+    date_labels = "%Y", 
+    expand = c(0.025, 0)
+  ) +
+  scale_y_continuous(
+    limits = c(0, NA), 
+    expand = expansion(c(0, 0.05)), 
+    position = "right"
+  ) +
+  scale_colour_manual(
+    values = c(
+      "war" = ucl_brand[["c"]], 
+      "peace" = ucl_brand[["a"]], 
+      "shipman" = ucl_brand[["c"]]
+    ),
+    labels = c(
+      "war" = "homicides during First and Second World War", 
+      "peace" = "annual homicide rate",
+      "shipman" = "all the murders by Harold Shipman were recorded\nin 2003, despite happening over many years"
+    ),
+    guide = guide_legend(order = 1),
+    aesthetics = c("colour", "fill")
+  ) +
+  scale_linewidth_manual(
+    values = c("A" = 1),
+    labels = c("A" = "trend in annual homicide rate"),
+    guide = guide_legend(order = 2)
+  ) +
+  scale_shape_manual(
+    values = c("war" = 17, "shipman" = 21, "peace" = 16),
+    labels = c(
+      "war" = "homicides during First and Second World War", 
+      "peace" = "annual homicide rate",
+      "shipman" = "all the murders by Harold Shipman were recorded\nin 2003, despite happening over many years"
+    ),
+    guide = guide_legend(order = 1)
+  ) +
+  coord_cartesian(clip = "off") +
+  labs(
+    x = NULL,
+    y = "homicide rate per million people",
+    colour = NULL,
+    fill = NULL,
+    linewidth = NULL,
+    shape = NULL
+  ) +
+  theme_homicide() +
+  theme(
+    axis.title.y.right = element_text(hjust = 0),
+    legend.justification = c(0, 1),
+    legend.position.inside = c(0, 1),
+    legend.spacing = unit(1, "pt")
+  )
+
+social_figure(
+  fig_long_term_trend, 
+  title = "Homicide in England and Wales is lowest since the 1970s", 
+  subtitle = "Around one in every 100,000 people in England and Wales is murdered each year. The homicide rate for 2024/25 was 9.5 homicides per million population – 569 homicides across 60.1 million people.", 
+  caption = "Source: Home Office historical crime data. Base: all recorded homicides, 1900 to 2024",
+  "long_term_trend"
+)
+
+social_post(
+  "Homicide in England and Wales is rare, and getting rarer. The homicide ",
+  "rate increased continuously from 1960 until 2000, then dropped ",
+  "substantially until 2016. After a brief increase, homicide has now dropped ",
+  "to the lowest level since the 1970s.",
+  image = "long_term_trend",
+  alt = "Line chart showing the homicide rate per million people in England and Wales from 1900 to 2024. Light purple dots represent the annual rate, a thick purple line shows the trend, and black triangles mark spikes during the World Wars. A single black dot in 2003 highlights Harold Shipman’s murders, which were recorded that year despite occurring earlier. The rate generally declined from 1900 to the mid-1960s, then rose until the early 2000s before declining again. Data source: Home Office historical crime data. Base: all recorded homicides, 1900–2024. Vertical axis ranges from 0 to 20 homicides per million people."
+)
+
+fig_long_term_trend + 
+  labs(
+    caption = "Source: Home Office historical crime data<br>Base: all recorded homicides, 1900 to 2024"
+  )
+```
+
+
+
+### The homicide rate in England and Wales is close to the European average
+
+
+```{r}
+#| label: eu-homicide-prep
+#| include: false
+
+eu_homicide <- file.path(proj_dir, "analysis_data/eu_homicide_rate_2023.csv") |> 
+  read_csv(show_col_types = FALSE) |> 
+  filter(country != "Liechtenstein") |> 
+  add_row(
+    country = "England and Wales", 
+    homicides = pluck(filter(historical_homicides_rate, year(year) == 2023), "rate") / 10
+  ) |> 
+  mutate(
+    homicides = homicides * 10,
+    rank = n() - min_rank(homicides) + 1
+  )
+```
+
+
+For comparison, in 2023, within the `r nrow(eu_homicide)` countries of Europe the homicide rate in England and Wales (`r number(pluck(filter(historical_homicides_rate, year(year) == 2023), "rate"), accuracy = 0.1)` per million people) was ranked `r ordinal(pluck(filter(eu_homicide, country == "England and Wales"), "rank"))` -- very similar to the European Union homicide rate of 9.1 per million (@fig-eu-homicide).
+
+
+```{r}
+#| label: fig-eu-homicide
+#| fig-alt: "A bar chart comparing homicide rates per million residents in 2023 across European countries. Each country is represented by a vertical blue bar, except for England and Wales, which is highlighted in dark purple. A dotted line indicates the EU average of 9.1 homicides per million. Malta has the lowest rate, while Latvia has the highest, exceeding 40 homicides per million. England and Wales sits at almost exactly the EU average. Countries are listed along the x-axis, and the y-axis shows homicide rates. Data sources are the Home Office for England and Wales, and Eurostat for other countries."
+#| fig-asp: 0.6
+#| fig-cap: "Rate of homicides in European countries"
+
+fig_eu_homicide <- eu_homicide |> 
+  mutate(
+    country = str_remove(country, " \\(.*\\)"),
+    country = str_remove(country, "\\*"),
+    country = fct_reorder(country, homicides)
+  ) |> 
+  ggplot() +
+  aes(x = country, y = homicides, fill = country == "England and Wales") +
+  geom_col() +
+  annotate(
+    "label", 
+    x = 0, 
+    y = 9.1, 
+    hjust = 0,
+    label = "EU homicide rate = 9.1 homicides per million residents", 
+    border.colour = NA,
+    size = 2.5,
+    vjust = 0
+  ) +
+  geom_hline(yintercept = 9.1, linetype = "11") +
+  scale_x_discrete(expand = expansion(c(0.05, 0))) +
+  scale_y_continuous(expand = expansion(), position = "right") +
+  scale_fill_manual(
+    values = c(`TRUE` = ucl_brand[["a"]], `FALSE` = ucl_brand[["c"]])
+  ) +
+  labs(
+    x = NULL, 
+    y = "homicides per million residents, 2023"
+  ) +
+  theme_homicide() +
+  theme(
+    axis.text.x = element_text(angle = 45, hjust = 1, size = 7),
+    axis.ticks.x = element_blank(),
+    axis.title.y.right = element_text(hjust = 0),
+    legend.position = "none"
+  )
+
+social_figure(
+  fig_eu_homicide, 
+  title = "Homicide in England and Wales is similar to the European average",
+  subtitle = "The homicide rate in England and Wales is almost identical to the European average.", 
+  caption = "Source: Home Office historical homicide data (England and Wales), Eurostat (other countries)",
+  "eu_homicide"
+)
+
+social_post(
+  "The homicide rate in England and Wales is roughly in the middle of rates in European countries, and very similar to the European average. For example, ",
+  "our homicide rate is lower than that in Sweden or France, but higher than ",
+  "in Germany or Italy.",
+  image = "eu_homicide",
+  alt = "A bar chart comparing homicide rates per million residents in 2023 across European countries. Each country is represented by a vertical blue bar, except for England and Wales, which is highlighted in dark purple. A dotted line indicates the EU average of 9.1 homicides per million. Malta has the lowest rate, while Latvia has the highest, exceeding 40 homicides per million. England and Wales sits at almost exactly the EU average. Countries are listed along the x-axis, and the y-axis shows homicide rates. Data sources are the Home Office for England and Wales, and Eurostat for other countries."
+)
+
+fig_eu_homicide + 
+  labs(
+    caption = "Source: Home Office historical homicide data (England and Wales), Eurostat (other countries)"
+  )
+```
+
+
+### Homicide in England and Wales is lower than in many other countries {#world-homicide}
+
+
+```{r}
+#| label: world-homicide-prep
+#| include: false
+
+# Source: https://data.worldbank.org/indicator/VC.IHR.PSRC.P5
+download.file(
+  url = "https://api.worldbank.org/v2/en/indicator/VC.IHR.PSRC.P5?downloadformat=csv", 
+  destfile = world_homicide_zip <- tempfile(fileext = ".zip")
+)
+unzip(world_homicide_zip, exdir = tempdir())
+
+world_bank_pop <- tidyr::world_bank_pop |> 
+  filter(indicator == "SP.URB.TOTL") |> 
+  select(country, people = `2017`)
+
+world_homicide <- tempdir() |> 
+  file.path("API_VC.IHR.PSRC.P5_DS2_en_csv_v2_232.csv") |>
+  read_csv(skip = 3) |> 
+  clean_names() |> 
+  select(country_name, country_code, starts_with("x")) |> 
+  pivot_longer(
+    cols = starts_with("x"), 
+    names_to = "year", 
+    values_to = "homicides",
+    names_prefix = "x"
+  ) |> 
+  drop_na(homicides) |> 
+  slice_max(order_by = year, n = 1, by = country_code) |> 
+  left_join(world_bank_pop, by = join_by(country_code == country)) |> 
+  filter(
+    people > 10^7, 
+    year >= 2021, 
+    !country_code %in% c("AFE", "AFW", "EAS", "ECS", "FCS", "GBR", "IBD", "IDA", "IDX", "LCN", "LDC", "LIC", "LMC", "MEA", "NAC", "PRI", "SAS", "SSF", "UMC")
+  ) |> 
+  add_row(
+    country_name = "England and Wales", 
+    homicides = pluck(filter(historical_homicides_rate, year(year) == 2023), "rate") / 10
+  ) |> 
+  mutate(
+    country_name = case_match(
+      country_name,
+      "Korean, Rep." ~ "South Korea",
+      "Russian Federation" ~ "Russia",
+      "Venezuela, RB" ~ "Venezuela",
+      .default = country_name
+    ),
+    homicides = homicides * 10
+  )
+
+world_homicide_rate <- world_homicide |> 
+  filter(country_code == "WLD") |> 
+  pluck("homicides")
+```
+
+
+Looking further afield, the homicide rate in England and Wales is about one-`r english::ordinal(1 / (pluck(filter(historical_homicides_rate, year(year) == 2023), "rate") / world_homicide_rate))` of the global homicide rate (@fig-world-homicide) and about one-`r english::ordinal(1 / (pluck(filter(historical_homicides_rate, year(year) == 2023), "rate") / pluck(filter(world_homicide, country_code == "HIC"), "homicides")))` of the homicide rate in high-income countries as a whole. Compared to England and Wales, the homicide rate in the United States is about `r english::words(pluck(filter(world_homicide, country_code == "USA"), "homicides") / pluck(filter(historical_homicides_rate, year(year) == 2023), "rate"))` times higher and the rate in Canada is `r english::words(pluck(filter(world_homicide, country_code == "CAN"), "homicides") / pluck(filter(historical_homicides_rate, year(year) == 2023), "rate"))` times higher. However, there are a small number of developed countries with substantially lower homicide rates: the rate in Japan is one-`r english::ordinal((pluck(filter(historical_homicides_rate, year(year) == 2023), "rate") / pluck(filter(world_homicide, country_code == "JPN"), "homicides")))` the rate in England and Wales.
+
+
+```{r}
+#| label: fig-world-homicide
+#| fig-asp: 0.6
+#| fig-alt: "Bar chart showing homicide rates per million residents in countries with populations over 10 million, using the most recent available data (since 2021). Countries are sorted left to right by increasing homicide rate. Japan, Indonesia, and South Korea have the lowest rates, all well below the 2023 world average of 52 homicides per million (marked by a dotted line). England and Wales appears below average. The highest rates are seen in Brazil, Mexico, Colombia, South Africa, and Ecuador, with Ecuador exceeding 450 homicides per million. Source: Home Office (UK) and World Bank. Vertical axis shows homicide rate; horizontal axis lists countries."
+#| fig-cap: "Rate of homicide in large countries around the world"
+
+fig_world_homicide <- world_homicide |> 
+  filter(!country_code %in% c("HIC", "WLD")) |> 
+  mutate(
+    country_name = fct_reorder(country_name, homicides)
+  ) |>
+  ggplot() +
+  aes(
+    x = country_name, 
+    y = homicides, 
+    fill = country_name == "England and Wales"
+  ) +
+  geom_col() +
+  annotate(
+    "label", 
+    x = 0, 
+    y = world_homicide_rate, 
+    hjust = 0,
+    label = str_glue(
+      "World homicide rate, 2023 = {number(world_homicide_rate, accuracy = 0.1)} ",
+      "homicides per million residents"
+    ), 
+    border.colour = NA,
+    size = 2.5,
+    vjust = 0
+  ) +
+  geom_hline(yintercept = world_homicide_rate, linetype = "11") +
+  scale_x_discrete(expand = expansion(c(0.05, 0))) +
+  scale_y_continuous(expand = expansion(), position = "right") +
+  scale_fill_manual(
+    values = c(`TRUE` = ucl_brand[["a"]], `FALSE` = ucl_brand[["c"]])
+  ) +
+  labs(
+    x = NULL, 
+    y = "homicides per million residents, most recent year"
+  ) +
+  theme_homicide() +
+  theme(
+    axis.text.x = element_text(angle = 45, hjust = 1, size = 7),
+    axis.ticks.x = element_blank(),
+    axis.title.y.right = element_text(hjust = 0),
+    legend.position = "none"
+  )
+
+social_figure(
+  fig_world_homicide, 
+  title = "The homicide rate in England and Wales is low by global standards",
+  subtitle = "The homicide rate in England and Wales is about one-fifth of the global homicide rate and about one-third of the average rate in high-income countries. The homicide rate in England and Wales is about one-sixth of the rate in the United States and half the rate in Canada.", 
+    caption = "Source: Home Office historical homicide data (England and Wales), World Bank (other countries)<br>Base: countries with population over 10 million and homicide data available for a year since 2021 (most recent data for each country used)",
+  "world_homicide"
+)
+
+social_post(
+  "The homicide rate in England and Wales is about one-fifth of the global ",
+  "homicide rate and about one-third of the average rate in other high-income ",
+  "countries. The US homicide rate is about six times higher than ours.",
+  image = "world_homicide",
+  alt = "Bar chart showing homicide rates per million residents in countries with populations over 10 million, using the most recent available data (since 2021). Countries are sorted left to right by increasing homicide rate. Japan, Indonesia, and South Korea have the lowest rates, all well below the 2023 world average of 52 homicides per million (marked by a dotted line). England and Wales appears below average. The highest rates are seen in Brazil, Mexico, Colombia, South Africa, and Ecuador, with Ecuador exceeding 450 homicides per million. Source: Home Office (UK) and World Bank. Vertical axis shows homicide rate; horizontal axis lists countries."
+)
+
+fig_world_homicide + 
+  labs(
+    caption = "Source: Home Office historical homicide data (England and Wales), World Bank (other countries)<br>Base: countries with population over 10 million and homicide data available for a year since 2021 (most recent data for each country used)",
+  )
+```
+
+
+```{r homicide-cost}
+# The formula here is:
+#   number of homicides * unit cost from Heeks * inflation since 2016
+
+homicide_cost <- dollar(
+  pluck(slice_tail(historical_homicides_rate), "homicides") * 3217740 * 1.33, 
+  scale = 1 / 10^9, 
+  prefix = "£", 
+  suffix = "bn"
+)
+
+social_post(
+  str_glue(
+    'Although homicide is relatively rare in England and Wales, the cost of ','homicide is still very high. The annual cost to society of homicides is ',
+    'around {homicide_cost}, as well as the unquantifiable emotional harm to ',
+    "victims and their families."
+  )
+)
+```
+
+
+Despite its relatively infrequent nature, the societal cost of homicide is extremely high, with unquantifiable emotional costs for victims' families, as well as millions in medical expenses, investigation, punishment and lost economic output. Extrapolating from the latest [Home Office estimate of the costs of crime](https://www.gov.uk/government/publications/the-economic-and-social-costs-of-crime), the estimated societal cost of homicides in 2024 was around `r homicide_cost`. 
+
+
+### A note on how these posts were put together
+
+This series of blog posts is based on data from the Home Office Homicide Index, a national dataset containing details of every homicide recorded in England and Wales. The Home Office provided access to the data as part of a collaboration between the College of Policing and University College London to produce a [national problem profile for homicide](https://library.college.police.uk/docs/Patterns-trends-homicide-problem-profile-2025.pdf). The analysis was done by me and [Prof Iain Brennan at the University of Hull](https://www.hull.ac.uk/staff-directory/iain-brennan). The Homicide Index is only one source of information about homicide, so it is possible that analysis based on other sources might produce slightly different results.
+
+The profile is based on the most-recent three years of data available at the time it was written: 2019/20 to 2021/22. This data might seem slightly outdated, but homicide investigations can take many months so there is sometimes a substantial lag between a homicide occurring and full details of it being included in the Homicide Index. Some analysis uses data from earlier years to provide context or comparison. 
+
+The period of data analysed for this report include the coronavirus pandemic which began in late 2019. The pandemic affected patterns and distributions of many types of crime, but it does not appear the pandemic had a substantial effect on the frequency of homicide.
+
+These blog posts summarise the national problem profile. They do not contain all the detail that is in [the full problem profile report, which is available from the College of Policing website](https://library.college.police.uk/docs/Patterns-trends-homicide-problem-profile-2025.pdf). The full report also contains recommendations for police practice based on the analysis.
+
+
+#### Homicide sub-types {#subtypes}
+
+Separately from the national homicide problem profile, the Home Office has grouped homicides into set of seven homicide problem sub-types, i.e. groups of incidents that share a common set of characteristics, such as victim age and sex, victim-perpetrator relationship and where it took place (@tbl-clusters). 
+
+To help understand how some homicide characteristics vary for different types of homicide, the national problem profile uses the sub-types developed by the Home Office.
+
+
+| Problem sub-type | Description |
+|:------|:-------------------------------------------------------------------|
+| 1     | Female victims of domestic homicide (offender is a partner/family member, victim is aged 16+) |
+| 2     | Male victims of domestic homicide (offender is a partner/family member, victim is aged 16+) |
+| 3     | Male victims up to age 25 killed in a public place |
+| 4     | Female victims of non-domestic homicide aged 16+ |
+| 5     | Male victims of non-domestic homicide aged 25+ killed in a public space |
+| 6     | Male victims of non-domestic homicide aged 25+ killed in a house/dwelling |
+| 7     | Victims under 16 killed in a non-public place (house, residential home, other location or unknown location) |
+| other | All other victims of homicide |
+
+: Home Office homicide sub-types {#tbl-clusters}
+
+
+```{r}
+#| label: final-social-posts
+
+social_post(
+  "This analysis of homicide in England and Wales comes from a report written ",
+  "by me and Prof Iain Brennan for the UK College of Policing. You can get ",
+  "more detail at https://lesscrime.info/post/homicide-profile/"
+)
+
+social_post(
+  "This is the first in a series of seven threads summarising different ",
+  "aspects of homicide in England and Wales. I'll add links to the other ",
+  "threads here as they are published over the next week."
+)
+```
+
+The next post in this series looks at [victims of homicide](../homicide-profile-victims/).

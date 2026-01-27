@@ -1,0 +1,90 @@
+Each week, about 12 people are killed in homicides in England and Wales. But who is most likely to be killed?
+
+This thread summarises what we know about who is most likely to be a victim of homicide.
+
+🧵 [202 chrs]
+
+----
+
+This thread is the second in a series of threads about homicide in England and Wales.
+
+All the threads: https://lesscrime.info/post/homicide-profile/
+
+Full report: https://library.college.police.uk/docs/Patterns-trends-homicide-problem-profile-2025.pdf [252 chrs]
+
+----
+
+Men (especially young men) are much more likely to be victims of homicide than women are: about 73% of homicide victims are male. [129 chrs]
+
+----
+
+For men, homicide risk peaks at 15–24 then drops. For women, risk is largely constant through adulthood.
+
+Young children are at high risk: girls are more likely to be killed before their 1st birthday than at any other time in their lives. [238 chrs]
+
+[vic_age_sex.png]
+
+Alt text: A bar chart displays annual homicide victimisation rates per million people by age group and sex in five-year categories from birth to age 90+. Dark blue bars represent male victims, and light blue bars represent female victims. Male victimisation rates are highest between ages 15–34, peaking at over 30 per million. Female rates remain lower across all ages but rise among those aged 85 and over. The male rate declines steadily after age 34. The data source is the Home Office Homicide Index, based on 99.9% of homicides where victim age and sex were known. A legend distinguishes male and female bars.
+
+----
+
+Two thirds of homicide victims in England and Wales are White, 15% are Black, 8% are Asian and 9% are of other or unknown ethnicities. [134 chrs]
+
+----
+
+Black people in England and Wales have a higher homicide victimisation rate than the population as a whole at every age, as do Asian adolescents. People from mixed/multiple ethnic backgrounds are less likely to be homicide victims. [231 chrs]
+
+[vic_age_ethnicity.png]
+
+Alt text: Bar chart showing homicide victimisation rates per million people in England and Wales by age group and ethnicity, based on data from the Home Office Homicide Index. The chart is divided into five panels by ethnicity: All victims, Asian, Black, Mixed/Multiple, and White victims. Each panel displays vertical bars for age groups in ten-year intervals from 0 to 80+, with darker bars indicating lower or equal homicide rates compared to the total population of the same age, and red bars indicating higher rates. A stepped line overlays each panel, showing the homicide rate for all ethnicities for reference. The chart highlights significantly higher homicide rates among young Black victims at all ages, peaking at over 100 victims per million at age aged 20–29. Other ethnic groups generally show lower or comparable homicide rates to the overall population, with slight increases among certain age groups. The data is based on the 95.1% of homicides for which both age and ethnicity were known. The purpose of the chart is to reveal disparities in homicide victimisation rates across different ethnic groups and age ranges.
+
+----
+
+Black men and boys are particularly likely to be victims of homicide: a Black boy aged 10–17 is 13.4 times as likely to be a victim of homicide as a White boy of the same age. [175 chrs]
+
+[ethnic_disparity.png]
+
+Alt text: A heatmap chart showing homicide disparity ratios in England and Wales by victim ethnicity, sex, and age group. Rows represent ethnic groups (Asian, Black, and Other) and columns represent age groups for female and male victims. The number in each cell shows the rate of homicides in of people of a particular ethnicity relative to the rate of homicides for White people of the same age and sex. The darkest red cells, indicating highest relative risk, appear for Black males aged 10–17 and 18–29, with risk ratios of ×13.4 and ×13.3 respectively. Other males aged 18–29 and Black females 65+ also show elevated risks. Cells with fewer than 5 homicides are marked with a dash (–). Source: Home Office Homicide Index. Base: 96.2% of homicides with known age, sex, and ethnicity.
+
+----
+
+Black people are at a higher risk of being killed for all types of homicide except non-domestic homicides of women. Asian men are also at higher risk than White men of being killed in domestic homicides. [203 chrs]
+
+[vic_cluster.png]
+
+Alt text: A set of eight horizontal bar charts compares annual homicide victimisation rates per million people across different ethnic groups in England and Wales, segmented by victim Home Office homicide sub-type. Each chart includes five ethnic groups: Black, Other, Asian, White, and Mixed/Multiple. Dashed lines show the average for each sub-type. Black individuals consistently show higher victimisation rates, especially among male victims under 25 killed in public (peaking near 60 per million). Data is from the Home Office Homicide Index, excluding the Grays lorry deaths.
+
+----
+
+Unemployed people are 16 times more likely to be victims of homicide than the population as a whole. Unemployed men aged 30–49 make up 0.9% of the population but 16% of all homicide victims. [190 chrs]
+
+----
+
+So while homicide is a rare event for every group in society, it's much more common for some groups than others. For example, all else being equal a Black male aged 16–24 is more than 100 times more likely to be a victim than an Asian male aged under 16. [254 chrs]
+
+[fig_vic_risk.png]
+
+Alt text: Horizontal bar chart showing annual homicide victimisation rates per 100,000 people in England and Wales, broken down by age, sex, and ethnicity. The highest rates are for Black males aged 16–24 (21.5) and 25–34 (14.4), followed by Asian males 16–24 (3.2). Most victims with higher rates are young to middle-aged males, especially Black males. Females across all groups show significantly lower rates, all below 1.2. Bars are colored red for males and blue for females. Data is sourced from the Home Office Homicide Index, covering 90.6% of cases where victim demographics were known, excluding mixed/other ethnicities.
+
+----
+
+Most homicides occur during non-domestic fights (mostly between acquaintances, sometimes strangers) or domestic abuse (mainly between partners, sometimes family members).
+
+All homicides are tragedies, but most happen in tragically everyday circumstances. [254 chrs]
+
+[circumstances.png]
+
+----
+
+Other types of homicide are much rarer: only 1% of homicides had a sexual motive and only 0.2% occurred during terrorist attacks, even though those types of homicide often dominate public debates about public safety. [216 chrs]
+
+----
+
+This analysis of homicide victims in England and Wales comes from a report written by me and Prof Iain Brennan for the UK College of Policing. You can get more detail at https://lesscrime.info/post/homicide-profile-victims/ [223 chrs]
+
+----
+
+This is the second in a series of seven threads summarising different aspects of homicide in England and Wales. You can find links to the other threads at https://lesscrime.info/post/homicide-profile/ [200 chrs]
+
+----
+

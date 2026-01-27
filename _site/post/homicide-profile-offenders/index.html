@@ -1,0 +1,778 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en"><head>
+
+<meta charset="utf-8">
+<meta name="generator" content="quarto-1.6.40">
+
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+
+<meta name="author" content="Matt Ashby">
+<meta name="dcterms.date" content="2026-01-26">
+
+<title>Homicide in England and Wales, Part 3: Homicide offenders – Matt Ashby</title>
+<style>
+code{white-space: pre-wrap;}
+span.smallcaps{font-variant: small-caps;}
+div.columns{display: flex; gap: min(4vw, 1.5em);}
+div.column{flex: auto; overflow-x: auto;}
+div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+ul.task-list{list-style: none;}
+ul.task-list li input[type="checkbox"] {
+  width: 0.8em;
+  margin: 0 0.8em 0.2em -1em; /* quarto-specific, see https://github.com/quarto-dev/quarto-cli/issues/4556 */ 
+  vertical-align: middle;
+}
+</style>
+
+
+<script src="../../site_libs/quarto-nav/quarto-nav.js"></script>
+<script src="../../site_libs/quarto-nav/headroom.min.js"></script>
+<script src="../../site_libs/clipboard/clipboard.min.js"></script>
+<script src="../../site_libs/quarto-search/autocomplete.umd.js"></script>
+<script src="../../site_libs/quarto-search/fuse.min.js"></script>
+<script src="../../site_libs/quarto-search/quarto-search.js"></script>
+<meta name="quarto:offset" content="../../">
+<script src="../../site_libs/quarto-html/quarto.js"></script>
+<script src="../../site_libs/quarto-html/popper.min.js"></script>
+<script src="../../site_libs/quarto-html/tippy.umd.min.js"></script>
+<script src="../../site_libs/quarto-html/anchor.min.js"></script>
+<link href="../../site_libs/quarto-html/tippy.css" rel="stylesheet">
+<link href="../../site_libs/quarto-html/quarto-syntax-highlighting-549806ee2085284f45b00abea8c6df48.css" rel="stylesheet" id="quarto-text-highlighting-styles">
+<script src="../../site_libs/bootstrap/bootstrap.min.js"></script>
+<link href="../../site_libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
+<link href="../../site_libs/bootstrap/bootstrap-ee5d4d5833c2e32a258b66c087c6b3f6.min.css" rel="stylesheet" append-hash="true" id="quarto-bootstrap" data-mode="light">
+<script id="quarto-search-options" type="application/json">{
+  "location": "navbar",
+  "copy-button": false,
+  "collapse-after": 3,
+  "panel-placement": "end",
+  "type": "overlay",
+  "limit": 50,
+  "keyboard-shortcut": [
+    "f",
+    "/",
+    "s"
+  ],
+  "show-item-context": false,
+  "language": {
+    "search-no-results-text": "No results",
+    "search-matching-documents-text": "matching documents",
+    "search-copy-link-title": "Copy link to search",
+    "search-hide-matches-text": "Hide additional matches",
+    "search-more-match-text": "more match in this document",
+    "search-more-matches-text": "more matches in this document",
+    "search-clear-button-title": "Clear",
+    "search-text-placeholder": "",
+    "search-detached-cancel-button-title": "Cancel",
+    "search-submit-button-title": "Submit",
+    "search-label": "Search"
+  }
+}</script>
+
+
+<link rel="stylesheet" href="../../styles.css">
+<link rel="stylesheet" href="../homicide_theme.css">
+</head>
+
+<body class="nav-fixed">
+
+<div id="quarto-search-results"></div>
+  <header id="quarto-header" class="headroom fixed-top">
+    <nav class="navbar navbar-expand-lg " data-bs-theme="dark">
+      <div class="navbar-container container-fluid">
+      <div class="navbar-brand-container mx-auto">
+    <a class="navbar-brand" href="../../index.html">
+    <span class="navbar-title">Matt Ashby</span>
+    </a>
+  </div>
+            <div id="quarto-search" class="" title="Search"></div>
+          <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarCollapse" aria-controls="navbarCollapse" role="menu" aria-expanded="false" aria-label="Toggle navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">
+  <span class="navbar-toggler-icon"></span>
+</button>
+          <div class="collapse navbar-collapse" id="navbarCollapse">
+            <ul class="navbar-nav navbar-nav-scroll me-auto">
+  <li class="nav-item">
+    <a class="nav-link" href="../../index.html"> 
+<span class="menu-text">Home</span></a>
+  </li>  
+  <li class="nav-item">
+    <a class="nav-link" href="../../post/index.html"> 
+<span class="menu-text">Blog posts</span></a>
+  </li>  
+  <li class="nav-item">
+    <a class="nav-link" href="../../publication/index.html"> 
+<span class="menu-text">Publications</span></a>
+  </li>  
+  <li class="nav-item">
+    <a class="nav-link" href="../../talk/index.html"> 
+<span class="menu-text">Talks</span></a>
+  </li>  
+  <li class="nav-item">
+    <a class="nav-link" href="../../cv/index.pdf"> 
+<span class="menu-text">CV</span></a>
+  </li>  
+  <li class="nav-item">
+    <a class="nav-link" href="../../crimpapers/"> 
+<span class="menu-text">CrimPapers</span></a>
+  </li>  
+  <li class="nav-item dropdown ">
+    <a class="nav-link dropdown-toggle" href="#" id="nav-menu-r-packages" role="link" data-bs-toggle="dropdown" aria-expanded="false">
+ <span class="menu-text">R Packages</span>
+    </a>
+    <ul class="dropdown-menu" aria-labelledby="nav-menu-r-packages">    
+        <li>
+    <a class="dropdown-item" href="https://pkgs.lesscrime.info/crimedata">
+ <span class="dropdown-text">crimedata</span></a>
+  </li>  
+        <li>
+    <a class="dropdown-item" href="https://pkgs.lesscrime.info/crimemappingdata">
+ <span class="dropdown-text">crimemappingdata</span></a>
+  </li>  
+        <li>
+    <a class="dropdown-item" href="https://pkgs.lesscrime.info/sfhotspot">
+ <span class="dropdown-text">sfhotspot</span></a>
+  </li>  
+    </ul>
+  </li>
+</ul>
+          </div> <!-- /navcollapse -->
+            <div class="quarto-navbar-tools">
+</div>
+      </div> <!-- /container-fluid -->
+    </nav>
+</header>
+<!-- content -->
+<div id="quarto-content" class="quarto-container page-columns page-rows-contents page-layout-article page-navbar">
+<!-- sidebar -->
+<!-- margin-sidebar -->
+    <div id="quarto-margin-sidebar" class="sidebar margin-sidebar">
+        <nav id="TOC" role="doc-toc" class="toc-active">
+    <h2 id="toc-title">On this page</h2>
+   
+  <ul>
+  <li><a href="#most-homicide-offenders-are-young-but-domestic-homicide-offenders-are-often-older" id="toc-most-homicide-offenders-are-young-but-domestic-homicide-offenders-are-often-older" class="nav-link active" data-scroll-target="#most-homicide-offenders-are-young-but-domestic-homicide-offenders-are-often-older">Most homicide offenders are young, but domestic homicide offenders are often older</a></li>
+  <li><a href="#almost-all-homicide-offenders-are-men" id="toc-almost-all-homicide-offenders-are-men" class="nav-link" data-scroll-target="#almost-all-homicide-offenders-are-men">Almost all homicide offenders are men</a></li>
+  <li><a href="#black-men-are-over-represented-as-homicide-offenders" id="toc-black-men-are-over-represented-as-homicide-offenders" class="nav-link" data-scroll-target="#black-men-are-over-represented-as-homicide-offenders">Black men are over-represented as homicide offenders</a></li>
+  <li><a href="#homicide-offenders-are-very-often-unemployed-and-often-have-serious-previous-convictions" id="toc-homicide-offenders-are-very-often-unemployed-and-often-have-serious-previous-convictions" class="nav-link" data-scroll-target="#homicide-offenders-are-very-often-unemployed-and-often-have-serious-previous-convictions">Homicide offenders are very often unemployed, and often have serious previous convictions</a></li>
+  <li><a href="#homicide-victims-usually-know-their-killers" id="toc-homicide-victims-usually-know-their-killers" class="nav-link" data-scroll-target="#homicide-victims-usually-know-their-killers">Homicide victims usually know their killers</a></li>
+  <li><a href="#victims-are-usually-killed-by-someone-from-the-same-ethnic-group-as-them" id="toc-victims-are-usually-killed-by-someone-from-the-same-ethnic-group-as-them" class="nav-link" data-scroll-target="#victims-are-usually-killed-by-someone-from-the-same-ethnic-group-as-them">Victims are usually killed by someone from the same ethnic group as them</a></li>
+  <li><a href="#in-summary" id="toc-in-summary" class="nav-link" data-scroll-target="#in-summary">In summary</a></li>
+  </ul>
+</nav>
+    </div>
+<!-- main -->
+<main class="content" id="quarto-document-content">
+
+<header id="title-block-header" class="quarto-title-block default">
+<div class="quarto-title">
+<h1 class="title">Homicide in England and Wales, Part 3: Homicide offenders</h1>
+</div>
+
+
+
+<div class="quarto-title-meta">
+
+    <div>
+    <div class="quarto-title-meta-heading">Author</div>
+    <div class="quarto-title-meta-contents">
+             <p>Matt Ashby </p>
+          </div>
+  </div>
+    
+    <div>
+    <div class="quarto-title-meta-heading">Published</div>
+    <div class="quarto-title-meta-contents">
+      <p class="date">26 Jan 2026</p>
+    </div>
+  </div>
+  
+    
+  </div>
+  
+
+
+</header>
+
+
+<p>This is the third in a <a href="../homicide-profile/">series of blog posts summarising the nature of homicide in England and Wales</a>. Each post covers a different aspect of homicide, based on data from the Home Office Homicide Index. This post looks at who commits homicides. This post is a summary of part of a longer <a href="https://library.college.police.uk/docs/Patterns-trends-homicide-problem-profile-2025.pdf">national problem profile of homicide in England and Wales</a> written by me and Prof Iain Brennan.</p>
+<p>Each year about 730 people are charged with an offence relating to a homicide in England and Wales. In most cases a single suspect is charged, but multiple suspects are charged in about 28% of charged cases, and in about 6% of charged cases five or more people were charged.</p>
+<p>In many cases the details of who committed a homicide will not be known until some time into a police investigation. The Home Office Homicide Index therefore only contains information about suspects who have been charged with homicide offences. To protect the privacy of suspects who are later found not guilty, personal details about a suspect (e.g.&nbsp;their sex and ethnicity) are only included if a suspect has been convicted of a homicide offence. The analysis here is based on data from the three years from April 2019 to March 2022, and includes details of 2,212 charged suspects, with demographic data available for the 1,205 offenders who had been convicted of a homicide offence.</p>
+<section id="most-homicide-offenders-are-young-but-domestic-homicide-offenders-are-often-older" class="level3">
+<h3 class="anchored" data-anchor-id="most-homicide-offenders-are-young-but-domestic-homicide-offenders-are-often-older">Most homicide offenders are young, but domestic homicide offenders are often older</h3>
+<p>Most homicide suspects were young (<a href="#fig-sus-age-sex" class="quarto-xref">Figure&nbsp;1</a>): of those offenders convicted of a homicide offence, half were aged between 13 and 26 years old, with a quarter aged between 13 and 19. However, over the three-year period covered by the data there were 19 recorded suspects aged 65 or older (2% of offenders convicted of homicide) with the oldest suspect being aged 84.</p>
+<div class="cell">
+<div class="cell-output-display">
+<div id="fig-sus-age-sex" class="quarto-float quarto-figure quarto-figure-center anchored" alt="Bar chart showing the number of homicide suspects in England and Wales by age, split into child and adult categories. The chart spans ages 10 to 85 and peaks at age 19, where over 70 suspects are recorded. A sharp decline follows into the late twenties, then gradually decreases with age. Very few suspects are aged over 60. Data source is the Home Office Homicide Index, including only cases where the suspect’s age was known.">
+<figure class="quarto-float quarto-float-fig figure">
+<figcaption class="quarto-float-caption-top quarto-float-caption quarto-float-fig" id="fig-sus-age-sex-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Figure&nbsp;1: Homicide offenders by age
+</figcaption>
+<div aria-describedby="fig-sus-age-sex-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<img src="index_files/figure-html/fig-sus-age-sex-1.png" class="img-fluid figure-img" alt="Bar chart showing the number of homicide suspects in England and Wales by age, split into child and adult categories. The chart spans ages 10 to 85 and peaks at age 19, where over 70 suspects are recorded. A sharp decline follows into the late twenties, then gradually decreases with age. Very few suspects are aged over 60. Data source is the Home Office Homicide Index, including only cases where the suspect’s age was known." width="672">
+</div>
+</figure>
+</div>
+</div>
+</div>
+<p>While most homicide suspects were young overall, this varied quite a lot depending on the type of homicide (<a href="#fig-sus-cluster-age" class="quarto-xref">Figure&nbsp;2</a>). Half of the convicted offenders for homicides of male victims up to age 25 killed in a public place were aged 19 or younger (three quarters were aged 22 or younger), while for female victims of domestic homicide half of convicted offenders were 40 or older.</p>
+<div class="cell">
+<div class="cell-output-display">
+<div id="fig-sus-cluster-age" class="quarto-float quarto-figure quarto-figure-center anchored" alt="Chart showing age distribution of convicted homicide offenders by victim type in England and Wales, with separate density curves for seven sub-types and an “other victims” group. Each curve shows the spread of offender ages, with a vertical line indicating the median. Female victims of domestic homicide (16+): Wide age range with a peak in offenders aged 30–40, tapering off gradually on both sides. Median around age 42. Male victims of domestic homicide (16+): Bimodal distribution with prominent peaks around ages 25 and 45. Median around age 33. Male victims under 25 killed in public spaces: Sharp peak around age 19, indicating most offenders were young. Steep drop-off after age 25. Female victims, non-domestic (16+): Flatter distribution with no strong peak, suggesting a wide range of offender ages. Median around 32. Male victims, non-domestic, killed in public spaces: Skewed toward younger offenders with a peak around age 20. Median 25. Male victims, non-domestic, killed in homes: Broad distribution with a peak around age 35. Median near mid-30s. Victims under 16 killed in non-public places: Bell-shaped curve peaking just under age 30. Almost no offenders older than 50. Other victims: Peak around age 25, with a gradual decline up to age 60, and some offenders older. Median near age 30. Source: Home Office Homicide Index. All data shown is for convicted offenders where age was known.">
+<figure class="quarto-float quarto-float-fig figure">
+<figcaption class="quarto-float-caption-top quarto-float-caption quarto-float-fig" id="fig-sus-cluster-age-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Figure&nbsp;2: Suspect ages for different Home Office homicide sub-types
+</figcaption>
+<div aria-describedby="fig-sus-cluster-age-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<img src="index_files/figure-html/fig-sus-cluster-age-1.png" class="img-fluid figure-img" alt="Chart showing age distribution of convicted homicide offenders by victim type in England and Wales, with separate density curves for seven sub-types and an “other victims” group. Each curve shows the spread of offender ages, with a vertical line indicating the median. Female victims of domestic homicide (16+): Wide age range with a peak in offenders aged 30–40, tapering off gradually on both sides. Median around age 42. Male victims of domestic homicide (16+): Bimodal distribution with prominent peaks around ages 25 and 45. Median around age 33. Male victims under 25 killed in public spaces: Sharp peak around age 19, indicating most offenders were young. Steep drop-off after age 25. Female victims, non-domestic (16+): Flatter distribution with no strong peak, suggesting a wide range of offender ages. Median around 32. Male victims, non-domestic, killed in public spaces: Skewed toward younger offenders with a peak around age 20. Median 25. Male victims, non-domestic, killed in homes: Broad distribution with a peak around age 35. Median near mid-30s. Victims under 16 killed in non-public places: Bell-shaped curve peaking just under age 30. Almost no offenders older than 50. Other victims: Peak around age 25, with a gradual decline up to age 60, and some offenders older. Median near age 30. Source: Home Office Homicide Index. All data shown is for convicted offenders where age was known." width="672">
+</div>
+</figure>
+</div>
+</div>
+</div>
+</section>
+<section id="almost-all-homicide-offenders-are-men" class="level3">
+<h3 class="anchored" data-anchor-id="almost-all-homicide-offenders-are-men">Almost all homicide offenders are men</h3>
+<p>Homicide offenders were overwhelmingly men: 93% of convicted offenders were male. Of those cases with at least one convicted offender, 65% involved male victims killed by one or more male suspects, 26% involved female victims killed by male suspects, 4% involved male victims killed by female suspects, 3% involved victims killed by multiple offenders including at least one male and one female suspect, and 2% involved female victims killed by female suspects.</p>
+</section>
+<section id="black-men-are-over-represented-as-homicide-offenders" class="level3">
+<h3 class="anchored" data-anchor-id="black-men-are-over-represented-as-homicide-offenders">Black men are over-represented as homicide offenders</h3>
+<p>For the 96% of convicted offenders with a known ethnicity, 63% of offenders were White, 18% were Black, and 11% were Asian. Black offenders and those with mixed/multiple ethnicities were over-represented relative to their share of the population at all ages up to age 50 (<a href="#fig-sus-age-ethnicity" class="quarto-xref">Figure&nbsp;3</a>). Black offenders were on-average almost a decade younger (with an average age of 23) than White offenders (average age 32).</p>
+<div class="cell">
+<div class="cell-output-display">
+<div id="fig-sus-age-ethnicity" class="quarto-float quarto-figure quarto-figure-center anchored" alt="Bar chart showing annual homicide suspect rates per million people by age and ethnicity in England and Wales. The chart is divided into five panels: All suspects, Asian, Black, Mixed/Multiple, and White. Bars are color-coded: dark red indicates a lower or equal homicide rate compared to the total population of the same age, while bright red indicates a higher rate. A stepped line in each panel shows the overall homicide offending rate across all ethnicities for reference. Black suspects, especially aged 20–30, show significantly higher homicide suspect rates compared to other groups, with the highest peak exceeding 80 per million. Other groups peak around ages 20–30 but at lower rates. Asian, White, and All suspects show more moderate rates, while Mixed/Multiple suspects have a small peak. The x-axis shows age in 10-year increments; the y-axis shows homicide suspect rate. Data is from the Home Office Homicide Index, covering 95.1% of known-age, known-ethnicity suspects.">
+<figure class="quarto-float quarto-float-fig figure">
+<figcaption class="quarto-float-caption-top quarto-float-caption quarto-float-fig" id="fig-sus-age-ethnicity-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Figure&nbsp;3: Homicide offending rate by age and ethnicity
+</figcaption>
+<div aria-describedby="fig-sus-age-ethnicity-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<img src="index_files/figure-html/fig-sus-age-ethnicity-1.png" class="img-fluid figure-img" alt="Bar chart showing annual homicide suspect rates per million people by age and ethnicity in England and Wales. The chart is divided into five panels: All suspects, Asian, Black, Mixed/Multiple, and White. Bars are color-coded: dark red indicates a lower or equal homicide rate compared to the total population of the same age, while bright red indicates a higher rate. A stepped line in each panel shows the overall homicide offending rate across all ethnicities for reference. Black suspects, especially aged 20–30, show significantly higher homicide suspect rates compared to other groups, with the highest peak exceeding 80 per million. Other groups peak around ages 20–30 but at lower rates. Asian, White, and All suspects show more moderate rates, while Mixed/Multiple suspects have a small peak. The x-axis shows age in 10-year increments; the y-axis shows homicide suspect rate. Data is from the Home Office Homicide Index, covering 95.1% of known-age, known-ethnicity suspects." width="672">
+</div>
+</figure>
+</div>
+</div>
+</div>
+<p>The over-representation of Black suspects does not mean that most homicide offenders are Black (63% of offenders were White), or that anything more than a tiny fraction of Black people are involved in homicide. Even within the demographic group in <a href="#fig-sus-age-ethnicity" class="quarto-xref">Figure&nbsp;3</a> with the highest rate of homicide offending (Black people aged 10–19, only about 30 of the 414,000 in that group were homicide offenders each year – 99.992% of people in that group were not.</p>
+<div id="imp-ethnicity-reasons" class="callout callout-style-default callout-important callout-titled">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+Important&nbsp;1: Why are Black men over-represented among homicide offenders?
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p>How likely an individual is to commit a homicide depends on a huge range of factors relating to their psychology and the circumstances they live in. Only a fraction of those factors are recorded in the Homicide Index data we used for this analysis. Black men being over-represented does not mean they are offending <em>because</em> they are Black men – the truth is much more complicated than that. See <a href="../homicide-profile-victims/#imp-ethnicity-reasons">this explanation from Part 2 of this series</a>.</p>
+</div>
+</div>
+<p>Offenders from different ethnic groups were also more likely to be involved in different types of homicide (<a href="#fig-sus-cluster-ethnicity" class="quarto-xref">Figure&nbsp;4</a>). Black offenders were over-represented in all types of homicide, especially in homicides of male victims up to age 25 killed in a public place. Domestic homicides of male victims were less likely to be committed by Asian offenders or offenders with mixed/multiple ethnicities.</p>
+<div class="cell">
+<div class="cell-output-display">
+<div id="fig-sus-cluster-ethnicity" class="quarto-float quarto-figure quarto-figure-center anchored" alt="Multi-panel horizontal bar chart showing annual homicide suspect rates per million people by ethnicity and Home Office homicide sub-type. The figure contains eight sub-charts, each with a different horizontal scale. Ethnic groups listed vertically in each panel are Black, Mixed/Multiple, Asian, White, and Other. Solid bars show rates for each ethnic group, while a vertical dashed line marks the average homicide suspect rate for all ethnic groups within that specific sub-type. Panels are titled: (1) Female victims of domestic homicide, age 16+, (2) Male victims of domestic homicide, age 16+, (3) Male victims under 25 killed in public spaces, (4) Female victims, non-domestic, age 16+, (5) Male victims, non-domestic, killed in public spaces, (6) Male victims, non-domestic, killed in homes, (7) Victims under 16 killed in non-public places, and (8) Other victims. Across most categories, Black individuals show the highest suspect rates, often substantially above the dashed average line, particularly for male victims killed in public spaces and non-domestic contexts. White and Other groups generally show lower rates, frequently below the average, while Mixed/Multiple and Asian groups fall between these extremes depending on category. A note explains that dashed lines represent the overall rate per sub-type and that axes differ by panel. Source and base notes appear below the chart.">
+<figure class="quarto-float quarto-float-fig figure">
+<figcaption class="quarto-float-caption-top quarto-float-caption quarto-float-fig" id="fig-sus-cluster-ethnicity-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Figure&nbsp;4: Homicide suspect risk for ethnic groups in each Home Office sub-type
+</figcaption>
+<div aria-describedby="fig-sus-cluster-ethnicity-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<img src="index_files/figure-html/fig-sus-cluster-ethnicity-1.png" class="img-fluid figure-img" alt="Multi-panel horizontal bar chart showing annual homicide suspect rates per million people by ethnicity and Home Office homicide sub-type. The figure contains eight sub-charts, each with a different horizontal scale. Ethnic groups listed vertically in each panel are Black, Mixed/Multiple, Asian, White, and Other. Solid bars show rates for each ethnic group, while a vertical dashed line marks the average homicide suspect rate for all ethnic groups within that specific sub-type. Panels are titled: (1) Female victims of domestic homicide, age 16+, (2) Male victims of domestic homicide, age 16+, (3) Male victims under 25 killed in public spaces, (4) Female victims, non-domestic, age 16+, (5) Male victims, non-domestic, killed in public spaces, (6) Male victims, non-domestic, killed in homes, (7) Victims under 16 killed in non-public places, and (8) Other victims. Across most categories, Black individuals show the highest suspect rates, often substantially above the dashed average line, particularly for male victims killed in public spaces and non-domestic contexts. White and Other groups generally show lower rates, frequently below the average, while Mixed/Multiple and Asian groups fall between these extremes depending on category. A note explains that dashed lines represent the overall rate per sub-type and that axes differ by panel. Source and base notes appear below the chart." width="672">
+</div>
+</figure>
+</div>
+</div>
+</div>
+</section>
+<section id="homicide-offenders-are-very-often-unemployed-and-often-have-serious-previous-convictions" class="level3">
+<h3 class="anchored" data-anchor-id="homicide-offenders-are-very-often-unemployed-and-often-have-serious-previous-convictions">Homicide offenders are very often unemployed, and often have serious previous convictions</h3>
+<p>Homicide offenders were much more likely to be unemployed than people in the general population. Suspects were most likely to be unemployed (60% of suspects with known employment status), employed (25%), or a student (12%), whereas at the last census only 3% of people described themselves as unemployed. The over-representation of unemployed men as offenders meant that 35% of all convicted homicide offenders were unemployed White men and a further 13% of all convicted homicide offenders were unemployed Black men.</p>
+<p>Around a quarter of charged homicide suspects were known to have a previous conviction for a serious offence (for example kidnap or wounding with intent), including 0.3% of suspects who had a previous conviction for homicide. The convicted homicide offenders with a previous serious conviction included 26% of male suspects and 9% of female suspects. A somewhat higher proportion (34%) of convicted offenders who were Black had a previous serious conviction than the proportion for White or Asian suspects (22% and 21%, respectively).</p>
+<p>There was some variation in homicide methods between male and female convicted offenders, with male convicted offenders being more likely to be involved in homicides by shooting (for which 99% of suspects were male), by motor vehicle (97% of suspects were male), and by blunt instrument (95% of suspects were male). Contrary to stereotype, all 3 convicted offenders in homicides by poisoning were male. There was also some variation in homicide methods by ethnicity, with Asian people being more likely to be convicted offenders in homicides by shooting and Black people being more likely to be convicted offenders in homicides by shooting or sharp instrument, when compared to White suspects.</p>
+<p>Combining the available demographic information about homicide suspects in England and Wales shows that (among the 46% of suspects for which the necessary fields were completed) the most common suspects for homicides were unemployed White men in their 20s (12% of suspects), unemployed White men in their 30s (9%), and unemployed White men in their 40s (6%) – between them, these three categories make up 27% of all convicted homicide offenders, despite making up about 0.9% of the overall population.</p>
+</section>
+<section id="homicide-victims-usually-know-their-killers" class="level3">
+<h3 class="anchored" data-anchor-id="homicide-victims-usually-know-their-killers">Homicide victims usually know their killers</h3>
+<p>Homicide victims were usually killed by someone who they knew: 40% of charged suspects were acquaintances of the victim, 17% were a family member of the victim and 17% were a partner or ex-partner of the victim. This contrasts with only 26% of suspects who were strangers.</p>
+<p>Among the suspects who were partners or ex-partners, 81% were current partners. 55% of suspects who were categorised as partner/ex-partners were living with the victim, while 52% of suspects who were categorised as family members were living with the victim. Among the suspects categorised as acquaintances, the most-common types of acquaintance were friend or social acquaintance (72%), criminal associate (19%), and business associate or client (4%).</p>
+<p>Victim–suspect relationships varied according to victim characteristics: 48% of all female homicide victims were killed by a current or former partner (all suspects in this category were male), compared to 4% of male victims. Conversely, 32% of male victims were killed by strangers, compared to 12% of female victims. These patterns were broadly similar across ethnic groups, although female Asian victims and male Black victims were somewhat more likely to have been killed by a stranger, relative to White victims of the same sex.</p>
+<p>Victim–suspect relationships varied substantially by age (<a href="#fig-sus-vic-relationship" class="quarto-xref">Figure&nbsp;5</a>). In homicides of children under 10 for which the victim–suspect relationship was known, 92% of identified suspects were family members (65% of whom lived with the victim), whereas for older children and adults only 9% of known suspects were family members. We will come back to the issue of child homicide in <a href="../homicide-profile-vulnerable/">part six of this series</a>.</p>
+<p>Adult male victims were most likely to be killed by acquaintances, while adult female victims were most likely to be killed by a current or ex-partner. There were two exceptions to this: both female victims aged 10–19 and female victims aged 80 or more were most likely to be killed by strangers. However, the relatively small numbers of homicides of victims in these categories means these findings should be treated with caution. We will cover the issue of domestic-abuse homicides in more detail in <a href="../homicide-profile-vulnerable/">part six of this series</a>.</p>
+<div class="cell">
+<div class="cell-output-display">
+<div id="fig-sus-vic-relationship" class="quarto-float quarto-figure quarto-figure-center anchored" alt="This grouped bar chart shows the percentage of homicide suspects’ relationships to victims in England and Wales, broken down by victim age (in ten-year categories) and sex (female on top, male on bottom). Four relationship types are represented across the chart: partner/ex-partner, family member, acquaintance, and stranger. Among female victims, suspects are most often current or former partners, especially for victims aged 20–49. In contrast, for male victims, suspects are more commonly acquaintances or strangers across all age groups. Family members are most likely to be suspects in homicides of the very young (ages 0–9) and elderly (70+), especially for male victims. For female victims, acquaintance and stranger suspects are less common overall but rise slightly in older age groups. Among male victims, partner/ex-partner suspects account for a very small proportion across all ages. The chart highlights the gendered nature of homicide suspect relationships, particularly the high rates of intimate partner homicide among women. Data source is the Home Office Homicide Index, representing 83.5% of victims for whom age, sex, and suspect relationship are known. The x-axis shows victim age by decade; the y-axis shows percentage of suspect relationships.">
+<figure class="quarto-float quarto-float-fig figure">
+<figcaption class="quarto-float-caption-top quarto-float-caption quarto-float-fig" id="fig-sus-vic-relationship-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Figure&nbsp;5: Suspect–victim relationships by age and sex
+</figcaption>
+<div aria-describedby="fig-sus-vic-relationship-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<img src="index_files/figure-html/fig-sus-vic-relationship-1.png" class="img-fluid figure-img" alt="This grouped bar chart shows the percentage of homicide suspects’ relationships to victims in England and Wales, broken down by victim age (in ten-year categories) and sex (female on top, male on bottom). Four relationship types are represented across the chart: partner/ex-partner, family member, acquaintance, and stranger. Among female victims, suspects are most often current or former partners, especially for victims aged 20–49. In contrast, for male victims, suspects are more commonly acquaintances or strangers across all age groups. Family members are most likely to be suspects in homicides of the very young (ages 0–9) and elderly (70+), especially for male victims. For female victims, acquaintance and stranger suspects are less common overall but rise slightly in older age groups. Among male victims, partner/ex-partner suspects account for a very small proportion across all ages. The chart highlights the gendered nature of homicide suspect relationships, particularly the high rates of intimate partner homicide among women. Data source is the Home Office Homicide Index, representing 83.5% of victims for whom age, sex, and suspect relationship are known. The x-axis shows victim age by decade; the y-axis shows percentage of suspect relationships." width="672">
+</div>
+</figure>
+</div>
+</div>
+</div>
+</section>
+<section id="victims-are-usually-killed-by-someone-from-the-same-ethnic-group-as-them" class="level3">
+<h3 class="anchored" data-anchor-id="victims-are-usually-killed-by-someone-from-the-same-ethnic-group-as-them">Victims are usually killed by someone from the same ethnic group as them</h3>
+<p>Homicide victims were more likely to be killed by suspects of the same ethnic group as themselves than would be expected by chance (<a href="#fig-sus-vic-ethnicity" class="quarto-xref">Figure&nbsp;6</a>). Among White victims for whom the ethnicity of a suspect was known, 86% were killed by White suspects (higher than the 82% of the population who are White). But for Black victims for whom a suspect ethnicity was known, 59% were killed by Black suspects, much more than the 4% percent of the population who are Black. Similarly, among Asian victims for whom a suspect ethnicity was known, 52% were killed by Asian suspects, much more than the 9% percent of the population who are Asian.</p>
+<div class="cell">
+<div class="cell-output-display">
+<div id="fig-sus-vic-ethnicity" class="quarto-float quarto-figure quarto-figure-center anchored" alt="A heatmap-style chart shows percentages of homicide victims by their ethnicity and the ethnicity of the suspect, based on data from the UK Home Office Homicide Index. The chart has victim ethnicities listed on the vertical axis (White, Black, Asian, Mixed/Multiple, Other) and suspect ethnicities on the horizontal axis with the same categories. Each cell contains a percentage and is shaded according to the proportion of total homicide victims, with darker green indicating higher values. The most prominent cell shows that 51% of homicide victims were White individuals killed by White suspects. Other significant cells include Black victims with Black suspects (10%) and Other victims with White suspects (12%). Many cells have values near or at 0%. A vertical color scale on the right indicates shading from 0% (light) to 60% (dark). The data reflects only the 56.8% of cases where both suspect and victim ethnicities were known.">
+<figure class="quarto-float quarto-float-fig figure">
+<figcaption class="quarto-float-caption-top quarto-float-caption quarto-float-fig" id="fig-sus-vic-ethnicity-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Figure&nbsp;6: Relationship between suspect and victim ethnicity
+</figcaption>
+<div aria-describedby="fig-sus-vic-ethnicity-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<img src="index_files/figure-html/fig-sus-vic-ethnicity-1.png" class="img-fluid figure-img" alt="A heatmap-style chart shows percentages of homicide victims by their ethnicity and the ethnicity of the suspect, based on data from the UK Home Office Homicide Index. The chart has victim ethnicities listed on the vertical axis (White, Black, Asian, Mixed/Multiple, Other) and suspect ethnicities on the horizontal axis with the same categories. Each cell contains a percentage and is shaded according to the proportion of total homicide victims, with darker green indicating higher values. The most prominent cell shows that 51% of homicide victims were White individuals killed by White suspects. Other significant cells include Black victims with Black suspects (10%) and Other victims with White suspects (12%). Many cells have values near or at 0%. A vertical color scale on the right indicates shading from 0% (light) to 60% (dark). The data reflects only the 56.8% of cases where both suspect and victim ethnicities were known." width="672">
+</div>
+</figure>
+</div>
+</div>
+</div>
+<p>These relationships were not solely driven by suspects and victims who knew one another: among Black victims killed by strangers, 67% were killed by Black suspects, while 39% Asian victims killed by strangers were killed by Asian suspects. This likely reflects the fact that people spend more time with people of the same ethnicity as themselves even if the people do not know each other, for example because they attend the same cultural events or because they live close to a facility (such as a place of worship or a cluster of specialist shops) that serves a particular community.</p>
+</section>
+<section id="in-summary" class="level3">
+<h3 class="anchored" data-anchor-id="in-summary">In summary</h3>
+<p>Homicide – like all types of offending – is heavily concentrated among a small number of people. In particular, almost all homicide offenders are men and a much higher proportion of offenders are unemployed compared to the general population. There are also more Black homicide offenders than we would expect based on their share of the general population.</p>
+<p>It’s important to remember, though, that because homicide is so rare then even among groups with the highest rates of offending, the vast majority of people in those groups will never be involved in homicide.</p>
+<p>While a lot of media (especially dramatic) narratives about homicide focus on people being killed by strangers, in reality most homicide victims are killed by someone they know. For male victims this is typically a friend or social acquaintance, whereas for female victims it is most often a current or former partner. I’ll go into more detail about this in <a href="../homicide-profile-vulnerable/">part six of this series</a>.</p>
+<p>The next post in this series looks at <a href="../homicide-profile-methods/">how people are killed in homicides</a>.</p>
+
+
+</section>
+
+</main> <!-- /main -->
+<script id="quarto-html-after-body" type="application/javascript">
+window.document.addEventListener("DOMContentLoaded", function (event) {
+  const toggleBodyColorMode = (bsSheetEl) => {
+    const mode = bsSheetEl.getAttribute("data-mode");
+    const bodyEl = window.document.querySelector("body");
+    if (mode === "dark") {
+      bodyEl.classList.add("quarto-dark");
+      bodyEl.classList.remove("quarto-light");
+    } else {
+      bodyEl.classList.add("quarto-light");
+      bodyEl.classList.remove("quarto-dark");
+    }
+  }
+  const toggleBodyColorPrimary = () => {
+    const bsSheetEl = window.document.querySelector("link#quarto-bootstrap");
+    if (bsSheetEl) {
+      toggleBodyColorMode(bsSheetEl);
+    }
+  }
+  toggleBodyColorPrimary();  
+  const icon = "";
+  const anchorJS = new window.AnchorJS();
+  anchorJS.options = {
+    placement: 'right',
+    icon: icon
+  };
+  anchorJS.add('.anchored');
+  const isCodeAnnotation = (el) => {
+    for (const clz of el.classList) {
+      if (clz.startsWith('code-annotation-')) {                     
+        return true;
+      }
+    }
+    return false;
+  }
+  const onCopySuccess = function(e) {
+    // button target
+    const button = e.trigger;
+    // don't keep focus
+    button.blur();
+    // flash "checked"
+    button.classList.add('code-copy-button-checked');
+    var currentTitle = button.getAttribute("title");
+    button.setAttribute("title", "Copied!");
+    let tooltip;
+    if (window.bootstrap) {
+      button.setAttribute("data-bs-toggle", "tooltip");
+      button.setAttribute("data-bs-placement", "left");
+      button.setAttribute("data-bs-title", "Copied!");
+      tooltip = new bootstrap.Tooltip(button, 
+        { trigger: "manual", 
+          customClass: "code-copy-button-tooltip",
+          offset: [0, -8]});
+      tooltip.show();    
+    }
+    setTimeout(function() {
+      if (tooltip) {
+        tooltip.hide();
+        button.removeAttribute("data-bs-title");
+        button.removeAttribute("data-bs-toggle");
+        button.removeAttribute("data-bs-placement");
+      }
+      button.setAttribute("title", currentTitle);
+      button.classList.remove('code-copy-button-checked');
+    }, 1000);
+    // clear code selection
+    e.clearSelection();
+  }
+  const getTextToCopy = function(trigger) {
+      const codeEl = trigger.previousElementSibling.cloneNode(true);
+      for (const childEl of codeEl.children) {
+        if (isCodeAnnotation(childEl)) {
+          childEl.remove();
+        }
+      }
+      return codeEl.innerText;
+  }
+  const clipboard = new window.ClipboardJS('.code-copy-button:not([data-in-quarto-modal])', {
+    text: getTextToCopy
+  });
+  clipboard.on('success', onCopySuccess);
+  if (window.document.getElementById('quarto-embedded-source-code-modal')) {
+    const clipboardModal = new window.ClipboardJS('.code-copy-button[data-in-quarto-modal]', {
+      text: getTextToCopy,
+      container: window.document.getElementById('quarto-embedded-source-code-modal')
+    });
+    clipboardModal.on('success', onCopySuccess);
+  }
+    var localhostRegex = new RegExp(/^(?:http|https):\/\/localhost\:?[0-9]*\//);
+    var mailtoRegex = new RegExp(/^mailto:/);
+      var filterRegex = new RegExp('/' + window.location.host + '/');
+    var isInternal = (href) => {
+        return filterRegex.test(href) || localhostRegex.test(href) || mailtoRegex.test(href);
+    }
+    // Inspect non-navigation links and adorn them if external
+ 	var links = window.document.querySelectorAll('a[href]:not(.nav-link):not(.navbar-brand):not(.toc-action):not(.sidebar-link):not(.sidebar-item-toggle):not(.pagination-link):not(.no-external):not([aria-hidden]):not(.dropdown-item):not(.quarto-navigation-tool):not(.about-link)');
+    for (var i=0; i<links.length; i++) {
+      const link = links[i];
+      if (!isInternal(link.href)) {
+        // undo the damage that might have been done by quarto-nav.js in the case of
+        // links that we want to consider external
+        if (link.dataset.originalHref !== undefined) {
+          link.href = link.dataset.originalHref;
+        }
+      }
+    }
+  function tippyHover(el, contentFn, onTriggerFn, onUntriggerFn) {
+    const config = {
+      allowHTML: true,
+      maxWidth: 500,
+      delay: 100,
+      arrow: false,
+      appendTo: function(el) {
+          return el.parentElement;
+      },
+      interactive: true,
+      interactiveBorder: 10,
+      theme: 'quarto',
+      placement: 'bottom-start',
+    };
+    if (contentFn) {
+      config.content = contentFn;
+    }
+    if (onTriggerFn) {
+      config.onTrigger = onTriggerFn;
+    }
+    if (onUntriggerFn) {
+      config.onUntrigger = onUntriggerFn;
+    }
+    window.tippy(el, config); 
+  }
+  const noterefs = window.document.querySelectorAll('a[role="doc-noteref"]');
+  for (var i=0; i<noterefs.length; i++) {
+    const ref = noterefs[i];
+    tippyHover(ref, function() {
+      // use id or data attribute instead here
+      let href = ref.getAttribute('data-footnote-href') || ref.getAttribute('href');
+      try { href = new URL(href).hash; } catch {}
+      const id = href.replace(/^#\/?/, "");
+      const note = window.document.getElementById(id);
+      if (note) {
+        return note.innerHTML;
+      } else {
+        return "";
+      }
+    });
+  }
+  const xrefs = window.document.querySelectorAll('a.quarto-xref');
+  const processXRef = (id, note) => {
+    // Strip column container classes
+    const stripColumnClz = (el) => {
+      el.classList.remove("page-full", "page-columns");
+      if (el.children) {
+        for (const child of el.children) {
+          stripColumnClz(child);
+        }
+      }
+    }
+    stripColumnClz(note)
+    if (id === null || id.startsWith('sec-')) {
+      // Special case sections, only their first couple elements
+      const container = document.createElement("div");
+      if (note.children && note.children.length > 2) {
+        container.appendChild(note.children[0].cloneNode(true));
+        for (let i = 1; i < note.children.length; i++) {
+          const child = note.children[i];
+          if (child.tagName === "P" && child.innerText === "") {
+            continue;
+          } else {
+            container.appendChild(child.cloneNode(true));
+            break;
+          }
+        }
+        if (window.Quarto?.typesetMath) {
+          window.Quarto.typesetMath(container);
+        }
+        return container.innerHTML
+      } else {
+        if (window.Quarto?.typesetMath) {
+          window.Quarto.typesetMath(note);
+        }
+        return note.innerHTML;
+      }
+    } else {
+      // Remove any anchor links if they are present
+      const anchorLink = note.querySelector('a.anchorjs-link');
+      if (anchorLink) {
+        anchorLink.remove();
+      }
+      if (window.Quarto?.typesetMath) {
+        window.Quarto.typesetMath(note);
+      }
+      if (note.classList.contains("callout")) {
+        return note.outerHTML;
+      } else {
+        return note.innerHTML;
+      }
+    }
+  }
+  for (var i=0; i<xrefs.length; i++) {
+    const xref = xrefs[i];
+    tippyHover(xref, undefined, function(instance) {
+      instance.disable();
+      let url = xref.getAttribute('href');
+      let hash = undefined; 
+      if (url.startsWith('#')) {
+        hash = url;
+      } else {
+        try { hash = new URL(url).hash; } catch {}
+      }
+      if (hash) {
+        const id = hash.replace(/^#\/?/, "");
+        const note = window.document.getElementById(id);
+        if (note !== null) {
+          try {
+            const html = processXRef(id, note.cloneNode(true));
+            instance.setContent(html);
+          } finally {
+            instance.enable();
+            instance.show();
+          }
+        } else {
+          // See if we can fetch this
+          fetch(url.split('#')[0])
+          .then(res => res.text())
+          .then(html => {
+            const parser = new DOMParser();
+            const htmlDoc = parser.parseFromString(html, "text/html");
+            const note = htmlDoc.getElementById(id);
+            if (note !== null) {
+              const html = processXRef(id, note);
+              instance.setContent(html);
+            } 
+          }).finally(() => {
+            instance.enable();
+            instance.show();
+          });
+        }
+      } else {
+        // See if we can fetch a full url (with no hash to target)
+        // This is a special case and we should probably do some content thinning / targeting
+        fetch(url)
+        .then(res => res.text())
+        .then(html => {
+          const parser = new DOMParser();
+          const htmlDoc = parser.parseFromString(html, "text/html");
+          const note = htmlDoc.querySelector('main.content');
+          if (note !== null) {
+            // This should only happen for chapter cross references
+            // (since there is no id in the URL)
+            // remove the first header
+            if (note.children.length > 0 && note.children[0].tagName === "HEADER") {
+              note.children[0].remove();
+            }
+            const html = processXRef(null, note);
+            instance.setContent(html);
+          } 
+        }).finally(() => {
+          instance.enable();
+          instance.show();
+        });
+      }
+    }, function(instance) {
+    });
+  }
+      let selectedAnnoteEl;
+      const selectorForAnnotation = ( cell, annotation) => {
+        let cellAttr = 'data-code-cell="' + cell + '"';
+        let lineAttr = 'data-code-annotation="' +  annotation + '"';
+        const selector = 'span[' + cellAttr + '][' + lineAttr + ']';
+        return selector;
+      }
+      const selectCodeLines = (annoteEl) => {
+        const doc = window.document;
+        const targetCell = annoteEl.getAttribute("data-target-cell");
+        const targetAnnotation = annoteEl.getAttribute("data-target-annotation");
+        const annoteSpan = window.document.querySelector(selectorForAnnotation(targetCell, targetAnnotation));
+        const lines = annoteSpan.getAttribute("data-code-lines").split(",");
+        const lineIds = lines.map((line) => {
+          return targetCell + "-" + line;
+        })
+        let top = null;
+        let height = null;
+        let parent = null;
+        if (lineIds.length > 0) {
+            //compute the position of the single el (top and bottom and make a div)
+            const el = window.document.getElementById(lineIds[0]);
+            top = el.offsetTop;
+            height = el.offsetHeight;
+            parent = el.parentElement.parentElement;
+          if (lineIds.length > 1) {
+            const lastEl = window.document.getElementById(lineIds[lineIds.length - 1]);
+            const bottom = lastEl.offsetTop + lastEl.offsetHeight;
+            height = bottom - top;
+          }
+          if (top !== null && height !== null && parent !== null) {
+            // cook up a div (if necessary) and position it 
+            let div = window.document.getElementById("code-annotation-line-highlight");
+            if (div === null) {
+              div = window.document.createElement("div");
+              div.setAttribute("id", "code-annotation-line-highlight");
+              div.style.position = 'absolute';
+              parent.appendChild(div);
+            }
+            div.style.top = top - 2 + "px";
+            div.style.height = height + 4 + "px";
+            div.style.left = 0;
+            let gutterDiv = window.document.getElementById("code-annotation-line-highlight-gutter");
+            if (gutterDiv === null) {
+              gutterDiv = window.document.createElement("div");
+              gutterDiv.setAttribute("id", "code-annotation-line-highlight-gutter");
+              gutterDiv.style.position = 'absolute';
+              const codeCell = window.document.getElementById(targetCell);
+              const gutter = codeCell.querySelector('.code-annotation-gutter');
+              gutter.appendChild(gutterDiv);
+            }
+            gutterDiv.style.top = top - 2 + "px";
+            gutterDiv.style.height = height + 4 + "px";
+          }
+          selectedAnnoteEl = annoteEl;
+        }
+      };
+      const unselectCodeLines = () => {
+        const elementsIds = ["code-annotation-line-highlight", "code-annotation-line-highlight-gutter"];
+        elementsIds.forEach((elId) => {
+          const div = window.document.getElementById(elId);
+          if (div) {
+            div.remove();
+          }
+        });
+        selectedAnnoteEl = undefined;
+      };
+        // Handle positioning of the toggle
+    window.addEventListener(
+      "resize",
+      throttle(() => {
+        elRect = undefined;
+        if (selectedAnnoteEl) {
+          selectCodeLines(selectedAnnoteEl);
+        }
+      }, 10)
+    );
+    function throttle(fn, ms) {
+    let throttle = false;
+    let timer;
+      return (...args) => {
+        if(!throttle) { // first call gets through
+            fn.apply(this, args);
+            throttle = true;
+        } else { // all the others get throttled
+            if(timer) clearTimeout(timer); // cancel #2
+            timer = setTimeout(() => {
+              fn.apply(this, args);
+              timer = throttle = false;
+            }, ms);
+        }
+      };
+    }
+      // Attach click handler to the DT
+      const annoteDls = window.document.querySelectorAll('dt[data-target-cell]');
+      for (const annoteDlNode of annoteDls) {
+        annoteDlNode.addEventListener('click', (event) => {
+          const clickedEl = event.target;
+          if (clickedEl !== selectedAnnoteEl) {
+            unselectCodeLines();
+            const activeEl = window.document.querySelector('dt[data-target-cell].code-annotation-active');
+            if (activeEl) {
+              activeEl.classList.remove('code-annotation-active');
+            }
+            selectCodeLines(clickedEl);
+            clickedEl.classList.add('code-annotation-active');
+          } else {
+            // Unselect the line
+            unselectCodeLines();
+            clickedEl.classList.remove('code-annotation-active');
+          }
+        });
+      }
+  const findCites = (el) => {
+    const parentEl = el.parentElement;
+    if (parentEl) {
+      const cites = parentEl.dataset.cites;
+      if (cites) {
+        return {
+          el,
+          cites: cites.split(' ')
+        };
+      } else {
+        return findCites(el.parentElement)
+      }
+    } else {
+      return undefined;
+    }
+  };
+  var bibliorefs = window.document.querySelectorAll('a[role="doc-biblioref"]');
+  for (var i=0; i<bibliorefs.length; i++) {
+    const ref = bibliorefs[i];
+    const citeInfo = findCites(ref);
+    if (citeInfo) {
+      tippyHover(citeInfo.el, function() {
+        var popup = window.document.createElement('div');
+        citeInfo.cites.forEach(function(cite) {
+          var citeDiv = window.document.createElement('div');
+          citeDiv.classList.add('hanging-indent');
+          citeDiv.classList.add('csl-entry');
+          var biblioDiv = window.document.getElementById('ref-' + cite);
+          if (biblioDiv) {
+            citeDiv.innerHTML = biblioDiv.innerHTML;
+          }
+          popup.appendChild(citeDiv);
+        });
+        return popup.innerHTML;
+      });
+    }
+  }
+});
+</script>
+</div> <!-- /content -->
+<footer class="footer">
+  <div class="nav-footer">
+    <div class="nav-footer-left">
+      &nbsp;
+    </div>   
+    <div class="nav-footer-center">
+<p>The content on this website is licensed under a <a href="https://creativecommons.org/licenses/by/4.0/">Creative Commons Attribution Licence</a></p>
+</div>
+    <div class="nav-footer-right">
+      &nbsp;
+    </div>
+  </div>
+</footer>
+
+
+
+
+</body></html>

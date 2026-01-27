@@ -1,0 +1,60 @@
+We're consumed by stories of murder, but how much do you know about homicide in England and Wales? Every day this week I'm going to post a thread summarising a different aspect of what data can tell us about the nature of homicide.
+
+🧵 [234 chrs]
+
+----
+
+This first thread puts homicide in context. Future daily threads will cover:
+
+homicide victims
+homicide offenders
+homicide methods
+concentrations of homicide in space/time
+homicide characteristics
+homicide investigation outcomes [228 chrs]
+
+----
+
+You might wonder why we're talking about 'homicide' rather than 'murder'.
+
+Basically, the difference between murder, manslaughter and infanticide can be highly technical, so it's usually better to analyse these 
+  offences together. [232 chrs]
+
+----
+
+Homicide in England and Wales is rare, and getting rarer. The homicide rate increased continuously from 1960 until 2000, then dropped substantially until 2016. After a brief increase, homicide has now dropped to the lowest level since the 1970s. [245 chrs]
+
+[long_term_trend.png]
+
+Alt text: Line chart showing the homicide rate per million people in England and Wales from 1900 to 2024. Light purple dots represent the annual rate, a thick purple line shows the trend, and black triangles mark spikes during the World Wars. A single black dot in 2003 highlights Harold Shipman’s murders, which were recorded that year despite occurring earlier. The rate generally declined from 1900 to the mid-1960s, then rose until the early 2000s before declining again. Data source: Home Office historical crime data. Base: all recorded homicides, 1900–2024. Vertical axis ranges from 0 to 20 homicides per million people.
+
+----
+
+The homicide rate in England and Wales is roughly in the middle of rates in European countries, and very similar to the European average. For example, our homicide rate is lower than that in Sweden or France, but higher than in Germany or Italy. [245 chrs]
+
+[eu_homicide.png]
+
+Alt text: A bar chart comparing homicide rates per million residents in 2023 across European countries. Each country is represented by a vertical blue bar, except for England and Wales, which is highlighted in dark purple. A dotted line indicates the EU average of 9.1 homicides per million. Malta has the lowest rate, while Latvia has the highest, exceeding 40 homicides per million. England and Wales sits at almost exactly the EU average. Countries are listed along the x-axis, and the y-axis shows homicide rates. Data sources are the Home Office for England and Wales, and Eurostat for other countries.
+
+----
+
+The homicide rate in England and Wales is about one-fifth of the global homicide rate and about one-third of the average rate in other high-income countries. The US homicide rate is about six times higher than ours. [215 chrs]
+
+[world_homicide.png]
+
+Alt text: Bar chart showing homicide rates per million residents in countries with populations over 10 million, using the most recent available data (since 2021). Countries are sorted left to right by increasing homicide rate. Japan, Indonesia, and South Korea have the lowest rates, all well below the 2023 world average of 52 homicides per million (marked by a dotted line). England and Wales appears below average. The highest rates are seen in Brazil, Mexico, Colombia, South Africa, and Ecuador, with Ecuador exceeding 450 homicides per million. Source: Home Office (UK) and World Bank. Vertical axis shows homicide rate; horizontal axis lists countries.
+
+----
+
+Although homicide is relatively rare in England and Wales, the cost of homicide is still very high. The annual cost to society of homicides is around £2.44bn, as well as the unquantifiable emotional harm to victims and their families. [234 chrs]
+
+----
+
+This analysis of homicide in England and Wales comes from a report written by me and Prof Iain Brennan for the UK College of Policing. You can get more detail at https://lesscrime.info/post/homicide-profile/ [207 chrs]
+
+----
+
+This is the first in a series of seven threads summarising different aspects of homicide in England and Wales. I'll add links to the other threads here as they are published over the next week. [193 chrs]
+
+----
+

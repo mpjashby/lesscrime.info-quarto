@@ -1,0 +1,66 @@
+Every year about 623 people are killed in homicides in England and Wales. This thread summarises what we know about how often different methods are used in homicides.
+
+🧵 [169 chrs]
+
+----
+
+This thread is the fourth in a series of threads about homicide in England and Wales.
+
+All the threads: https://lesscrime.info/post/homicide-profile/
+
+Full report: https://library.college.police.uk/docs/Patterns-trends-homicide-problem-profile-2025.pdf [252 chrs]
+
+----
+
+Most homicides in England and Wales were committed with sharp instruments (mostly knives) or without weapons. Male victims were more likely to be killed by hitting, kicking etc, shooting, or sharp instrument; female victims by strangulation or arson/burning. [258 chrs]
+
+[vic_method_sex.png]
+
+Alt text: Bar chart showing average annual number of homicide victims in England and Wales by method and gender, based on Home Office Homicide Index data. The most common method is sharp instruments, with around 260 victims, predominantly male. Next is hitting, kicking, etc., with around 109 victims. Strangulation, blunt instruments, and other methods follow with 30–50 victims each. Shooting, use of vehicles, poison, and burning have fewer victims. Drowning and explosions are least common. Gender is color-coded: pink for male and dark teal for female victims. A category labeled “not known” includes 41 victims where the method was unclear.
+
+----
+
+Firearms homicides in England and Wales are very rare, with about 30 people fatally shot each year. That's lower than the rate of firearms homicides in most other European countries, Australia and Canada. It's also vastly lower than in the United States. [254 chrs]
+
+[firearms_homicides.png]
+
+Alt text: Bar chart comparing firearms homicide rates in various countries to England and Wales, where the rate is set as the baseline (1.0). The United States has the highest rate, at 85.9 times higher. Chile (64.5 times), Canada (14.3 times), and Sweden (9.8 times) follow. Most other countries, including Germany, Denmark, and Australia, range from 1.9 to 0.8. Japan, Hong Kong, and South Korea had zero or near-zero rates. Data includes countries with over 5 million population and available firearms homicide statistics since 2016. Bars are shaded blue and listed left to right in decreasing order of homicide rate per million residents.
+
+----
+
+And (because people sometimes suggest this), the low rate of firearms homicides in England and Wales isn't explained by us having more knife homicides: Australia, Canada and the US have similar knife-homicide rates as we do. [224 chrs]
+
+[world_methods.png]
+
+Alt text: Table comparing firearm and knife homicide rates per million people in four developed, English-speaking countries. The table lists England and Wales, Australia, Canada, and the United States, along with the year of data and homicide rates for firearms and knives. For 2022–23, England and Wales had 0.5 firearm and 4.1 knife homicides per million people; Australia had a rate of 1.5 firearm and 3.6 knife homicides. In 2023, Canada recorded a rate of 9.9 firearm and 8.0 knife homicides, while the U.S. had a rate of 59.1 firearm and 6.6 knife homicides. Sources include national statistical agencies from each country, with linked references listed below the table.
+
+----
+
+Young male victims of homicide were particular likely to be killed with a sharp instrument, while older male victims were more-often killed by hitting or kicking. [162 chrs]
+
+[vic_methods_age.png]
+
+Alt text: A grouped bar chart shows the percentage of homicide victims by age and sex for different methods of killing in England and Wales, based on data from the Home Office Homicide Index. Age is grouped in ten-year categories along the x-axis, while the y-axis shows percentage of victims within each age-sex group. Separate horizontal panels compare female (top) and male (bottom) victims. Each panel includes six sub-charts for homicide methods: sharp instrument, hitting/kicking, blunt instrument, strangulation, shooting, and other. Male victims are more often killed by sharp instruments, especially younger males. Older males are more often killed by hitting/kicking. Female victims are more evenly distributed across methods, with strangulation showing a higher share in younger women. “Other” methods are more frequent in the very young and elderly for both sexes. Chart notes indicate that 93.4% of cases had known victim sex and offence method.
+
+----
+
+Compared to White victims, Black victims were 4.6 times more likely to be killed by shooting and 1.9 times more likely to be killed by sharp instrument,while Asian victims were 2.5 times more likely to be killed by shooting. [224 chrs]
+
+----
+
+Homicide methods are often different depending on circumstances. Knives are more-often used in domestic homicides and homicides of male adolescent victims, while strangulation is more common in homicides of female victims. [222 chrs]
+
+[method_cluster.png]
+
+Alt text: Bar chart showing proportions of homicide methods across eight sub-types of circumstances in England and Wales, based on the Home Office Homicide Index. Each sub-type is displayed in its own chart with coloured bars representing the proportion of methods used within that sub-type and grey bars showing overall proportions across all homicides. The sub-types are: (1) Female victims of domestic homicide aged 16+, (2) Male victims of domestic homicide aged 16+, (3) Male victims under 25 killed in public spaces, (4) Female victims, non-domestic, aged 16+, (5) Male victims, non-domestic, killed in public spaces, (6) Male victims, non-domestic, killed in homes, (7) Victims under 16 killed in non-public places, and (8) Other victims. Methods include sharp instrument, hitting/kicking, strangulation, blunt instrument, shooting, other, and not known. Sharp instruments are the most common method in most categories, particularly among young males in public spaces and non-domestic male victims. Strangulation is more common in domestic homicides, especially among female victims. “Other” methods dominate in cases involving children under 16. Grey bars indicate sharp instruments as the most used method overall. Data highlight notable variation in homicide methods by context and demographic group.
+
+----
+
+This analysis of homicide methods in England and Wales comes from a report written by me and Prof Iain Brennan for the UK College of Policing. You can get more detail at https://lesscrime.info/post/homicide-profile-methods/ [223 chrs]
+
+----
+
+This is the fourth in a series of seven threads summarising different aspects of homicide in England and Wales. You can find links to the other threads at https://lesscrime.info/post/homicide-profile/ [200 chrs]
+
+----
+

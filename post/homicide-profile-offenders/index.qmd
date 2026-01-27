@@ -1,0 +1,1143 @@
+---
+title: "Homicide in England and Wales, Part 3: Homicide offenders"
+date: 2026-01-26
+fig-cap-location: top
+format: 
+  html:
+    css: "../homicide_theme.css"
+bibliography: "../homicide-bibliography.bib"
+execute:
+  echo: false
+  freeze: auto
+tags: 
+  - homicide
+  - crime
+  - "Homicide problem profile"
+---
+
+```{r}
+#| label: setup
+#| include: false
+
+# Load packages, functions and data
+source("../homicide_functions.R")
+pacman::p_load(tidyverse)
+```
+
+
+```{r}
+#| label: suspects
+
+suspect_freq <- homicides |> 
+  filter(victim_number == 1) |> 
+  summarise(suspects = sum(suspect_charged, na.rm = TRUE), .by = case) |> 
+  count(suspects) |> 
+  filter(suspects > 0) |>
+  mutate(prop = n / sum(n))
+
+social_post(
+  str_glue(
+    'Each year about {floor((nrow(suspects) / 3) / 10) * 10} people are ',
+    'charged with a homicide offence in England and Wales. But who are ',
+    'they?\n\n',
+    'This thread summarises what we know about who commits homicides and in ',
+    'what circumstances.'
+  ),
+  add = FALSE
+)
+
+social_post(
+  "This thread is the third in a series of threads about homicide in England ",
+  "and Wales.\n\n",
+  "All the threads: https://lesscrime.info/post/homicide-profile/\n\n",
+  "Full report: https://library.college.police.uk/docs/Patterns-trends-homicide-problem-profile-2025.pdf"
+)
+```
+
+
+This is the third in a [series of blog posts summarising the nature of homicide in England and Wales](../homicide-profile/). Each post covers a different aspect of homicide, based on data from the Home Office Homicide Index. This post looks at who commits homicides. This post is a summary of part of a longer [national problem profile of homicide in England and Wales](https://library.college.police.uk/docs/Patterns-trends-homicide-problem-profile-2025.pdf) written by me and Prof Iain Brennan.
+
+Each year about `r floor((nrow(suspects) / 3) / 10) * 10` people are charged with an offence relating to a homicide in England and Wales. In most cases a single suspect is charged, but multiple suspects are charged in about `r percent(sum(dplyr::pull(dplyr::filter(suspect_freq, suspects > 1), "prop")))` of charged cases, and in about `r percent(sum(dplyr::pull(dplyr::filter(suspect_freq, suspects >= 5), "prop")))` of charged cases five or more people were charged.
+
+In many cases the details of who committed a homicide will not be known until some time into a police investigation. The Home Office Homicide Index therefore only contains information about suspects who have been charged with homicide offences. To protect the privacy of suspects who are later found not guilty, personal details about a suspect (e.g. their sex and ethnicity) are only included if a suspect has been convicted of a homicide offence. The analysis here is based on data from the three years from April 2019 to March 2022, and includes details of `r comma(nrow(suspects))` charged suspects, with demographic data available for the `r comma(nrow(filter(suspects, suspect_convicted_offence %in% c("murder", "manslaughter"))))` offenders who had been convicted of a homicide offence.
+
+
+```{r suspect-demographics}
+suspect_ethnicities <- suspects_convicted |> 
+  count(suspect_ethnicity, sort = TRUE) |> 
+  mutate(
+    prop = n / sum(n), 
+    label = str_glue(
+      "{percent(prop)} of offenders were {suspect_ethnicity}"
+    ),
+    label = if_else(
+      row_number() == 1, 
+      label, 
+      str_remove(label, "of offenders ")
+    )
+  ) |> 
+  slice_max(order_by = prop, n = 3) |> 
+  pull("label") |> 
+  combine_words()
+
+suspect_ethnicity_age <- suspects_convicted |> 
+  filter(!is.na(suspect_age), !is.na(suspect_ethnicity)) |> 
+  summarise(n = mean(suspect_age), .by = suspect_ethnicity)
+
+suspect_cluster_age <- suspects_convicted |> 
+  drop_na(suspect_age) |> 
+  mutate(cluster_id = str_extract(cluster, "^\\w+")) |> 
+  summarise(
+    n = n(),
+    age_50 = median(suspect_age), 
+    age_75 = quantile(suspect_age, 0.75), 
+    .by = cluster_id
+  ) |> 
+  arrange(desc(age_50))
+
+suspect_employment <- suspects_convicted |> 
+  mutate(
+    suspect_employment_status = case_match(
+      suspect_employment_status, 
+      "No suspect charged" ~ NA_character_, 
+      "Other adults economically inactive" ~ "Economically inactive", 
+      .default = suspect_employment_status
+    )
+  ) |> 
+  drop_na(suspect_employment_status) |> 
+  count(suspect_employment_status, sort = TRUE) |> 
+  mutate(
+    prop = n / sum(n), 
+    label = str_glue(
+      "{str_to_lower(suspect_employment_status)} ",
+      "({percent(prop, accuracy = 1)} of suspects with known employment status)"
+    ), 
+    label = if_else(
+      row_number() == 1, 
+      label, 
+      str_remove(label, " of suspects with known employment status")
+    )
+  )
+  
+suspect_employment_profiles <- suspect_employment |> 
+  slice(1:3) |> 
+  pull("label") |> 
+  combine_words(and = "or a ")
+```
+
+
+### Most homicide offenders are young, but domestic homicide offenders are often older
+
+
+Most homicide suspects were young (@fig-sus-age-sex): of those offenders convicted of a homicide offence, half were aged between `r min(pull(suspects_convicted, "suspect_age"), na.rm = TRUE)` and `r median(pull(suspects_convicted, "suspect_age"), na.rm = TRUE)` years old, with a quarter aged between `r min(pull(suspects_convicted, "suspect_age"), na.rm = TRUE)` and `r quantile(pull(suspects_convicted, "suspect_age"), 0.25, na.rm = TRUE)`. However, over the three-year period covered by the data there were `r n_from_table(count(suspects_convicted, suspect_older = suspect_age >= 65), suspect_older)` recorded suspects aged 65 or older (`r prop_from_table(count(suspects_convicted, suspect_older = suspect_age >= 65), suspect_older)` of offenders convicted of homicide) with the oldest suspect being aged `r max(pull(suspects_convicted, "suspect_age"), na.rm = TRUE)`. 
+
+
+```{r}
+#| label: fig-sus-age-sex
+#| fig-cap: "Homicide offenders by age"
+#| fig-alt: "Bar chart showing the number of homicide suspects in England and Wales by age, split into child and adult categories. The chart spans ages 10 to 85 and peaks at age 19, where over 70 suspects are recorded. A sharp decline follows into the late twenties, then gradually decreases with age. Very few suspects are aged over 60. Data source is the Home Office Homicide Index, including only cases where the suspect’s age was known."
+
+fig_sus_age_sex <- suspects_convicted |> 
+  drop_na(suspect_age) |> 
+  mutate(
+    suspect_age = if_else(suspect_age > 90, 90, suspect_age),
+    age_upper = ceiling((suspect_age + 1) / 5) * 5,
+    age_lower = age_upper - 5
+  ) |> 
+  count(suspect_age) |> 
+  ggplot(aes(x = suspect_age, y = n, fill = suspect_age < 18)) + 
+  geom_col(na.rm = TRUE, just = 0) +
+  scale_x_continuous(
+    breaks = seq(0, 90, by = 5),
+    limits = c(10, NA),
+    expand = c(0, 0)
+  ) +
+  scale_fill_manual(
+    values = c(`FALSE` = ucl_brand[["e"]], `TRUE` = ucl_brand[["d"]]),
+    labels = c(`FALSE` = "adult suspects", `TRUE` = "child suspects")
+  ) +
+  scale_y_continuous(expand = expansion(c(0, 0.05))) +
+  labs(
+    x = "suspect age",
+    y = "number of suspects",
+    fill = NULL
+  ) +
+  theme_homicide()
+
+social_figure(
+  fig_sus_age_sex, 
+  title = "Most homicide offenders are young", 
+  subtitle = str_glue(
+    'Half of homicide offenders were aged between ',
+    '{min(pull(suspects_convicted, "suspect_age"), na.rm = TRUE)} and ',
+    '{median(pull(suspects_convicted, "suspect_age"), na.rm = TRUE)} years ',
+    'old, with a quarter aged between ',
+    '{min(pull(suspects_convicted, "suspect_age"), na.rm = TRUE)} and ',
+    '{quantile(pull(suspects_convicted, "suspect_age"), 0.25, na.rm = TRUE)}. ',
+    'But {prop_from_table(count(suspects_convicted, suspect_older = suspect_age >= 65), suspect_older)} ',
+    'of offenders were 65 or older and the oldest offender was aged ',
+    '{max(pull(suspects_convicted, "suspect_age"), na.rm = TRUE)}.'
+  ), 
+  caption = str_glue(
+    'Source: Home Office Homicide Index<br>Base: {prop_base(suspects_convicted, !is.na(suspect_age))} of convicted offenders for which suspect age was known'
+  ),
+  "sus_age_sex"
+)
+
+social_post(
+  str_glue(
+    'Most homicide offenders are young, with half of all convicted offenders ',
+    'age between {min(pull(suspects_convicted, "suspect_age"), na.rm = TRUE)} ',
+    'and {median(pull(suspects_convicted, "suspect_age"), na.rm = TRUE)}, ',
+    'and a quarter aged between ',
+    '{min(pull(suspects_convicted, "suspect_age"), na.rm = TRUE)} and ',
+    '{quantile(pull(suspects_convicted, "suspect_age"), 0.25, na.rm = TRUE)}.'
+  ),
+  image = 'fig_sus_age_sex',
+  alt = "Bar chart showing the number of homicide suspects in England and Wales by age, split into child (light green) and adult (dark green) categories. The chart spans ages 10 to 85 and peaks at age 19, where over 70 suspects are recorded. A sharp decline follows into the late twenties, then gradually decreases with age. Very few suspects are aged over 60. Data source is the Home Office Homicide Index, including only cases where the suspect’s age was known."
+)
+
+fig_sus_age_sex +
+  labs(
+    caption = str_glue(
+      'Source: Home Office Homicide Index<br>Base: {prop_base(suspects_convicted, !is.na(suspect_age))} of convicted offenders for which suspect age was known'
+    )
+  )
+```
+
+
+While most homicide suspects were young overall, this varied quite a lot depending on the type of homicide (@fig-sus-cluster-age). Half of the convicted offenders for homicides of `r get_sub_type(pluck(last(suspect_cluster_age), "cluster_id"))` were aged `r pluck(last(suspect_cluster_age), "age_50")` or younger (three quarters were aged `r pluck(last(suspect_cluster_age), "age_75")` or younger), while for `r get_sub_type(pluck(first(suspect_cluster_age), "cluster_id"))` half of convicted offenders were `r pluck(first(suspect_cluster_age), "age_50")` or older.
+
+
+```{r}
+#| label: fig-sus-cluster-age
+#| fig-asp: 0.75
+#| fig-cap: "Suspect ages for different Home Office homicide sub-types"
+#| fig-alt: "Chart showing age distribution of convicted homicide offenders by victim type in England and Wales, with separate density curves for seven sub-types and an “other victims” group. Each curve shows the spread of offender ages, with a vertical line indicating the median. Female victims of domestic homicide (16+): Wide age range with a peak in offenders aged 30–40, tapering off gradually on both sides. Median around age 42. Male victims of domestic homicide (16+): Bimodal distribution with prominent peaks around ages 25 and 45. Median around age 33. Male victims under 25 killed in public spaces: Sharp peak around age 19, indicating most offenders were young. Steep drop-off after age 25. Female victims, non-domestic (16+): Flatter distribution with no strong peak, suggesting a wide range of offender ages. Median around 32. Male victims, non-domestic, killed in public spaces: Skewed toward younger offenders with a peak around age 20. Median 25. Male victims, non-domestic, killed in homes: Broad distribution with a peak around age 35. Median near mid-30s. Victims under 16 killed in non-public places: Bell-shaped curve peaking just under age 30. Almost no offenders older than 50. Other victims: Peak around age 25, with a gradual decline up to age 60, and some offenders older. Median near age 30. Source: Home Office Homicide Index. All data shown is for convicted offenders where age was known."
+#| message: false
+
+suspect_age_cluster_medians <- suspects |> 
+  drop_na(suspect_age) |> 
+  mutate(cluster = str_remove(cluster, "^\\d+\\:\\s")) |> 
+  summarise(median_age = median(suspect_age), .by = cluster) |> 
+  arrange(desc(median_age)) |>
+  pull("cluster")
+
+fig_sus_cluster_age <- suspects |> 
+  drop_na(suspect_age) |> 
+  mutate(
+    cluster = str_remove(cluster, "^\\d+\\:\\s"),
+    cluster = factor(cluster, levels = suspect_age_cluster_medians)
+  ) |> 
+  mutate(median_age = median(suspect_age), .by = cluster) |> 
+  ggplot(aes(x = suspect_age, y = cluster, fill = median_age)) +
+  ggridges::geom_density_ridges(quantile_lines = TRUE, quantiles = 2) +
+  scale_x_continuous(
+    breaks = seq(10, 90, by = 10), 
+    limits = c(10, 90), 
+    expand = expansion(c(0, 0))
+  ) +
+  scale_y_discrete(
+    labels = label_wrap(width = 35), 
+    expand = expansion(c(0, 0))
+  ) +
+  scale_fill_gradient(low = ucl_brand[["e"]], high = ucl_brand[["a"]]) +
+  labs(
+    x = "suspect age", 
+    y = NULL
+  ) +
+  theme_homicide() +
+  theme(
+    legend.position = "none",
+    panel.grid.major.x = element_line()
+  )
+
+social_figure(
+  fig_sus_cluster_age, 
+  title = "People kill at different ages in different circumstances", 
+  subtitle = str_glue(
+    'Overall, most homicide suspects were young, but aged varied depending on ',
+    'circumstances. Half of the convicted offenders for homicides of ',
+    '{get_sub_type(pluck(last(suspect_cluster_age), "cluster_id"))} were aged ',
+    '{pluck(last(suspect_cluster_age), "age_50")} or younger (three quarters ',
+    'were aged {pluck(last(suspect_cluster_age), "age_75")} or younger), but ',
+    'for {get_sub_type(pluck(first(suspect_cluster_age), "cluster_id"))} half ',
+    'of convicted offenders were {pluck(first(suspect_cluster_age), "age_50")} ',
+    'or older.'
+  ), 
+  caption = str_glue(
+    'Source: Home Office Homicide Index<br>Base: the ',
+    '{prop_base(suspects_convicted, !is.na(suspect_age))} of convicted ',
+    'offenders for which suspect age was known<br>Note: vertical lines show ',
+    'median offender age in each sub-type: half of offender in each sub-type ',
+    'were younger than this age and half were older.'
+  ),
+  "sus_cluster_age"
+)
+
+social_post(
+  str_glue(
+    'Most offenders were young, but not for all homicide types. ',
+    'Half of offenders in homicides of male victims under 25 in public places ',
+    'were ',
+    '{pluck(last(suspect_cluster_age), "age_50")} or younger (three quarters ',
+    'were {pluck(last(suspect_cluster_age), "age_75")} or younger), but ',
+    'for {get_sub_type(pluck(first(suspect_cluster_age), "cluster_id"))} half ',
+    'of offenders were {pluck(first(suspect_cluster_age), "age_50")}+.'
+  ),
+  image = "sus_cluster_age",
+  alt = "Chart showing age distribution of convicted homicide offenders by victim type in England and Wales, with separate density curves for seven sub-types and an “other victims” group. Each curve shows the spread of offender ages, with a vertical line indicating the median. Female victims of domestic homicide (16+): Wide age range with a peak in offenders aged 30–40, tapering off gradually on both sides. Median around age 42. Male victims of domestic homicide (16+): Bimodal distribution with prominent peaks around ages 25 and 45. Median around age 33. Male victims under 25 killed in public spaces: Sharp peak around age 19, indicating most offenders were young. Steep drop-off after age 25. Female victims, non-domestic (16+): Flatter distribution with no strong peak, suggesting a wide range of offender ages. Median around 32. Male victims, non-domestic, killed in public spaces: Skewed toward younger offenders with a peak around age 20. Median 25. Male victims, non-domestic, killed in homes: Broad distribution with a peak around age 35. Median near mid-30s. Victims under 16 killed in non-public places: Bell-shaped curve peaking just under age 30. Almost no offenders older than 50. Other victims: Peak around age 25, with a gradual decline up to age 60, and some offenders older. Median near age 30. Source: Home Office Homicide Index. All data shown is for convicted offenders where age was known."
+)
+
+fig_sus_cluster_age +
+  labs(
+    subtitle = "Vertical lines show median offender age in each sub-type: half of offenders in each sub-type were younger than this age and half were older.",
+    caption = str_glue('Source: Home Office Homicide Index<br>Base: all convicted offenders'),
+  )
+```
+
+
+```{r}
+#| label: sus-cluster-sex
+
+sus_cluster_sex <- suspects |> 
+  drop_na(suspect_sex) |> 
+  mutate(cluster_id = str_extract(cluster, "^\\w+")) |> 
+  filter(cluster_id != "other") |> 
+  count(cluster_id, suspect_sex) |> 
+  add_prop(cluster_id) |> 
+  filter(suspect_sex == "Male")
+
+sus_cluster_sex_cats <- sus_cluster_sex |> 
+  mutate(
+    prop_cat = cut(
+      .prop, 
+      breaks = c(0, 0.9, 0.95, 1), 
+      labels = c("other", "more than 90%", "more than 95%")
+    )
+  ) |> 
+  nest(cluster_list = -prop_cat) |> 
+  mutate(
+    cluster_list = map_chr(
+      cluster_list, 
+      \(x) knitr::combine_words(pull(x, "cluster_id"))
+    )
+  )
+
+suspect_victim_sex_counts <- homicides |> 
+  filter(if_all(c(suspect_sex, victim_sex), \(x) x %in% c("Female", "Male"))) |> 
+  select(case, suspect_sex, victim_sex) |> 
+  nest(suspect_sex = suspect_sex) |> 
+  mutate(
+    suspect_sex = map_chr(
+      suspect_sex, 
+      \(x) combine_words(sort(unique(pull(x, "suspect_sex"))))
+    )
+  ) |> 
+  count(victim_sex, suspect_sex, sort = TRUE)
+
+suspect_victim_sex <- suspect_victim_sex_counts |> 
+  mutate(
+    across(ends_with("_sex"), str_to_lower), 
+    label_suspect = if_else(
+      suspect_sex == "female and male",
+      "multiple offenders including at least one male and one female suspect",
+      str_glue("one or more {suspect_sex} suspects")
+    ),
+    label_victim = if_else(
+      suspect_sex == "female and male",
+      "victims",
+      str_glue("{victim_sex} victims")
+    ),
+    label = str_glue("involved {label_victim} killed by {label_suspect}")
+  ) |> 
+  count(label, wt = n, sort = TRUE) |> 
+  mutate(
+    prop = n / sum(n),
+    label = str_glue("{percent(prop)} {label}"),
+    label = if_else(row_number() == 1, label, str_remove(label, "one or more "))
+  ) |> 
+  pull("label")
+
+social_post(
+  str_glue(
+    '{prop_from_table(count(filter(suspects_convicted, suspect_sex %in% c("Female", "Male")), suspect_sex), suspect_sex == "Male")} of convicted homicide offenders were men. ',
+    '{combine_words(head(str_replace(str_remove(suspect_victim_sex, " one or more"), " involved", " of cases involved"), 3))}.'
+  )
+)
+```
+
+
+### Almost all homicide offenders are men
+
+Homicide offenders were overwhelmingly men: `r prop_from_table(count(filter(suspects_convicted, suspect_sex %in% c("Female", "Male")), suspect_sex), suspect_sex == "Male")` of convicted offenders were male. Of those cases with at least one convicted offender, `r combine_words(suspect_victim_sex)`.
+
+
+### Black men are over-represented as homicide offenders
+
+For the `r prop_base(suspects_convicted, !is.na(suspect_ethnicity), accuracy = 1)` of convicted offenders with a known ethnicity, `r suspect_ethnicities`. Black offenders and those with mixed/multiple ethnicities were over-represented relative to their share of the population at all ages up to age 50 (@fig-sus-age-ethnicity). Black offenders were on-average almost a decade younger (with an average age of `r n_from_table(suspect_ethnicity_age, suspect_ethnicity == "Black")`) than White offenders (average age `r n_from_table(suspect_ethnicity_age, suspect_ethnicity == "White")`).
+
+
+```{r}
+#| label: fig-sus-age-ethnicity
+#| fig-cap: "Homicide offending rate by age and ethnicity"
+#| fig-alt: "Bar chart showing annual homicide suspect rates per million people by age and ethnicity in England and Wales. The chart is divided into five panels: All suspects, Asian, Black, Mixed/Multiple, and White. Bars are color-coded: dark red indicates a lower or equal homicide rate compared to the total population of the same age, while bright red indicates a higher rate. A stepped line in each panel shows the overall homicide offending rate across all ethnicities for reference. Black suspects, especially aged 20–30, show significantly higher homicide suspect rates compared to other groups, with the highest peak exceeding 80 per million. Other groups peak around ages 20–30 but at lower rates. Asian, White, and All suspects show more moderate rates, while Mixed/Multiple suspects have a small peak. The x-axis shows age in 10-year increments; the y-axis shows homicide suspect rate. Data is from the Home Office Homicide Index, covering 95.1% of known-age, known-ethnicity suspects."
+
+suspect_ethnicity_rates <- suspects_convicted |> 
+  mutate(
+    suspect_age = if_else(suspect_age > 90, 90, suspect_age),
+    age_upper = ceiling((suspect_age + 1) / 10) * 10,
+    age_lower = age_upper - 10
+  ) |> 
+  filter(suspect_ethnicity != "Other") |> 
+  count(suspect_ethnicity, age_lower, name = "suspects") |> 
+  left_join(
+    pop_age_groups_ethnicity, 
+    by = c("suspect_ethnicity" = "ethnic_group", "age_lower")
+  ) |> 
+  mutate(rate = (suspects / (population / 1000000)) / 3) |> 
+  drop_na(rate)
+
+suspect_ethnicity_rates_all <- suspect_ethnicity_rates |> 
+  summarise(
+    across(c(suspects, population), \(x) sum(x, na.rm = TRUE)), 
+    .by = age_lower
+  ) |> 
+  mutate(rate = (suspects / (population / 1000000)) / 3)
+
+fig_sus_age_ethnicity <- suspect_ethnicity_rates_all |> 
+  mutate(suspect_ethnicity = "All") |> 
+  bind_rows(suspect_ethnicity_rates) |> 
+  left_join(
+    select(suspect_ethnicity_rates_all, age_lower, rate_all = rate), 
+    by = "age_lower"
+  ) |>
+  mutate(
+    higher = rate > rate_all,
+    victim_ethnicity = str_glue("{suspect_ethnicity} suspects")
+  ) |> 
+  ggplot(aes(x = age_lower, y = rate)) +
+  geom_col(aes(fill = higher), na.rm = TRUE, position = position_nudge(x = 5)) +
+  geom_step(data = suspect_ethnicity_rates_all, colour = "white", linewidth = 1.5) +
+  geom_step(data = suspect_ethnicity_rates_all, colour = colours[["midred"]]) +
+  facet_grid(cols = vars(victim_ethnicity), labeller = label_wrap_gen(10)) +
+  scale_x_continuous(
+    breaks = seq(0, 90, by = 20),
+    expand = c(0, 0)
+  ) +
+  scale_y_continuous(expand = expansion(c(0, 0.05))) +
+  scale_fill_manual(
+    values = c(`FALSE` = ucl_brand[["b"]], `TRUE` = ucl_brand[["e"]]),
+    labels = c(
+      `FALSE` = "lower/equal rate of homicide offending", 
+      `TRUE` = "higher rate of homicide offending"
+    )
+  ) +
+  labs(
+    x = "age (in ten-year categories)",
+    y = "annual homicide suspect rate per million people",
+    fill = "compared to total\npopulation of same age"
+  ) +
+  theme_homicide()
+
+social_figure(
+  fig_sus_age_ethnicity,
+  title = "Most homicide offenders are White, but Black offenders are over-represented relative to their share of the population",
+  subtitle = str_glue(
+    '{str_replace(suspect_ethnicities, "of offenders", "of convicted homicide offenders")}. Taking into account the proportion of people from different ethnic groups in the population, Black people were over-represented as homicide offenders at all ages.'
+  ),
+  caption = str_glue('Source: Home Office Homicide Index<br>Base: the {prop_base(suspects_convicted, suspect_ethnicity != "Other")} of convicted offenders for which suspect age and ethnicity were known<br>Note: the stepped line shows homicide offending rate for all ethnic groups (also shown in left panel)'),
+  name = "sus_age_ethnicity"
+)
+
+social_post(
+  'Most homicide offenders are White (unsurprisingly since 82% of people in England and Wales define themselves as White) but Black offenders are over-represented relative to the population.',
+  image = "sus_age_ethnicity",
+  alt = "Bar chart showing annual homicide suspect rates per million people by age and ethnicity in England and Wales. The chart is divided into five panels: All suspects, Asian, Black, Mixed/Multiple, and White. Bars are color-coded: dark red indicates a lower or equal homicide rate compared to the total population of the same age, while bright red indicates a higher rate. A stepped line in each panel shows the overall homicide offending rate across all ethnicities for reference. Black suspects, especially aged 20–30, show significantly higher homicide suspect rates compared to other groups, with the highest peak exceeding 80 per million. Other groups peak around ages 20–30 but at lower rates. Asian, White, and All suspects show more moderate rates, while Mixed/Multiple suspects have a small peak. The x-axis shows age in 10-year increments; the y-axis shows homicide suspect rate. Data is from the Home Office Homicide Index, covering 95.1% of known-age, known-ethnicity suspects."
+)
+
+social_post(
+  str_glue(
+    '⚠️ Over-representation does not mean homicide offending is common among ',
+    'a group: even among ',
+    '{pluck(mutate(slice_max(suspect_ethnicity_rates, order_by = rate), label = str_glue("{suspect_ethnicity} people aged {age_lower}–{age_lower + 9}")), "label")}, ',
+    'only about ',
+    '{number(pluck(slice_max(suspect_ethnicity_rates, order_by = rate), "suspects") / 3, accuracy = 10)} ',
+    'of the ',
+    '{comma(pluck(slice_max(suspect_ethnicity_rates, order_by = rate), "population"), accuracy = 1000)} ',
+    'people in that group were homicide offenders each year. ',
+    '{percent(1 - ((pluck(slice_max(suspect_ethnicity_rates, order_by = rate), "suspects") / 3) / pluck(slice_max(suspect_ethnicity_rates, order_by = rate), "population")), accuracy = 0.001)} ',
+    'of ',
+    '{pluck(mutate(slice_max(suspect_ethnicity_rates, order_by = rate), label = str_glue("{suspect_ethnicity} people aged {age_lower}–{age_lower + 9}")), "label")} ',
+    'were not.',
+  )
+)
+
+fig_sus_age_ethnicity +
+  labs(
+    subtitle = "The stepped line shows homicide offending rate for all ethnic groups (also shown in left panel)",
+    caption = str_glue('Source: Home Office Homicide Index<br>Base: the {prop_base(suspects_convicted, suspect_ethnicity != "Other")} of convicted offenders for which suspect age and ethnicity were known')
+  )
+```
+
+
+The over-representation of Black suspects does not mean that most homicide offenders are Black (`r pluck(str_split(suspect_ethnicities, ", "), 1, 1)`), or that anything more than a tiny fraction of Black people are involved in homicide. Even within the demographic group in @fig-sus-age-ethnicity with the highest rate of homicide offending (`r pluck(mutate(slice_max(suspect_ethnicity_rates, order_by = rate), label = str_glue("{suspect_ethnicity} people aged {age_lower}–{age_lower + 9}")), "label")`, only about `r number(pluck(slice_max(suspect_ethnicity_rates, order_by = rate), "suspects") / 3, accuracy = 10)` of the `r comma(pluck(slice_max(suspect_ethnicity_rates, order_by = rate), "population"), accuracy = 1000)` in that group were homicide offenders each year -- `r percent(1 - ((pluck(slice_max(suspect_ethnicity_rates, order_by = rate), "suspects") / 3) / pluck(slice_max(suspect_ethnicity_rates, order_by = rate), "population")), accuracy = 0.001)` of people in that group were not.
+
+
+
+::: {#imp-ethnicity-reasons .callout-important}
+#### Why are Black men over-represented among homicide offenders?
+
+How likely an individual is to commit a homicide depends on a huge range of factors relating to their psychology and the circumstances they live in. Only a fraction of those factors are recorded in the Homicide Index data we used for this analysis. Black men being over-represented does not mean they are offending _because_ they are Black men -- the truth is much more complicated than that. See [this explanation from Part 2 of this series](../homicide-profile-victims/#imp-ethnicity-reasons).
+:::
+
+
+
+Offenders from different ethnic groups were also more likely to be involved in different types of homicide (@fig-sus-cluster-ethnicity). Black offenders were over-represented in all types of homicide, especially in homicides of `r get_sub_type(3)`. Domestic homicides of male victims were less likely to be committed by Asian offenders or offenders with mixed/multiple ethnicities.
+
+
+```{r}
+#| label: fig-sus-cluster-ethnicity
+#| fig-cap: "Homicide suspect risk for ethnic groups in each Home Office sub-type"
+#| fig-alt: "Multi-panel horizontal bar chart showing annual homicide suspect rates per million people by ethnicity and Home Office homicide sub-type. The figure contains eight sub-charts, each with a different horizontal scale. Ethnic groups listed vertically in each panel are Black, Mixed/Multiple, Asian, White, and Other. Solid bars show rates for each ethnic group, while a vertical dashed line marks the average homicide suspect rate for all ethnic groups within that specific sub-type. Panels are titled: (1) Female victims of domestic homicide, age 16+, (2) Male victims of domestic homicide, age 16+, (3) Male victims under 25 killed in public spaces, (4) Female victims, non-domestic, age 16+, (5) Male victims, non-domestic, killed in public spaces, (6) Male victims, non-domestic, killed in homes, (7) Victims under 16 killed in non-public places, and (8) Other victims. Across most categories, Black individuals show the highest suspect rates, often substantially above the dashed average line, particularly for male victims killed in public spaces and non-domestic contexts. White and Other groups generally show lower rates, frequently below the average, while Mixed/Multiple and Asian groups fall between these extremes depending on category. A note explains that dashed lines represent the overall rate per sub-type and that axes differ by panel. Source and base notes appear below the chart."
+
+sus_cluster_risk <- suspects_convicted |> 
+  filter(suspect_ethnicity != "Not known/not recorded") |> 
+  count(cluster, suspect_ethnicity, name = "suspects") |> 
+  mutate(cluster_id = str_extract(cluster, "^\\w+")) |> 
+  full_join(
+    pop_clusters, 
+    by = c("cluster_id", "suspect_ethnicity" = "victim_ethnicity")
+  ) |> 
+  arrange(cluster_id) |> 
+  fill(cluster) |> 
+  replace_na(list(suspects = 0)) |> 
+  mutate(
+    rate = (suspects / (population / 1000000)) / 3,
+    suspect_ethnicity = fct_relevel(
+      suspect_ethnicity, 
+      c("White", "Black", "Asian", "Mixed/Multiple", "Other")
+    )
+  )
+
+sus_cluster_risk_all <- sus_cluster_risk |> 
+  summarise(
+    suspects = sum(suspects), 
+    population = sum(population),
+    .by = cluster
+  ) |> 
+  mutate(rate = (suspects / (population / 1000000)) / 3)
+
+sus_cluster_risk_ethnicity <- sus_cluster_risk |> 
+  summarise(
+    suspects = sum(suspects), 
+    population = sum(population), 
+    .by = suspect_ethnicity
+  ) |> 
+  mutate(
+    rate = (suspects / (population / 1000000)) / 3, 
+    suspect_ethnicity = fct_reorder(suspect_ethnicity, desc(rate))
+  ) |> 
+  pull("suspect_ethnicity") |> 
+  levels()
+
+sus_cluster_risk |> 
+  mutate(
+    suspect_ethnicity = factor(suspect_ethnicity, sus_cluster_risk_ethnicity)
+  ) |> 
+  ggplot(aes(x = rate, y = fct_rev(suspect_ethnicity))) +
+  geom_col(aes(fill = suspect_ethnicity)) +
+  geom_segment(
+    aes(y = -Inf, yend = Inf), 
+    data = sus_cluster_risk_all,
+    linetype = "22"
+  ) +
+  facet_wrap(
+    vars(cluster), 
+    scales = "free_x", 
+    ncol = 4, 
+    labeller = label_wrap_gen(width = 22)
+  ) +
+  scale_x_continuous(expand = expansion(c(0, 0.02))) +
+  scale_fill_manual(
+    values = c(
+      "Black" = ucl_brand[["c"]],
+      "Other" = ucl_brand[["e"]],
+      "Asian" = ucl_brand[["a"]],
+      "White" = ucl_brand[["d"]],
+      "Mixed/Multiple" = ucl_brand[["b"]]
+    ), 
+    guide = guide_legend(reverse = TRUE)
+  ) +
+  labs(
+    subtitle = "The dashed lines show homicide suspect rate for all ethnic groups in that sub-type.<br>Note the horizontal chart axis is different for each sub-type.",
+    caption = str_glue(
+      'Source: Home Office Homicide Index<br>Base: the ',
+      '{prop_base(suspects_convicted, suspect_ethnicity != "Not known/not recorded")} ',
+      'of convicted offenders for which offender ethnicity was known'
+    ),
+    x = "annual homicide suspect rate per million people", 
+    y = NULL, 
+    fill = "suspect ethnicity"
+  ) +
+  theme_homicide() +
+  theme(
+    axis.ticks.y = element_blank(),
+    legend.position = "none",
+    panel.grid.major.x = element_line(),
+    panel.grid.major.y = element_blank(),
+    panel.grid.minor.y = element_blank(),
+    panel.spacing = unit(1, "lines")
+  )
+```
+
+
+```{r}
+#| label: suspect-demographic-profiles
+
+suspect_common_profiles <- suspects_convicted |> 
+  drop_na(suspect_age, suspect_employment_status, suspect_ethnicity, suspect_sex) |> 
+  mutate(
+    suspect_age = if_else(suspect_age > 90, 90, suspect_age),
+    age_upper = ceiling((suspect_age + 1) / 10) * 10,
+    age_lower = age_upper - 10
+  ) |> 
+  count(suspect_employment_status, suspect_ethnicity, suspect_sex, sort = TRUE) |> 
+  mutate(
+    sex_desc = case_match(suspect_sex, "Female" ~ "women", "Male" ~ "men"),
+    prop = n / sum(n),
+    label = str_glue(
+      "{percent(prop)} of all convicted homicide offenders were ",
+      "{str_to_lower(suspect_employment_status)} {suspect_ethnicity} {sex_desc}"
+    )
+  ) |> 
+  slice(1, .by = suspect_ethnicity) |> 
+  slice_max(order_by = prop, n = 2) |> 
+  pull("label") |> 
+  combine_words(and = " and a further ")
+
+social_post(
+  str_glue(
+    'While only ',
+    '{prop_from_table(econ_act, status == "Unemployed", column = "people")} ',
+    'of people in England and Wales are unemployed, ',
+    '{percent(pluck(filter(suspect_employment, suspect_employment_status == "Unemployed"), "prop"))} ',
+    'of homicide offenders were jobless. {suspect_common_profiles}.',
+  )
+)
+```
+
+
+### Homicide offenders are very often unemployed, and often have serious previous convictions
+
+Homicide offenders were much more likely to be unemployed than people in the general population. Suspects were most likely to be `r suspect_employment_profiles`, whereas at the last census only `r prop_from_table(econ_act, status == "Unemployed", column = "people")` of people described themselves as unemployed. The over-representation of unemployed men as offenders meant that `r suspect_common_profiles`.
+
+
+```{r}
+#| label: previous-convictions
+
+precon <- suspects |> 
+  filter(previous_serious_conviction %in% c("NO", "YES")) |> 
+  count(previous_serious_conviction)
+
+precon_homicide <- suspects |> 
+  mutate(
+    prev_hom_conv = str_squish(str_sub(previous_homicide_conviction, end = 3))
+  ) |> 
+  filter(prev_hom_conv %in% c("NO", "YES")) |> 
+  count(prev_hom_conv)
+
+precon_sex <- suspects_convicted |> 
+  filter(
+    previous_serious_conviction %in% c("NO", "YES"), 
+    !is.na(suspect_sex)
+  ) |> 
+  count(suspect_sex, previous_serious_conviction)
+
+precon_ethnicity <- suspects_convicted |> 
+  filter(
+    previous_serious_conviction %in% c("NO", "YES"), 
+    !is.na(suspect_ethnicity)
+  ) |> 
+  count(suspect_ethnicity, previous_serious_conviction)
+
+social_post(
+  'About a quarter of suspects charged with homicide had a previous conviction for a series offence such as kidnap or wounding with intent, with Black suspects more likely to have a previous serious conviction than White or Asian suspects.'
+)
+```
+
+
+Around a quarter of charged homicide suspects were known to have a previous conviction for a serious offence (for example kidnap or wounding with intent), including `r prop_from_table(precon_homicide, prev_hom_conv == "YES", accuracy = 0.1)` of suspects who had a previous conviction for homicide. The convicted homicide offenders with a previous serious conviction included `r prop_from_table(filter(precon_sex, suspect_sex == "Male"), previous_serious_conviction == "YES")` of male suspects and `r prop_from_table(filter(precon_sex, suspect_sex == "Female"), previous_serious_conviction == "YES")` of female suspects. A somewhat higher proportion (`r prop_from_table(filter(precon_ethnicity, suspect_ethnicity == "Black"), previous_serious_conviction == "YES")`) of convicted offenders who were Black had a previous serious conviction than the proportion for White or Asian suspects (`r prop_from_table(filter(precon_ethnicity, suspect_ethnicity == "White"), previous_serious_conviction == "YES")` and `r prop_from_table(filter(precon_ethnicity, suspect_ethnicity == "Asian"), previous_serious_conviction == "YES")`, respectively).
+
+
+```{r}
+#| label: sus-methods
+
+suspect_methods <- suspects_convicted |> 
+  filter(
+    !method %in% c("not known", "other"), 
+    suspect_sex %in% c("Female", "Male")
+  ) |> 
+  count(method, suspect_sex, sort = TRUE) |> 
+  mutate(prop = n / sum(n), .by = method) |> 
+  mutate(
+    label = str_glue(
+      "by {method} (for which {percent(prop, accuracy = 1)} of suspects were ",
+      "{str_to_lower(suspect_sex)})"
+    )
+  )
+
+suspect_methods_male <- suspect_methods |> 
+  filter(suspect_sex == "Male", n >= 10) |> 
+  slice_max(order_by = prop, n = 3) |> 
+  mutate(label = if_else(
+    row_number() == 1,
+    label,
+    str_remove(label, "for which ")
+  )) |> 
+  pull("label") |> 
+  combine_words()
+
+suspect_methods_ethnicity <- suspects_convicted |> 
+  filter(!method %in% c("not known", "other"), !is.na(suspect_ethnicity)) |> 
+  count(method, suspect_ethnicity) |> 
+  mutate(prop = n / sum(n), .by = suspect_ethnicity) |> 
+  mutate(disparity = prop / last(prop), .by = method) |> 
+  filter(disparity >= 1.5, n >= 10) |> 
+  arrange(suspect_ethnicity, desc(disparity)) |> 
+  select(suspect_ethnicity, method) |> 
+  nest(data = method) |> 
+  mutate(
+    methods = map_chr(data, \(x) combine_words(pull(x, "method"), and = " or ")), 
+    label = str_glue(
+      "{suspect_ethnicity} people being more likely to be convicted offenders ",
+      "in homicides by {methods}"
+    )
+  ) |> 
+  pull("label") |> 
+  combine_words()
+```
+
+
+There was some variation in homicide methods between male and female convicted offenders, with male convicted offenders being more likely to be involved in homicides `r suspect_methods_male`. Contrary to stereotype, all `r n_from_table(suspect_methods, method == "poison or drugs" & suspect_sex == "Male")` convicted offenders in homicides by poisoning were male. There was also some variation in homicide methods by ethnicity, with `r suspect_methods_ethnicity`, when compared to White suspects.
+
+
+```{r}
+#| label: suspect-overall-profiles
+
+suspect_profiles <- suspects |> 
+  drop_na(method, suspect_age, suspect_employment_status, suspect_ethnicity, suspect_sex) |> 
+  mutate(
+    suspect_age = if_else(suspect_age > 90, 90, suspect_age),
+    age_upper = ceiling((suspect_age + 1) / 10) * 10,
+    age_lower = age_upper - 10
+  ) |> 
+  count(age_lower, suspect_employment_status, suspect_ethnicity, suspect_sex, sort = TRUE) |> 
+  mutate(
+    sex_desc = case_when(
+      age_lower == 10 & suspect_sex == "Female" ~ "female teenagers", 
+      age_lower == 10 & suspect_sex == "Male" ~ "male teenagers",
+      suspect_sex == "Female" ~ str_glue("women in their {age_lower}s"), 
+      suspect_sex == "Male" ~ str_glue("men in their {age_lower}s")
+    ),
+    prop = n / sum(n),
+    label = str_glue(
+      "{str_to_lower(suspect_employment_status)} {suspect_ethnicity} ",
+      "{sex_desc} ({percent(prop)} of suspects)"
+    ),
+    label = if_else(row_number() == 1, label, str_remove(label, " of suspects"))
+  ) |> 
+  slice_max(order_by = prop, n = 3)  
+
+# Estimate what proportion of people are unemployed White men in their 20s, 30s
+# or 40s. Note that census data isn't available in that detail, so we have to
+# use data on White men in their 20s, 30s and 40s then apply the proportion of
+# the population that is unemployed to that.
+unemployed_rate <- econ_act |> 
+  n_from_table(status == "Unemployed", accuracy = 0.01, column = "prop") |> 
+  as.numeric()
+unemployed_white_men_20_40 <- pop_age_groups_ethnicity |> 
+  mutate(prop = population / sum(population)) |> 
+  filter(ethnic_group == "White", between(age_lower, 20, 40)) |> 
+  summarise(prop = sum(prop) * unemployed_rate) |> 
+  pluck("prop")
+
+social_post(
+  str_glue(
+    'Homicide offending is heavily concentrated among some demographic groups: ',
+    '{percent(sum(pull(suspect_profiles, "prop")))} of all convicted homicide ',
+    'offenders were ',
+    '{str_to_lower(pluck(suspect_profiles, "suspect_employment_status", 1))} ',
+    '{pluck(suspect_profiles, "suspect_ethnicity", 1)} men aged ',
+    '{min(pull(suspect_profiles, "age_lower"))}–{max(pull(suspect_profiles, "age_lower")) + 9}, despite that demographic making up only ',
+    '{percent(unemployed_white_men_20_40, accuracy = 0.1)} of the population.'
+  )
+)
+```
+
+
+Combining the available demographic information about homicide suspects in England and Wales shows that (among the `r prop_base(suspects, !is.na(method) & !is.na(suspect_age) & !is.na(suspect_employment_status) & !is.na(suspect_ethnicity) & !is.na(suspect_sex), accuracy = 1)` of suspects for which the necessary fields were completed) the most common suspects for homicides were `r combine_words(pull(suspect_profiles, "label"))` -- between them, these three categories make up `r percent(sum(pull(suspect_profiles, "prop")))` of all convicted homicide offenders, despite making up about `r percent(unemployed_white_men_20_40, accuracy = 0.1)` of the overall population.
+
+
+
+### Homicide victims usually know their killers
+
+```{r victim-offender-relationships}
+victim_offender_relationships <- victims |> 
+  mutate(
+    relationship = case_when(
+      relationship_to_suspect == "No current suspects" ~ "no current suspects",
+      relationship_to_suspect == "Relationship not known" ~ 
+        "relationship not known",
+      TRUE ~ suspect_victim_relationship
+    )
+  ) |> 
+  count(relationship)
+
+victim_offender_relationships_known <- victim_offender_relationships |> 
+  filter(!relationship %in% c("no current suspects", "relationship not known"))
+
+victim_offender_relationships_noessex <- victims |> 
+  mutate(
+    relationship = case_when(
+      relationship_to_suspect == "No current suspects" ~ "no current suspects",
+      relationship_to_suspect == "Relationship not known" ~ 
+        "relationship not known",
+      TRUE ~ suspect_victim_relationship
+    )
+  ) |> 
+  filter(
+    number_of_victims != 39,
+    !relationship %in% c("no current suspects", "relationship not known")
+  ) |> 
+  count(relationship)
+
+victim_offender_relationships_sex <- victims |> 
+  drop_na(victim_sex, suspect_victim_relationship) |> 
+  count(relationship = suspect_victim_relationship, victim_sex) |> 
+  filter(!relationship %in% c("no current suspects", "relationship not known")) |> 
+  mutate(prop = n / sum(n), .by = victim_sex)
+
+victim_offender_relationships_age <- suspects |> 
+  drop_na(suspect_victim_relationship, adult_child, young_child) |> 
+  mutate(
+    adult_child = case_when(
+      adult_child == "adult" ~ "adult",
+      adult_child == "child" & !young_child ~ "older child",
+      adult_child == "child" & young_child ~ "younger child",
+      TRUE ~ NA_character_
+    )
+  ) |> 
+  count(relationship = suspect_victim_relationship, adult_child) |> 
+  filter(!relationship %in% c("no current suspects", "relationship not known")) |> 
+  complete(relationship, adult_child, fill = list(n = 0))
+
+victim_offender_current_partner <- victims |> 
+  filter(suspect_victim_relationship == "partner/ex-partner") |> 
+  mutate(current = !str_detect(relationship_to_suspect, "^Ex")) |> 
+  count(current)
+
+victim_offender_livingwith <- victims |> 
+  filter(
+    suspect_victim_relationship %in% c("family member", "partner/ex-partner")
+  ) |>
+  drop_na(victim_living_with_suspect) |> 
+  count(
+    relationship = suspect_victim_relationship, 
+    victim_living_with_suspect
+  ) |> 
+  mutate(prop = n / sum(n), .by = relationship) |> 
+  filter(victim_living_with_suspect) |> 
+  arrange(desc(prop)) |> 
+  mutate(
+    label = str_glue(
+      "{percent(prop, accuracy = 1)} of suspects who were categorised as ",
+      "{relationship}s were living with the victim"
+    )
+  ) |> 
+  pull("label") |> 
+  combine_words(and = ", while ")
+
+victim_offender_acquaintance <- victims |> 
+  filter(suspect_victim_relationship == "acquaintance") |> 
+  mutate(
+    relationship_to_suspect = case_match(
+      relationship_to_suspect,
+      c("Business associate", "Customer/ client") ~ 
+        "business associate or client",
+      .default = relationship_to_suspect
+    )
+  ) |> 
+  count(relationship_to_suspect) |> 
+  mutate(
+    prop = n / sum(n), 
+    label = str_glue(
+      "{str_to_lower(relationship_to_suspect)} ({percent(prop)})"
+    )
+  ) |> 
+  slice_max(order_by = prop, n = 3) |> 
+  pull("label") |> 
+  combine_words()
+
+social_post(
+  str_glue(
+    'Most homicide victims were killed by someone they knew: ',
+    '{prop_from_table(victim_offender_relationships_known, relationship == "acquaintance")} ',
+    'of charged suspects were acquaintances of the victim, ',
+    '{prop_from_table(victim_offender_relationships_known, relationship == "family member")} ',
+    'were a family member and ',
+    '{prop_from_table(victim_offender_relationships_known, relationship == "partner/ex-partner")} ',
+    'were a partner/ex-partner. Only ',
+    '{prop_from_table(victim_offender_relationships_known, relationship == "stranger")} ',
+    'of suspects were strangers.'
+  )
+)
+```
+
+
+Homicide victims were usually killed by someone who they knew: `r prop_from_table(victim_offender_relationships_known, relationship == "acquaintance")` of charged suspects were acquaintances of the victim, `r prop_from_table(victim_offender_relationships_known, relationship == "family member")` were a family member of the victim and `r prop_from_table(victim_offender_relationships_known, relationship == "partner/ex-partner")` were a partner or ex-partner of the victim. This contrasts with only `r prop_from_table(victim_offender_relationships_known, relationship == "stranger")` of suspects who were strangers. 
+
+Among the suspects who were partners or ex-partners, `r prop_from_table(victim_offender_current_partner, current)` were current partners. `r victim_offender_livingwith`.
+Among the suspects categorised as acquaintances, the most-common types of acquaintance were `r victim_offender_acquaintance`.
+
+Victim--suspect relationships varied according to victim characteristics: `r percent(pluck(filter(victim_offender_relationships_sex, relationship == "partner/ex-partner", victim_sex == "Female"), "prop", 1))` of all female homicide victims were killed by a current or former partner (all suspects in this category were male), compared to `r percent(pluck(filter(victim_offender_relationships_sex, relationship == "partner/ex-partner", victim_sex == "Male"), "prop", 1))` of male victims. Conversely, `r percent(pluck(filter(victim_offender_relationships_sex, relationship == "stranger", victim_sex == "Male"), "prop", 1))` of male victims were killed by strangers, compared to `r percent(pluck(filter(victim_offender_relationships_sex, relationship == "stranger", victim_sex == "Female"), "prop", 1))` of female victims. These patterns were broadly similar across ethnic groups, although female Asian victims and male Black victims were somewhat more likely to have been killed by a stranger, relative to White victims of the same sex.
+
+Victim--suspect relationships varied substantially by age (@fig-sus-vic-relationship). In homicides of children under 10 for which the victim--suspect relationship was known, `r prop_from_table(filter(victim_offender_relationships_age, adult_child == "younger child"), relationship == "family member")` of identified suspects were family members (`r prop_from_table(count(filter(suspects, young_child), victim_living_with_suspect), victim_living_with_suspect)` of whom lived with the victim), whereas for older children and adults only `r prop_from_table(filter(victim_offender_relationships_age, adult_child == "adult"), relationship == "family member")` of known suspects were family members. We will come back to the issue of child homicide in [part six of this series](../homicide-profile-vulnerable/).
+
+Adult male victims were most likely to be killed by acquaintances, while adult female victims were most likely to be killed by a current or ex-partner. There were two exceptions to this: both female victims aged 10--19 and female victims aged 80 or more were most likely to be killed by strangers. However, the relatively small numbers of homicides of victims in these categories means these findings should be treated with caution. We will cover the issue of domestic-abuse homicides in more detail in [part six of this series](../homicide-profile-vulnerable/).
+
+
+```{r}
+#| label: fig-sus-vic-relationship
+#| fig-cap: "Suspect--victim relationships by age and sex"
+#| fig-alt: "This grouped bar chart shows the percentage of homicide suspects’ relationships to victims in England and Wales, broken down by victim age (in ten-year categories) and sex (female on top, male on bottom). Four relationship types are represented across the chart: partner/ex-partner, family member, acquaintance, and stranger. Among female victims, suspects are most often current or former partners, especially for victims aged 20–49. In contrast, for male victims, suspects are more commonly acquaintances or strangers across all age groups. Family members are most likely to be suspects in homicides of the very young (ages 0–9) and elderly (70+), especially for male victims. For female victims, acquaintance and stranger suspects are less common overall but rise slightly in older age groups. Among male victims, partner/ex-partner suspects account for a very small proportion across all ages. The chart highlights the gendered nature of homicide suspect relationships, particularly the high rates of intimate partner homicide among women. Data source is the Home Office Homicide Index, representing 83.5% of victims for whom age, sex, and suspect relationship are known. The x-axis shows victim age by decade; the y-axis shows percentage of suspect relationships."
+
+fig_sus_vic_relationship <- suspects |> 
+  drop_na(victim_age, victim_sex, suspect_victim_relationship) |> 
+  mutate(
+    victim_age = if_else(victim_age > 90, 90, victim_age),
+    age_upper = ceiling((victim_age + 1) / 10) * 10,
+    age_lower = age_upper - 10
+  ) |> 
+  count(age_lower, suspect_victim_relationship, victim_sex) |> 
+  complete(age_lower, suspect_victim_relationship, victim_sex, fill = list(n = 0)) |>
+  mutate(
+    suspect_victim_relationship = factor(
+      suspect_victim_relationship, 
+      levels = c("partner/ex-partner", "family member", "acquaintance", "stranger")
+    ),
+    victim_sex = str_to_lower(str_glue("{victim_sex} victims"))
+  ) |> 
+  mutate(prop = n / sum(n), .by = c(victim_sex, age_lower)) |> 
+  ggplot(aes(x = age_lower, y = prop, fill = suspect_victim_relationship)) + 
+  geom_col(just = 0) + 
+  geom_hline(yintercept = 0, colour = "grey90") +
+  facet_grid(rows = vars(victim_sex), cols = vars(suspect_victim_relationship)) + 
+  scale_x_continuous(
+    breaks = seq(0, 90, by = 10), 
+    labels = \(x) if_else(x %% 20 == 0, number(x), ""),
+    expand = c(0, 0)
+  ) +
+  scale_y_continuous(
+    breaks = seq(0, 1, by = 0.2), 
+    limits = c(0, 1),
+    labels = label_percent(), 
+    expand = c(0, 0)
+  ) +
+  scale_fill_manual(
+    values = c(
+      "acquaintance" = ucl_brand[["a"]],
+      "family member" = ucl_brand[["e"]],
+      "partner/ex-partner" = ucl_brand[["b"]],
+      "stranger" = ucl_brand[["d"]]
+    )
+  ) + 
+  labs(
+    x = "victim age (in ten-year categories)", 
+    y = "percent of suspect relationships\nfor victims of each age and sex"
+  ) +
+  theme_homicide() + 
+  theme(
+    legend.position = "none",
+    panel.grid.minor.y = element_blank(),
+    panel.spacing.y = unit(1, "lines")
+  )
+
+social_figure(
+  fig_sus_vic_relationship,
+  title = "Female victims are most-often killed by partners, male victims by acquaintances",
+  subtitle = "Who is most likely to have killed a victim varies according to their age and sex. Women homicide victims are most likely to have been killed by a partner/ex-partner and very unlikely to be killed by a stranger. Men victims are most likely to have been killed by an acquaintance or stranger. Young boys and girls who were homicide victims were almost always killed by a family member. Family members were also more likely to have killed older victims.",
+  caption = str_glue('Source: Home Office Homicide Index<br>Base: the {prop_base(suspects, !is.na(victim_age) & !is.na(victim_sex) & !is.na(suspect_victim_relationship))} of victims with known age, sex and relationship to the principal suspect'),
+  name = "sus_vic_relationship"
+)
+
+social_post(
+  str_glue(
+    'Of all female victims of homicide, ',
+    '{percent(pluck(filter(victim_offender_relationships_sex, relationship == "partner/ex-partner", victim_sex == "Female"), "prop", 1))} ',
+    'were killed by a current or former partner, compared to only ',
+    '{percent(pluck(filter(victim_offender_relationships_sex, relationship == "partner/ex-partner", victim_sex == "Male"), "prop", 1))} ',
+    'of male victims.\n\n',
+    'Conversely, ',
+    '{percent(pluck(filter(victim_offender_relationships_sex, relationship == "stranger", victim_sex == "Male"), "prop", 1))} ',
+    'of male victims were killed by strangers, compared to ',
+    '{percent(pluck(filter(victim_offender_relationships_sex, relationship == "stranger", victim_sex == "Female"), "prop", 1))} ',
+    'of female victims.'
+  ),
+  image = "sus_vic_relationship",
+  alt = "This grouped bar chart shows the percentage of homicide suspects’ relationships to victims in England and Wales, broken down by victim age (in ten-year categories) and sex (female on top, male on bottom). Four relationship types are represented across the chart: partner/ex-partner, family member, acquaintance, and stranger. Among female victims, suspects are most often current or former partners, especially for victims aged 20–49. In contrast, for male victims, suspects are more commonly acquaintances or strangers across all age groups. Family members are most likely to be suspects in homicides of the very young (ages 0–9) and elderly (70+), especially for male victims. For female victims, acquaintance and stranger suspects are less common overall but rise slightly in older age groups. Among male victims, partner/ex-partner suspects account for a very small proportion across all ages. The chart highlights the gendered nature of homicide suspect relationships, particularly the high rates of intimate partner homicide among women. Data source is the Home Office Homicide Index, representing 83.5% of victims for whom age, sex, and suspect relationship are known. The x-axis shows victim age by decade; the y-axis shows percentage of suspect relationships."
+)
+
+fig_sus_vic_relationship +
+  labs(
+    caption = str_glue('Source: Home Office Homicide Index<br>Base: the {prop_base(suspects, !is.na(victim_age) & !is.na(victim_sex) & !is.na(suspect_victim_relationship))} of victims with known age, sex and relationship to the principal suspect')
+  )
+```
+
+
+### Victims are usually killed by someone from the same ethnic group as them
+
+```{r ethnicity-overlap}
+ethnicity_overlap <- homicides |> 
+  drop_na(suspect_ethnicity, victim_ethnicity) |> 
+  filter(
+    suspect_ethnicity != "Not known/not recorded",
+    victim_ethnicity != "Not known/not recorded"
+  ) |> 
+  count(suspect_ethnicity, victim_ethnicity) |> 
+  complete(suspect_ethnicity, victim_ethnicity, fill = list(n = 0))
+
+ethnicity_overlap_stranger <- homicides |> 
+    filter(
+      suspect_victim_relationship == "stranger", 
+      suspect_ethnicity != "Not known/not recorded",
+      victim_ethnicity != "Not known/not recorded"
+    ) |> 
+    drop_na(suspect_ethnicity, victim_ethnicity) |> 
+    count(suspect_ethnicity, victim_ethnicity)
+```
+
+
+Homicide victims were more likely to be killed by suspects of the same ethnic group as themselves than would be expected by chance (@fig-sus-vic-ethnicity). Among White victims for whom the ethnicity of a suspect was known, `r prop_from_table(filter(ethnicity_overlap, victim_ethnicity == "White"), suspect_ethnicity == "White")` were killed by White suspects (higher than the `r prop_from_table(count(pop, ethnic_group, wt = n), ethnic_group == "White")` of the population who are White). But for Black victims for whom a suspect ethnicity was known, `r prop_from_table(filter(ethnicity_overlap, victim_ethnicity == "Black"), suspect_ethnicity == "Black")` were killed by Black suspects, much more than the `r prop_from_table(count(pop, ethnic_group, wt = n), ethnic_group == "Black")` percent of the population who are Black. Similarly, among Asian victims for whom a suspect ethnicity was known, `r prop_from_table(filter(ethnicity_overlap, victim_ethnicity == "Asian"), suspect_ethnicity == "Asian")` were killed by Asian suspects, much more than the `r prop_from_table(count(pop, ethnic_group, wt = n), ethnic_group == "Asian")` percent of the population who are Asian. 
+
+
+```{r}
+#| label: fig-sus-vic-ethnicity
+#| fig-cap: "Relationship between suspect and victim ethnicity"
+#| fig-alt: "A heatmap-style chart shows percentages of homicide victims by their ethnicity and the ethnicity of the suspect, based on data from the UK Home Office Homicide Index. The chart has victim ethnicities listed on the vertical axis (White, Black, Asian, Mixed/Multiple, Other) and suspect ethnicities on the horizontal axis with the same categories. Each cell contains a percentage and is shaded according to the proportion of total homicide victims, with darker green indicating higher values. The most prominent cell shows that 51% of homicide victims were White individuals killed by White suspects. Other significant cells include Black victims with Black suspects (10%) and Other victims with White suspects (12%). Many cells have values near or at 0%. A vertical color scale on the right indicates shading from 0% (light) to 60% (dark). The data reflects only the 56.8% of cases where both suspect and victim ethnicities were known."
+
+ethnicity_overlap_order <- ethnicity_overlap |> 
+  summarise(n = sum(n), .by = victim_ethnicity) |>
+  mutate(
+    victim_ethnicity = fct_relevel(fct_reorder(victim_ethnicity, n), "Other")
+  ) |> 
+  arrange(victim_ethnicity) |> 
+  pull("victim_ethnicity")
+
+fig_sus_vic_ethnicity <- ethnicity_overlap |>
+  mutate(prop = n / sum(n)) |> 
+  mutate(
+    across(
+      c(suspect_ethnicity, victim_ethnicity), 
+      \(x) factor(x, levels = ethnicity_overlap_order)
+    ),
+    across(
+      c(suspect_ethnicity, victim_ethnicity), 
+      \(x) fct_relabel(x, \(y) str_replace_all(y, "/", "/\n"))
+    )
+  ) |> 
+  ggplot(
+    aes(
+      x = fct_rev(suspect_ethnicity), 
+      # xend = as.numeric(fct_rev(suspect_ethnicity)) + 0.999, 
+      y = victim_ethnicity, 
+      # yend = victim_ethnicity, 
+      fill = prop, 
+      group = victim_ethnicity,
+      label = percent(prop)
+    )
+  ) +
+  geom_tile(colour = NA) +
+  geom_text() +
+  # geom_segment(position = position_nudge(x = -0.5, y = 0.5)) +
+  scale_x_discrete(position = "top") +
+  scale_fill_gradient(
+    low = "white", 
+    high = colours[["brightgreen"]], 
+    breaks = c(0, 0.3, 0.6),
+    labels = label_percent(),
+    limits = c(0, 0.6)
+  ) +
+  coord_fixed() +
+  labs(
+    x = "suspect ethnicity", 
+    y = "victim ethnicity",
+    fill = "proportion\nof homicide\nvictims"
+  ) +
+  theme_homicide() +
+  theme(
+    axis.ticks = element_blank(),
+    legend.position = "right",
+    panel.grid = element_blank()
+  )
+
+social_figure(
+  fig_sus_vic_ethnicity,
+  title = 'Most homicide victims are killed by someone from the same ethnic group as them',
+  subtitle = str_glue(
+    '{prop_from_table(filter(ethnicity_overlap, victim_ethnicity == "White"), suspect_ethnicity == "White")} ',
+    'of White victims were killed by White offenders, while ',
+    '{prop_from_table(filter(ethnicity_overlap, victim_ethnicity == "Black"), suspect_ethnicity == "Black")} ',
+    'of Black victims were killed by Black offenders. This relationship ',
+    'wasn\'t driven solely by victims knowing their killers: ',
+    '{prop_from_table(filter(ethnicity_overlap_stranger, victim_ethnicity == "Black"), suspect_ethnicity == "Black")} ',
+    'of Black victims killed by strangers were killed by a Black offender.'
+  ),
+  caption = str_glue('Source: Home Office Homicide Index<br>Base: the {prop_base(filter(homicides, suspect_number != "No suspect charged"), suspect_ethnicity != "Not known/not recorded" & victim_ethnicity != "Not known/not recorded")} of suspect--victim combinations for which suspect and victim ethnicities were known'),
+  name = "sus_vic_ethnicity",
+  asp = 0.9
+)
+
+social_post(
+  "Victims were also more likely to be killed by someone of the same ethnicity as them. This wasn't driven solely by suspects and victims knowing one another: victims killed by strangers were also more likely to be killed by someone of the same ethnicity.",
+  image = "sus_vic_ethnicity",
+  alt = "A heatmap-style chart shows percentages of homicide victims by their ethnicity and the ethnicity of the suspect, based on data from the UK Home Office Homicide Index. The chart has victim ethnicities listed on the vertical axis (White, Black, Asian, Mixed/Multiple, Other) and suspect ethnicities on the horizontal axis with the same categories. Each cell contains a percentage and is shaded according to the proportion of total homicide victims, with darker green indicating higher values. The most prominent cell shows that 51% of homicide victims were White individuals killed by White suspects. Other significant cells include Black victims with Black suspects (10%) and Other victims with White suspects (12%). Many cells have values near or at 0%. A vertical color scale on the right indicates shading from 0% (light) to 60% (dark). The data reflects only the 56.8% of cases where both suspect and victim ethnicities were known."
+)
+
+fig_sus_vic_ethnicity +
+  labs(
+    caption = str_glue('Source: Home Office Homicide Index<br>Base: the {prop_base(filter(homicides, suspect_number != "No suspect charged"), suspect_ethnicity != "Not known/not recorded" & victim_ethnicity != "Not known/not recorded")} of suspect--victim combinations for which suspect and victim ethnicities were known')
+  )
+```
+
+
+These relationships were not solely driven by suspects and victims who knew one another: among Black victims killed by strangers, `r prop_from_table(filter(ethnicity_overlap_stranger, victim_ethnicity == "Black"), suspect_ethnicity == "Black")` were killed by Black suspects, while `r prop_from_table(filter(ethnicity_overlap_stranger, victim_ethnicity == "Asian"), suspect_ethnicity == "Asian")` Asian victims killed by strangers were killed by Asian suspects. This likely reflects the fact that people spend more time with people of the same ethnicity as themselves even if the people do not know each other, for example because they attend the same cultural events or because they live close to a facility (such as a place of worship or a cluster of specialist shops) that serves a particular community. 
+
+
+```{r}
+#| label: final-social-posts
+
+social_post(
+  "This analysis of homicide offenders in England and Wales comes from a ",
+  "report written by me and Prof Iain Brennan for the UK College of Policing. ",
+  "You can get more detail at ",
+  "https://lesscrime.info/post/homicide-profile-offenders/"
+)
+
+social_post(
+  "This is the third in a series of seven threads summarising different ",
+  "aspects of homicide in England and Wales. You can find links to the ",
+  "other threads at https://lesscrime.info/post/homicide-profile/"
+)
+```
+
+
+### In summary
+
+Homicide -- like all types of offending -- is heavily concentrated among a small number of people. In particular, almost all homicide offenders are men and a much higher proportion of offenders are unemployed compared to the general population. There are also more Black homicide offenders than we would expect based on their share of the general population.
+
+It's important to remember, though, that because homicide is so rare then even among groups with the highest rates of offending, the vast majority of people in those groups will never be involved in homicide.
+
+While a lot of media (especially dramatic) narratives about homicide focus on people being killed by strangers, in reality most homicide victims are killed by someone they know. For male victims this is typically a friend or social acquaintance, whereas for female victims it is most often a current or former partner. I'll go into more detail about this in [part six of this series](../homicide-profile-vulnerable/).
+
+The next post in this series looks at [how people are killed in homicides](../homicide-profile-methods/).

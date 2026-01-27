@@ -1,0 +1,603 @@
+---
+title: "Homicide in England and Wales, Part 4: Homicide methods"
+date: 2026-01-26
+fig-cap-location: top
+format: 
+  html:
+    css: "../homicide_theme.css"
+bibliography: "../homicide-bibliography.bib"
+execute:
+  echo: false
+  freeze: auto
+---
+
+```{r}
+#| label: setup
+#| include: false
+
+# Load packages, functions and data
+source("../homicide_functions.R")
+
+if (!file.exists("world_bank_cats.xlsx")) {
+  download.file(
+    url = "https://ddh-openapi.worldbank.org/resources/DR0095333/download", 
+    destfile = "world_bank_cats.xlsx"
+  )
+}
+world_bank_cats <- readxl::read_excel("world_bank_cats.xlsx") |> 
+  clean_names()
+world_bank_pop <- tidyr::world_bank_pop |> 
+  filter(indicator == "SP.URB.TOTL") |> 
+  select(country, people = `2017`) |> 
+  add_row(country = "EAW", people = 57106000 + 3132000)
+
+if (!file.exists("firearms_homicides.csv")) {
+  read_csv("https://ourworldindata.org/grapher/homicide-rates-from-firearms.csv?v=1&csvType=full&useColumnShortNames=true") |> 
+    clean_names() |> 
+    write_csv("firearms_homicides.csv")
+}
+
+firearms_homicides <- read_csv("firearms_homicides.csv") |> 
+  rename(rate = 4) |> 
+  drop_na(rate) |> 
+  slice_max(order_by = year, n = 1, by = entity) |> 
+  left_join(world_bank_cats, by = join_by(code == code)) |> 
+  left_join(world_bank_pop, by = join_by(code == country)) |> 
+  filter(income_group == "High income", people >= 5 * 10^6)
+```
+
+
+This is the fourth in a [series of blog posts summarising the nature of homicide in England and Wales](../homicide-profile/). Each post covers a different aspect of homicide, based on data from the Home Office Homicide Index. This post looks at different homicide methods. This post is a summary of part of a longer [national problem profile of homicide in England and Wales](https://library.college.police.uk/docs/Patterns-trends-homicide-problem-profile-2025.pdf) written by me and Prof Iain Brennan.
+
+
+```{r}
+#| label: victim-methods
+
+victim_methods_sex <- victims |> 
+  filter(victim_sex %in% c("Female", "Male")) |> 
+  count(method, victim_sex) |> 
+  mutate(prop = n / sum(n), .by = method)
+
+victim_methods_order <- victim_methods_sex |> 
+  count(method, wt = n, sort = TRUE) |> 
+  pull("method")
+
+victim_methods <- victim_methods_sex |> 
+  count(method, wt = n, sort = TRUE) |> 
+  mutate(
+    method = factor(method, levels = victim_methods_order),
+    prop = n / sum(n)
+  )
+
+victim_methods_highest <- victim_methods_sex |> 
+  filter(!method %in% c("not known", "other"), n >= 10) |> 
+  mutate(
+    label = str_glue(
+      "{method} ({percent(prop, accuracy = 1)} of victims were ",
+      "{str_to_lower(victim_sex)})"
+    )
+  )
+
+victim_methods_older <- victims |> 
+  count(method, older_person) |> 
+  mutate(total = sum(n), prop = n / total, .by = method) |> 
+  filter(!method %in% c("not known", "other"), n >= 10, older_person) |> 
+  slice_max(order_by = prop, n = 3) |> 
+  mutate(
+    label = str_glue("{method} ({percent(prop, accuracy = 1)} of {total} victims were 65 or over)"), 
+    label = if_else(row_number() == 1, label, str_replace(label, " of.+", ")"))
+  )
+
+victim_methods_ethnicity <- victims |> 
+  count(method, victim_ethnicity) |> 
+  mutate(prop = n / sum(n), .by = victim_ethnicity) |> 
+  mutate(disparity = prop / last(prop), .by = method) |> 
+  mutate(
+    method = str_glue(
+      "{number(disparity, accuracy = 0.1)} times more likely to be killed by ",
+      "{method}"
+    )
+  ) |>
+  filter(disparity >= 1.5, !method %in% c("not known", "other"), n >= 10)
+
+social_post(
+  str_glue(
+    "Every year about {comma(nrow(victims) / 3)} people are killed in homicides in England and Wales. This thread summarises what we know about how often different methods are used in homicides."
+  ),
+  add = FALSE
+)
+
+social_post(
+  "This thread is the fourth in a series of threads about homicide in England ",
+  "and Wales.\n\n",
+  "All the threads: https://lesscrime.info/post/homicide-profile/\n\n",
+  "Full report: https://library.college.police.uk/docs/Patterns-trends-homicide-problem-profile-2025.pdf"
+)
+```
+
+
+### Stabbing is the most common homicide method
+
+The most common homicide methods in England and Wales were killing using a `r pluck(victim_methods, "method", 1)` (`r percent(pluck(victim_methods, "prop", 1))` of all homicides), killing by `r pluck(victim_methods, "method", 2)` (`r percent(pluck(victim_methods, "prop", 2))`) and `r pluck(victim_methods, "method", 3)` (`r percent(pluck(victim_methods, "prop", 3))`) (@fig-vic-method-sex). The category of killing with a 'sharp instrument' includes homicides committed with any type of knife, but also offenders stabbing victims with a screwdriver or any other sharp or pointed object.
+
+
+```{r}
+#| label: fig-vic-method-sex
+#| fig-cap: "Homicide methods by victim sex"
+#| fig-alt: "Bar chart showing average annual number of homicide victims in England and Wales by method and gender, based on Home Office Homicide Index data. The most common method is sharp instruments, with around 260 victims, predominantly male. Next is hitting, kicking, etc., with around 109 victims. Strangulation, blunt instruments, and other methods follow with 30–50 victims each. Shooting, use of vehicles, poison, and burning have fewer victims. Drowning and explosions are least common. Gender is color-coded: pink for male and dark teal for female victims. A category labeled “not known” includes 41 victims where the method was unclear."
+
+fig_vic_method_sex <- victim_methods_sex |> 
+  complete(method, victim_sex, fill = list(n = 0)) |> 
+  mutate(
+    method = fct_rev(factor(method, levels = victim_methods_order)),
+    method = fct_relevel(method, "not known")
+  ) |> 
+  mutate(
+    total = if_else(victim_sex == "Female", sum(n) / 3, NA),
+    .by = method
+  ) |> 
+  ggplot() +
+  aes(
+    x = n / 3, 
+    y = method, 
+    fill = victim_sex, 
+    group = victim_sex, 
+    label = if_else(
+      total >= 1,
+      number(total, accuracy = 1),
+      "<1"
+    )
+  ) +
+  geom_label(
+    aes(x = total), 
+    fill = "white", 
+    hjust = 0,
+    linewidth = 0, 
+    na.rm = TRUE
+  ) +
+  geom_col() +
+  scale_x_continuous(
+    n.breaks = 7,
+    expand = expansion(c(0, 0.075))
+  ) +
+  scale_fill_manual(
+    values = c("Female" = ucl_brand[["b"]], "Male" = ucl_brand[["d"]]),
+    labels = c("Female" = "female victims", "Male" = "male victims")
+  ) +
+  labs(
+    x = "annual number of victims", 
+    y = NULL, 
+    fill = NULL
+  ) +
+  theme_homicide() +
+  theme(
+    legend.justification = c(1, 0),
+    legend.position = "inside",
+    legend.position.inside = c(1, 0),
+    panel.grid.major.x = element_line(),
+    panel.grid.major.y = element_blank(),
+    panel.grid.minor.x = element_line(),
+    panel.grid.minor.y = element_blank()
+  )
+
+social_figure(
+  fig_vic_method_sex,
+  title = "Stabbing is the most common homicide method",
+  subtitle = str_glue(
+    'The most common homicide methods in England and Wales were stabbing, ',
+    'hitting/kicking, and strangulation. Male victims were particularly ',
+    'likely to be killed by ',
+    '{combine_words(pluck(slice_max(filter(victim_methods_highest, victim_sex == "Male"), order_by = prop, n = 3), "method"), and = " or ")} ',
+    'while female victims were more likely to be killed by ',
+    '{combine_words(pluck(slice_max(filter(victim_methods_highest, victim_sex == "Female"), order_by = prop, n = 3), "method"), and = " or ")}.'
+  ),
+  caption = str_glue('Source: Home Office Homicide Index<br>Base: the {prop_base(victims, victim_sex %in% c("Female", "Male"))} of cases for which victim sex was known'),
+  name = "vic_method_sex"
+)
+
+social_post(
+  str_glue(
+    'Most homicides in England and Wales were committed with sharp instruments (mostly knives) or without weapons. Male victims were more likely to be killed by {combine_words(pluck(slice_max(filter(victim_methods_highest, victim_sex == "Male"), order_by = prop, n = 3), "method"), and = " or ")}; female victims by {combine_words(pluck(slice_max(filter(victim_methods_highest, victim_sex == "Female"), order_by = prop, n = 2), "method"), and = " or ")}.'
+  ),
+  image = "vic_method_sex",
+  alt = "Bar chart showing average annual number of homicide victims in England and Wales by method and gender, based on Home Office Homicide Index data. The most common method is sharp instruments, with around 260 victims, predominantly male. Next is hitting, kicking, etc., with around 109 victims. Strangulation, blunt instruments, and other methods follow with 30–50 victims each. Shooting, use of vehicles, poison, and burning have fewer victims. Drowning and explosions are least common. Gender is color-coded: pink for male and dark teal for female victims. A category labeled “not known” includes 41 victims where the method was unclear."
+)
+
+fig_vic_method_sex +
+  labs(
+    caption = str_glue('Source: Home Office Homicide Index<br>Base: the {prop_base(victims, victim_sex %in% c("Female", "Male"))} of cases for which victim sex was known')
+  )
+```
+
+
+```{r}
+#| label: firearms-homicide-prep
+
+ew_firearms_homicide_rate <- ((pluck(filter(victim_methods, method == "shooting"), "n") / 3) / (57106000 + 3132000)) * 10^6
+
+firearms_homicides_chart_data <- firearms_homicides |> 
+  filter(entity != "United Kingdom", year >= 2016) |> 
+  add_row(
+    entity = "England and Wales", 
+    rate = ew_firearms_homicide_rate / 10
+  ) |> 
+  mutate(
+    rate = rate * 10,
+    relative_rate = rate / ew_firearms_homicide_rate,
+    label = number(
+      relative_rate, 
+      accuracy = 0.1, 
+      prefix = "×"
+    ),
+    label = case_when(
+      entity == "England and Wales" ~ entity,
+      rate == 0 ~ str_glue("{entity}*"),
+      .default = str_glue("{entity} ({label})")
+    ),
+    label = fct_reorder(label, desc(rate))
+  )
+```
+
+
+Fatal shootings are rare in England and Wales, with `r pluck(summarise(filter(victim_methods_sex, method == "shooting"), n = sum(n) / 3), "n")` people murdered with a firearm each year. The firearms homicide rate in England and Wales is also very low by international standards (@fig-firearms-homicides). In the United States the firearms homicide rate is `r number(pluck(filter(firearms_homicides_chart_data, entity == "United States"), "relative_rate"))` times higher than in England and Wales, although the rarity of firearms homicides in England and Wales means this ratio fluctuates from year to year. But even comparing England and Wales to other countries in Europe, the firearms homicide rate in `r number(pluck(filter(firearms_homicides_chart_data, entity == "Netherlands"), "relative_rate"))` times higher in the Netherlands and `r number(pluck(filter(firearms_homicides_chart_data, entity == "Sweden"), "relative_rate"))` times higher in Sweden.
+
+
+```{r}
+#| label: fig-firearms-homicides
+#| fig-cap: "Firearms homicide rates in large developed countries"
+#| fig-alt: "Bar chart comparing firearms homicide rates in various countries to England and Wales, where the rate is set as the baseline (1.0). The United States has the highest rate, at 85.9 times higher. Chile (64.5 times), Canada (14.3 times), and Sweden (9.8 times) follow. Most other countries, including Germany, Denmark, and Australia, range from 1.9 to 0.8. Japan, Hong Kong, and South Korea had zero or near-zero rates. Data includes countries with over 5 million population and available firearms homicide statistics since 2016. Bars are shaded blue and listed left to right in decreasing order of homicide rate per million residents."
+
+fig_firearms_homicides <- ggplot(firearms_homicides_chart_data) + 
+  aes(
+    x = label, 
+    y = rate, 
+    fill = entity == "England and Wales"
+  ) + 
+  geom_col() + 
+  scale_x_discrete(expand = expansion(c(0.1, 0))) +
+  scale_y_continuous(expand = expansion(), position = "right") +
+  scale_fill_manual(
+    values = c(`TRUE` = ucl_brand[["a"]], `FALSE` = ucl_brand[["c"]])
+  ) +
+  labs(
+    x = NULL, 
+    y = "firearms homicides per million residents, most recent year"
+  ) +
+  theme_homicide() +
+  theme(
+    axis.text.x = element_text(angle = 45, hjust = 1, size = 7),
+    axis.ticks.x = element_blank(),
+    axis.title.y.right = element_text(hjust = 0),
+    legend.position = "none"
+  )
+
+social_figure(
+  fig_firearms_homicides,
+  title = "Firearms homicides in England and Wales are very low by international standards",
+  subtitle = str_glue(
+    'Comparing England and Wales to peer countries, the firearms rate in the Netherlands is {number(pluck(filter(firearms_homicides_chart_data, entity == "Netherlands"), "relative_rate"))} times higher and the rate in Sweden is {number(pluck(filter(firearms_homicides_chart_data, entity == "Sweden"), "relative_rate"))} times higher.'
+  ),
+  caption = "Source: Home Office Homicide Index (England and Wales), UN Office on Drugs and Crime (other countries)<br>Base: countries with population over 5 million and firearms homicide data available for a year since 2016 (most recent data for each country used)<br>Note: the number shown alongside each country name shows how many times higher (numbers greater than 1) or lower (numbers less than 1) the firearms homicide rate is in that country, relative to the rate in England and Wales<br>* country had zero firearms homicides in the most-recent year for which data is available",
+  name = "firearms_homicides"
+)
+
+social_post(
+  str_glue(
+    'Firearms homicides in England and Wales are very rare, with about ',
+    '{number(pluck(filter(victim_methods, method == "shooting"), "n") / 3, accuracy = 10)} ',
+    'people fatally shot each year. That\'s lower than the rate of firearms ',
+    'homicides in most other European countries, Australia and Canada. It\'s ',
+    'also vastly lower than in the United States.'
+  ),
+  image = "firearms_homicides",
+  alt = "Bar chart comparing firearms homicide rates in various countries to England and Wales, where the rate is set as the baseline (1.0). The United States has the highest rate, at 85.9 times higher. Chile (64.5 times), Canada (14.3 times), and Sweden (9.8 times) follow. Most other countries, including Germany, Denmark, and Australia, range from 1.9 to 0.8. Japan, Hong Kong, and South Korea had zero or near-zero rates. Data includes countries with over 5 million population and available firearms homicide statistics since 2016. Bars are shaded blue and listed left to right in decreasing order of homicide rate per million residents."
+)
+
+fig_firearms_homicides +
+  labs(
+    subtitle = "The number shown alongside each country name shows how many times higher (numbers greater than 1) or lower (numbers less than 1) the firearms homicide rate is in that country, relative to the rate in England and Wales.",
+    caption = "Source: Home Office Homicide Index (England and Wales), UN Office on Drugs and Crime (other countries)<br>Base: countries with population over 5 million and firearms homicide data available for a year since 2016 (most recent data for each country used)<br>* country had zero firearms homicides in the most-recent year for which data is available"
+  )
+```
+
+
+::: {.callout collapse="true"}
+#### How do knife-homicide rates in England and Wales compare with other countries? (click to expand)
+
+It's sometimes suggested that although England and Wales has a very-low rate of firearms homicides, this is somehow 'compensated for' by a higher rate of knife homicides. But the data is clear: this isn't true.
+
+As shown in the [first post in this series](../homicide-profile/#world-homicide), the overall rate of homicide in England and Wales is lower than in many other countries, including other high-income countries. 
+
+Comparing knife and firearms homicides specifically is difficult because many countries don't publish homicide statistics broken down by the type of weapon used. @tbl-world-methods shows homicide rates for firearms and knife homicides for highly developed English-speaking countries that do publish this data. This shows that the rate of knife homicides in England and Wales is broadly comparable to that in Australia, Canada and the United States, but that the firearms homicide rate in those countries is higher.
+
+
+```{r}
+#| label: tbl-world-methods
+#| warning: false
+#| message: false
+#| tbl-cap: "Rate of firearms and knife homicides in developed, English-speaking countries"
+
+# Sources:
+# https://www.ons.gov.uk/peoplepopulationandcommunity/crimeandjustice/articles/homicideinenglandandwales/yearendingmarch2023#the-most-common-methods-of-killing
+# https://www.aihw.gov.au/reports/injury/assault-and-homicide
+# https://www150.statcan.gc.ca/t1/tbl1/en/tv.action?pid=3510006901
+# https://bjs.ojp.gov/document/hvus23.pdf
+
+tbl_world_methods <- tribble(
+  ~country, ~code, ~year, ~firearms, ~knife,
+  "England and Wales", "EAW", "2022-23", 29, 244,
+  "Australia", "AUS", "2022–23", 28 + 4, 77,
+  "Canada", "CAN", "2023", 294, 238,
+  "United States", "USA", "2023", 19800 * 0.796, 19800 * 0.089
+) |> 
+  left_join(world_bank_pop, by = join_by(code == country)) |> 
+  mutate(across(c(firearms, knife), \(x) (x / people) * 10^6)) |> 
+  select(country, year, firearms, knife) |> 
+  gt() |> 
+  tab_spanner(
+    columns = c(firearms, knife), 
+    label = "homicides per million people"
+  ) |> 
+  cols_label(firearms ~ "using firearms", knife ~ "using knives") |> 
+  fmt_number(columns = c(firearms, knife), decimals = 1) |> 
+  tab_source_note(
+    source_note = md(str_glue(
+      'Source: [Office for National Statistics](https://www.ons.gov.uk/peoplepopulationandcommunity/crimeandjustice/articles/homicideinenglandandwales/yearendingmarch2023#the-most-common-methods-of-killing) (UK), ',
+      '[Australian Institute for Health and Welfare](https://www.aihw.gov.au/reports/injury/assault-and-homicide), ',
+      '[Statistics Canada](https://www150.statcan.gc.ca/t1/tbl1/en/tv.action?pid=3510006901), ',
+      '[Bureau of Justice Statistics](https://bjs.ojp.gov/document/hvus23.pdf) (US)'
+    ))
+  )
+
+social_post(
+  'And (because people sometimes suggest this), the low rate of firearms homicides in England and Wales isn\'t explained by us having more knife homicides: Australia, Canada and the US have similar knife-homicide rates as we do.',
+  image = "world_methods",
+  alt = "Table comparing firearm and knife homicide rates per million people in four developed, English-speaking countries. The table lists England and Wales, Australia, Canada, and the United States, along with the year of data and homicide rates for firearms and knives. For 2022–23, England and Wales had 0.5 firearm and 4.1 knife homicides per million people; Australia had a rate of 1.5 firearm and 3.6 knife homicides. In 2023, Canada recorded a rate of 9.9 firearm and 8.0 knife homicides, while the U.S. had a rate of 59.1 firearm and 6.6 knife homicides. Sources include national statistical agencies from each country, with linked references listed below the table."
+)
+
+tbl_world_methods |> 
+  tab_header(
+    title = "Rate of firearms and knife homicides in developed, English-speaking countries"
+  ) |> 
+  gtsave("post/homicide-profile-methods/world_methods.png")
+
+tbl_world_methods
+```
+
+:::
+
+
+### Homicide methods vary for different types of victim
+
+The most-common homicide methods were different for male and victims: male victims were disproportionately likely to be killed by `r combine_words(pluck(mutate(slice_max(filter(victim_methods_highest, victim_sex == "Male"), order_by = prop, n = 3), label = if_else(row_number() == 1, label, str_replace(label, " of victims.+", ")"))), "label"))`, while female victims were disproportionately likely to be killed by `r combine_words(pluck(mutate(slice_max(filter(victim_methods_highest, victim_sex == "Female"), order_by = prop, n = 3), label = if_else(row_number() == 1, label, str_replace(label, " of victims.+", ")"))), "label"))`. 
+
+Homicide methods also varied depending on the age of the victim (@fig-vic-methods-age). For male victims, the proportion of homicides committed with a sharp instrument peaks for teenage victims and then decreases with age, while older men were more likely to be killed by hitting or kicking. For female victims, the proportion of homicides committed with a blunt instrument rose with victim age. Homicides of very young and very old victims are more likely to be committed using other methods (although the Homicide Index does not contain any more detail on what those methods are).
+
+
+```{r}
+#| label: fig-vic-methods-age
+#| fig-cap: "Homicide methods by victim age and sex"
+#| fig-alt: "A grouped bar chart shows the percentage of homicide victims by age and sex for different methods of killing in England and Wales, based on data from the Home Office Homicide Index. Age is grouped in ten-year categories along the x-axis, while the y-axis shows percentage of victims within each age-sex group. Separate horizontal panels compare female (top) and male (bottom) victims. Each panel includes six sub-charts for homicide methods: sharp instrument, hitting/kicking, blunt instrument, strangulation, shooting, and other. Male victims are more often killed by sharp instruments, especially younger males. Older males are more often killed by hitting/kicking. Female victims are more evenly distributed across methods, with strangulation showing a higher share in younger women. “Other” methods are more frequent in the very young and elderly for both sexes. Chart notes indicate that 93.4% of cases had known victim sex and offence method."
+
+victim_method_age <- victims |> 
+  filter(method != "not known") |> 
+  drop_na(victim_sex) |> 
+  mutate(
+    victim_age = if_else(victim_age > 90, 90, victim_age), 
+    age_upper = ceiling((victim_age + 1) / 10) * 10, 
+    age_lower = age_upper - 10, 
+    method_group = fct_other(
+      method, 
+      drop = c("explosion", "drowning", "arson/burning", "poison or drugs", "motor vehicle"),
+      other_level = "other"
+    )
+  ) |> 
+  count(method_group, age_lower, victim_sex) |> 
+  mutate(
+    method_group = fct_reorder(method_group, n, .desc = TRUE), 
+    method_group = fct_relevel(method_group, "other", after = Inf)
+  )
+
+fig_vic_methods_age <- victim_method_age |> 
+  filter(age_lower <= 80) |> 
+  mutate(victim_sex = str_to_lower(str_glue("{victim_sex} victims"))) |> 
+  mutate(prop = n / sum(n), .by = c(victim_sex, age_lower)) |> 
+  ggplot(aes(x = age_lower, y = prop, fill = method_group)) + 
+  geom_col(just = 0) + 
+  geom_hline(yintercept = 0, colour = "grey90") +
+  facet_grid(
+    rows = vars(victim_sex), 
+    cols = vars(method_group),
+    labeller = label_wrap_gen(width = 15)
+  ) + 
+  scale_x_continuous(
+    breaks = seq(0, 80, by = 10), 
+    labels = \(x) if_else(x %% 20 == 0, number(x), ""),
+    expand = c(0, 0)
+  ) +
+  scale_y_continuous(
+    breaks = seq(0, 1, by = 0.2), 
+    limits = c(0, 1),
+    labels = label_percent(), 
+    expand = c(0, 0)
+  ) +
+  scale_fill_manual(
+    values = c(
+      "sharp instrument" = ucl_brand[["a"]],
+      "hitting, kicking etc" = ucl_brand[["e"]], 
+      "blunt instrument" = ucl_brand[["b"]], 
+      "strangulation" = ucl_brand[["c"]], 
+      "shooting" = ucl_brand[["d"]], 
+      "other" = ucl_brand[["f"]]
+    )
+  ) + 
+  labs(
+    x = "age (in ten-year categories)", 
+    y = "percent of victims of each age and sex", 
+    fill = NULL
+  ) + 
+  theme_homicide() + 
+  theme(
+    legend.position = "none",
+    panel.grid.minor.y = element_blank(),
+    panel.spacing.y = unit(1, "lines")
+  )
+
+social_figure(
+  fig_vic_methods_age,
+  title = "Different types of victims are often killed in different ways",
+  subtitle = "Homicide methods varied depending on the age of the victim. For men, the proportion of homicides committed with a sharp instrument peaks for teenage victims and then drops for older male victims. The older a female victim is, the more likely they are to be killed with a blunt instrument. Very young and very old victims are more likely to be committed using other methods.",
+  caption = str_glue('Source: Home Office Homicide Index<br>Base: the {prop_base(victims, method != "not known" & victim_sex %in% c("Female", "Male"))} of cases for which the offence method and victim sex were known'),
+  name = "vic_methods_age"
+)
+
+social_post(
+  "Young male victims of homicide were particular likely to be killed with a ",
+  "sharp instrument, while older male victims were more-often killed by ",
+  "hitting or kicking.",
+  image = "vic_methods_age",
+  alt = "A grouped bar chart shows the percentage of homicide victims by age and sex for different methods of killing in England and Wales, based on data from the Home Office Homicide Index. Age is grouped in ten-year categories along the x-axis, while the y-axis shows percentage of victims within each age-sex group. Separate horizontal panels compare female (top) and male (bottom) victims. Each panel includes six sub-charts for homicide methods: sharp instrument, hitting/kicking, blunt instrument, strangulation, shooting, and other. Male victims are more often killed by sharp instruments, especially younger males. Older males are more often killed by hitting/kicking. Female victims are more evenly distributed across methods, with strangulation showing a higher share in younger women. “Other” methods are more frequent in the very young and elderly for both sexes. Chart notes indicate that 93.4% of cases had known victim sex and offence method."  
+)
+
+social_post(
+  str_glue(
+    'Compared to White victims, Black victims were ',
+    '{combine_words(pull(slice_max(filter(victim_methods_ethnicity, victim_ethnicity == "Black"), order_by = disparity, n = 3), "method"))},',
+    'while Asian victims were ',
+    '{combine_words(pull(slice_max(filter(victim_methods_ethnicity, victim_ethnicity == "Asian"), order_by = disparity, n = 3), "method"))}.'
+  )
+)
+
+fig_vic_methods_age +
+  labs(
+    caption = str_glue('Source: Home Office Homicide Index<br>Base: the {prop_base(victims, method != "not known" & victim_sex %in% c("Female", "Male"))} of cases for which the offence method and victim sex were known')
+  )
+```
+
+Compared to White victims, Black victims were
+`r combine_words(pull(slice_max(filter(victim_methods_ethnicity, victim_ethnicity == "Black"), order_by = disparity, n = 3), "method"))`,
+while Asian victims were
+`r combine_words(pull(slice_max(filter(victim_methods_ethnicity, victim_ethnicity == "Asian"), order_by = disparity, n = 3), "method"))`.
+
+
+### Homicide methods varied with circumstances
+
+The methods used in homicides varied between the different [Home Office homicide sub types](../homicide-profile/#subtypes) (@fig-method-cluster). A particularly high proportion of homicides of `r get_sub_type(3)` were committed with a sharp instrument such as a knife. Use of sharp instruments was much less common against `r get_sub_type(4)` and `r get_sub_type(7)`.
+
+Strangulation was disproportionately commonly used to kill `r get_sub_type(1)`, but not `r get_sub_type(2)`. Strangulation was also disproportionately often the method used to kill `r get_sub_type(4)`.
+
+For `r get_sub_type(4)` and `r get_sub_type(7)`, the largest number of homicides were recorded as using the method 'other', which suggests a possible gap in our knowledge of the methods used in these types of homicide.
+
+
+```{r}
+#| label: fig-method-cluster
+#| fig-asp: 0.75
+#| fig-cap: "Proportion of homicides using each method by Home Office homicide sub-types"
+#| fig-alt: "Bar chart showing proportions of homicide methods across eight sub-types of circumstances in England and Wales, based on the Home Office Homicide Index. Each sub-type is displayed in its own chart with coloured bars representing the proportion of methods used within that sub-type and grey bars showing overall proportions across all homicides. The sub-types are: (1) Female victims of domestic homicide aged 16+, (2) Male victims of domestic homicide aged 16+, (3) Male victims under 25 killed in public spaces, (4) Female victims, non-domestic, aged 16+, (5) Male victims, non-domestic, killed in public spaces, (6) Male victims, non-domestic, killed in homes, (7) Victims under 16 killed in non-public places, and (8) Other victims. Methods include sharp instrument, hitting/kicking, strangulation, blunt instrument, shooting, other, and not known. Sharp instruments are the most common method in most categories, particularly among young males in public spaces and non-domestic male victims. Strangulation is more common in domestic homicides, especially among female victims. “Other” methods dominate in cases involving children under 16. Grey bars indicate sharp instruments as the most used method overall. Data highlight notable variation in homicide methods by context and demographic group."
+
+victim_method_cluster <- victims |> 
+  mutate(
+    method_group = fct_other(
+      method, 
+      drop = c("explosion", "drowning", "arson/burning", "poison or drugs", "motor vehicle"),
+      other_level = "other"
+    )
+  ) |> 
+  count(method_group, cluster) |> 
+  add_prop(cluster)
+
+victim_method_cluster_order <- victim_method_cluster |> 
+  summarise(n = sum(n), .by = method_group) |> 
+  add_prop() |> 
+  mutate(
+    method_group = fct_reorder(method_group, .prop), 
+    method_group = fct_relevel(method_group, "not known", "other")
+  )
+
+fig_method_cluster <- victim_method_cluster |> 
+  mutate(
+    method_group = factor(
+      method_group, 
+      levels = levels(pull(victim_method_cluster_order, "method_group"))
+    )
+  ) |> 
+  ggplot(aes(x = .prop, y = method_group)) +
+  geom_col(data = victim_method_cluster_order, fill = "grey85") +
+  geom_col(aes(fill = cluster), width = 0.4) +
+  # geom_text(data = victim_method_cluster_order, label = "|", size = 5) +
+  facet_wrap(vars(cluster), ncol = 4, labeller = label_wrap_gen(width = 20)) +
+  scale_x_continuous(labels = label_percent(), expand = c(0, 0)) +
+  scale_fill_manual(values = sample(unname(ucl_brand))) +
+  labs(
+    subtitle = "Coloured bars show the proportion of homicides using each method within a particular sub-type. Grey bars show the proportion of homicides using each method overall.",
+    x = "proportion of homicides in a sub-type (coloured bars) and overall (grey bars)",
+    y = NULL
+  ) +
+  theme_homicide() +
+  theme(
+    axis.ticks.y = element_blank(),
+    legend.position = "none",
+    panel.grid.major.x = element_line(),
+    panel.grid.major.y = element_blank(),
+    panel.grid.minor.y = element_blank()
+  )
+
+social_figure(
+  fig_method_cluster,
+  title = "Knives are more-often used in domestic homicides",
+  subtitle = str_glue(
+    "Homicide methods vary for homicides in different circumstances: knives ",
+    "are particularly likely to be used in domestic homicides and homicides ",
+    "of {get_sub_type(3)}, while strangulation is more common in homicide of ",
+    "female victims. {str_to_sentence(get_sub_type(5))} are ",
+    "disproportionately likely to be committed by hitting, kicking, etc."
+  ),
+  caption = str_glue(
+    "Source: Home Office Homicide Index<br>Base: all recorded homicides<br>",
+    "Note: coloured bars show the proportion of homicides using each method ",
+    "within a particular sub-type. Grey bars show the proportion of homicides ",
+    "using each method overall."
+  ),
+  name = "method_cluster",
+  asp = 0.75
+)
+
+social_post(
+  'Homicide methods are often different depending on circumstances. Knives are more-often used in domestic homicides and homicides of male adolescent victims, while strangulation is more common in homicides of female victims.',
+  image = "method_cluster",
+  alt = "Bar chart showing proportions of homicide methods across eight sub-types of circumstances in England and Wales, based on the Home Office Homicide Index. Each sub-type is displayed in its own chart with coloured bars representing the proportion of methods used within that sub-type and grey bars showing overall proportions across all homicides. The sub-types are: (1) Female victims of domestic homicide aged 16+, (2) Male victims of domestic homicide aged 16+, (3) Male victims under 25 killed in public spaces, (4) Female victims, non-domestic, aged 16+, (5) Male victims, non-domestic, killed in public spaces, (6) Male victims, non-domestic, killed in homes, (7) Victims under 16 killed in non-public places, and (8) Other victims. Methods include sharp instrument, hitting/kicking, strangulation, blunt instrument, shooting, other, and not known. Sharp instruments are the most common method in most categories, particularly among young males in public spaces and non-domestic male victims. Strangulation is more common in domestic homicides, especially among female victims. “Other” methods dominate in cases involving children under 16. Grey bars indicate sharp instruments as the most used method overall. Data highlight notable variation in homicide methods by context and demographic group."
+)
+
+fig_method_cluster +
+  labs(
+    caption = "Source: Home Office Homicide Index<br>Base: all recorded homicides"
+  )
+```
+
+
+
+
+```{r}
+#| label: final-social-posts
+
+social_post(
+  "This analysis of homicide methods in England and Wales comes from a report ",
+  "written by me and Prof Iain Brennan for the UK College of Policing. You ",
+  "can get more detail at https://lesscrime.info/post/homicide-profile-methods/"
+)
+
+social_post(
+  "This is the fourth in a series of seven threads summarising different ",
+  "aspects of homicide in England and Wales. You can find links to the ",
+  "other threads at https://lesscrime.info/post/homicide-profile/"
+)
+```
+
+
+### In summary
+
+Almost half of homicides in England and Wales involve sharp instruments, with most of the rest involving unarmed methods such as strangulation or hitting, kicking, etc. Firearms homicides are very rare, especially compared to other developed countries. 
+
+Homicide methods vary according to the sex and age of the victim. Male victims are most likely to be killed with sharp instruments, especially when they are young. Older men are more likely to be killed by hitting, kicking, etc. Female victims are more likely to be killed using a blunt instrument as they get older. Black and Asian victims are more likely to be killed by shooting, and Black victims by sharp instruments. 
+
+The next post in this series looks at [hotspots of homicide](../homicide-profile-hotspots/).

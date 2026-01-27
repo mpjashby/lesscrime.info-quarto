@@ -1,0 +1,1352 @@
+---
+title: "Homicide in England and Wales, Part 5: Homicide hotspots"
+date: 2026-01-26
+fig-cap-location: top
+format: 
+  html:
+    css: "../homicide_theme.css"
+bibliography: "../homicide-bibliography.bib"
+execute:
+  echo: false
+  freeze: auto
+---
+
+```{r}
+#| label: setup
+#| include: false
+
+# Load packages, functions and data
+source("../homicide_functions.R")
+
+pacman::p_load(ggpp, patchwork)
+```
+
+```{r}
+#| label: locations-prep
+#| warning: false
+
+pfa_counts <- victims |> 
+  count(police_force_name, sort = TRUE) |> 
+  mutate(prop = n / sum(n), cum_prop = cumsum(prop))
+
+# pfa_counts_age <- victims |> 
+#   count(police_force_name, adult_child, sort = TRUE) |> 
+#   left_join(
+#     filter(pop_pfa, age == "Total", ethnicity == "Total", sex != "all persons"), 
+#     by = c("police_force_name" = "pfa23nm", "victim_sex" = "sex")
+#   ) |> 
+#   drop_na(victim_sex) |> 
+#   mutate(
+#     prop = n / sum(n), 
+#     rate = n / (people / 1000000),
+#     cum_prop = cumsum(prop), 
+#     .by = victim_sex
+#   )
+
+pfa_counts_sex <- victims |> 
+  count(police_force_name, victim_sex, sort = TRUE) |> 
+  mutate(victim_sex = str_to_lower(victim_sex)) |> 
+  left_join(
+    filter(pop_pfa, age == "Total", ethnicity == "Total", sex != "all persons"), 
+    by = c("police_force_name" = "pfa23nm", "victim_sex" = "sex")
+  ) |> 
+  drop_na(victim_sex) |> 
+  mutate(
+    prop = n / sum(n), 
+    rate = n / (people / 1000000),
+    cum_prop = cumsum(prop), 
+    .by = victim_sex
+  )
+
+pfa_counts_sex_notgrays <- pfa_counts_sex |> 
+  mutate(
+    n = case_when(
+      police_force_name == "Essex" & victim_sex == "female" ~ n - 9,
+      police_force_name == "Essex" & victim_sex == "male" ~ n - 30,
+      TRUE ~ n
+    ),
+    rate = n / (people / 1000000), 
+    rank = min_rank(desc(rate))
+  )
+
+pfa_counts_ethnicity <- victims |> 
+  filter(
+    !(police_force_name == "Essex" & offence_date == ymd("2019-10-23")),
+    police_force_name %in% 
+      pull(slice_max(pfa_counts, order_by = n, n = 10), "police_force_name"),
+    victim_ethnicity != "Not known/not recorded"
+  ) |> 
+  count(police_force_name, victim_ethnicity) |> 
+  complete(police_force_name, victim_ethnicity, fill = list(n = 0)) |> 
+  left_join(
+    filter(pop_pfa, age == "Total", ethnicity != "Total", sex == "all persons"), 
+    by = c("police_force_name" = "pfa23nm", "victim_ethnicity" = "ethnicity")
+  ) |> 
+  mutate(rate = n / (people / 1000000))
+
+pfa_rate_all <- pop_pfa |> 
+  filter(age == "Total", ethnicity == "Total", sex == "all persons") |> 
+  right_join(pfa_counts, by = c("pfa23nm" = "police_force_name")) |> 
+  mutate(
+    rate = n / (people / 1000000), 
+    national_rate = sum(n, na.rm = TRUE) / (sum(people, na.rm = TRUE) / 1000000), 
+    rank = min_rank(desc(rate)),
+    label = str_glue("{rank}. {pfa23nm} ({number(rate, accuracy = 0.1)})")
+  )
+
+pfa_rate_all_notgrays <- pfa_rate_all |> 
+  mutate(
+    n = if_else(pfa23nm == "Essex", n - 39, n),
+    rate = n / (people / 1000000), 
+    rank = min_rank(desc(rate)),
+    label = str_glue("{rank}. {pfa23nm} ({number(rate, accuracy = 0.1)})")
+  )
+
+pfa_rate_all_topn <- pfa_rate_all_notgrays |> 
+  left_join(pfa, by = c("pfa23cd" = "pfa22cd")) |> 
+  st_as_sf() |> 
+  mutate(
+    pfa23nm = case_match(
+      pfa23nm,
+      "Greater Manchester" ~ "GMP",
+      "Metropolitan Police" ~ "MPS",
+      "West Midlands" ~ "WMP",
+      .default = pfa23nm
+    )
+  ) |> 
+  slice_max(order_by = rate, n = 10) |> 
+  st_centroid()
+
+ne_coastline <- rnaturalearth::ne_coastline(scale = "large") |> 
+  st_transform("EPSG:27700")
+```
+
+
+```{r}
+#| label: initial-posts
+
+social_post(
+  "Homicide (like all types of crime) is heavily concentrated in a small number of places – half of all homicides in England and Wales happen in six police-force areas. But where are different types of homicide most concentrated?",
+  add = FALSE
+)
+
+social_post(
+  "This thread is the fifth in a series of threads about homicide in England ",
+  "and Wales.\n\n",
+  "All the threads: https://lesscrime.info/post/homicide-profile/\n\n",
+  "Full report: https://library.college.police.uk/docs/Patterns-trends-homicide-problem-profile-2025.pdf"
+)
+```
+
+
+This is the fifth in a [series of blog posts summarising the nature of homicide in England and Wales](../homicide-profile/). Each post covers a different aspect of homicide, based on data from the Home Office Homicide Index. This post looks at where in England and Wales homicide is geographically concentrated. This post is a summary of part of a longer [national problem profile of homicide in England and Wales](https://library.college.police.uk/docs/Patterns-trends-homicide-problem-profile-2025.pdf) written by me and Prof Iain Brennan.
+
+
+### Half of all homicide occurs in six police-force areas
+
+All types of crime are heavily geographically concentrated in a small number of places, although not necessarily the same places for all types of crime. As such, it's not surprising that homicide is also strongly concentrated in a small number of places. About half of all homicides occurred in `r nrow(filter(pfa_counts, cum_prop < 0.5))` police-force areas: `r combine_words(pull(filter(pfa_counts, cum_prop < 0.5), "police_force_name"))`^[In this analysis, homicides in the City of London are analysed as if they occurred in the Metropolitan Police District]. 
+
+Partly this is because these police-force areas have the largest populations, but that's not the whole story. When taking population into account, the highest rates of homicide per million residents were in the `r combine_words(pull(slice_max(pfa_rate_all, order_by = rate, n = 3), "pfa23nm"))` police-force areas. However, the high rate in Essex is largely due to the 39 homicides recorded as a result of the manslaughter of 39 people who died while being smuggled into the UK in a lorry in Grays in October 2019. If these homicides are excluded, Essex had the `r ordinal(pluck(filter(pfa_rate_all_notgrays, pfa23nm == "Essex"), "rank", 1))` highest homicide rate among forces in England and Wales, with the highest rate instead being in `r pluck(slice_max(pfa_rate_all_notgrays, order_by = rate, n = 1), "pfa23nm", 1)` (@fig-pfa-all). The homicide rate per million people in `r pluck(slice_max(pfa_rate_all_notgrays, order_by = rate, n = 1), "pfa23nm", 1)` was `r number(max(pfa_rate_all_notgrays$rate, na.rm = TRUE) / min(pfa_rate_all_notgrays$rate, na.rm = TRUE), accuracy = 0.1)` times higher than the rate in `r pluck(slice_min(pfa_rate_all, order_by = rate, n = 1), "pfa23nm", 1)`.
+
+
+
+
+```{r}
+#| label: fig-pfa-all-prep
+#| warning: false
+#| message: false
+#| cache: true
+
+fig_pfa_all <- pfa_rate_all_notgrays |> 
+  left_join(pfa, by = c("pfa23cd" = "pfa22cd")) |> 
+  st_as_sf() |> 
+  ggplot() +
+  annotation_spatial(data = ne_coastline, colour = "grey85") +
+  geom_sf(aes(fill = rate), colour = "white") +
+  geom_sf(
+    aes(colour = rate), 
+    data = pfa_rate_all_topn, 
+    size = 3, 
+    show.legend = FALSE
+  ) +
+  geom_sf_text(
+    aes(label = rank), 
+    data = pfa_rate_all_topn,
+    colour = "white",
+    size = 2.75
+  ) +
+  geom_table(
+    aes(x = -100000, y = pluck(st_bbox(pfa), "ymax"), label = data), 
+    data = tibble(
+      data = list(st_drop_geometry(select(pfa_rate_all_topn, label)))
+    ),
+    table.colnames = FALSE,
+    table.theme = gridExtra::ttheme_minimal(
+      base_size = 10,
+      core = list(bg_params = list(fill = "white")), 
+      padding = unit(c(0, 2), "mm")
+    ),
+    vjust = 1
+  ) +
+  scale_fill_gradient(
+    low = "grey90", 
+    high = "#361a54", 
+    aesthetics = c("colour", "fill")
+  ) +
+  labs(
+    fill = "homicides\nper million\nresidents",
+    x = NULL,
+    y = NULL
+  ) +
+  theme_homicide() +
+  theme(
+    axis.text = element_blank(),
+    axis.ticks = element_blank(),
+    axis.title = element_blank(),
+    panel.grid = element_blank()
+  )
+```
+
+```{r}
+#| label: fig-pfa-all-social
+
+social_figure(
+  fig_pfa_all,
+  title = "Homicide is concentrated in a few places",
+  subtitle = str_glue(
+    'This is partly, but not entirely, due to some forces having larger ',
+    'populations than others. Taking population into account, the area with ',
+    'the highest homicide rate ',
+    '({pluck(slice_max(pfa_rate_all_notgrays, order_by = rate, n = 1), "pfa23nm", 1)})',
+    'had a rate ',
+    '{number(max(pfa_rate_all_notgrays$rate, na.rm = TRUE) / min(pfa_rate_all_notgrays$rate, na.rm = TRUE), accuracy = 0.1)} ',
+    'times higher than the force with the lowest rate ',
+    '({pluck(slice_min(pfa_rate_all, order_by = rate, n = 1), "pfa23nm", 1)}).'
+  ),
+  caption = "Source: Home Office Homicide Index<br>Base: 100% of homicides<br>Note: excludes 39 victims who died in the Grays lorry incident",
+  name = "pfa_all",
+  asp = 1
+)
+
+social_post(
+  str_glue(
+    'Half of all homicides occur in six police-force areas: ',
+    '{combine_words(pull(filter(pfa_counts, cum_prop < 0.5), "police_force_name"))}. ',
+    'But the highest homicides per million people were in the ',
+    '{combine_words(pull(slice_max(pfa_rate_all_notgrays, order_by = rate, n = 2, ), "pfa23nm"))} force areas.'
+  ),
+  image = "pfa_all",
+  alt = "A choropleth map of England and Wales showing homicide rates per million residents by police force area, based on Home Office Homicide Index data. The map uses a gradient from light (lower rates) to dark blue (higher rates). Each police force region is outlined and numbered if it’s among the top ten for homicide rates. Cleveland ranks highest at 49.2 homicides per million, followed by Greater Manchester (46.7), West Midlands (45.6), and the Metropolitan Police area (45.0). Other top areas include Dyfed-Powys, Lincolnshire, West Mercia, Lancashire, and Warwickshire. A legend on the right indicates the color scale ranging from 10 to over 50 homicides per million. The map excludes 39 victims from the Grays lorry incident. Lighter-colored areas represent lower homicide rates, mainly in southern and rural regions, while darker areas are concentrated in some urban and northern regions."
+)
+```
+
+```{r}
+#| label: fig-pfa-all
+#| warning: false
+#| message: false
+#| cache: true
+#| fig-asp: 0.99
+#| fig-cap: Homicide rates by police-force area
+#| fig-alt: "A choropleth map of England and Wales showing homicide rates per million residents by police force area, based on Home Office Homicide Index data. The map uses a gradient from light (lower rates) to dark blue (higher rates). Each police force region is outlined and numbered if it’s among the top ten for homicide rates. Cleveland ranks highest at 49.2 homicides per million, followed by Greater Manchester (46.7), West Midlands (45.6), and the Metropolitan Police area (45.0). Other top areas include Dyfed-Powys, Lincolnshire, West Mercia, Lancashire, and Warwickshire. A legend on the right indicates the color scale ranging from 10 to over 50 homicides per million. The map excludes 39 victims from the Grays lorry incident. Lighter-colored areas represent lower homicide rates, mainly in southern and rural regions, while darker areas are concentrated in some urban and northern regions."
+
+fig_pfa_all +
+  labs(
+    caption = "Source: Home Office Homicide Index<br>Base: 100% of homicides<br>Note: excludes 39 victims who died in the Grays lorry incident"
+  )
+```
+
+
+### Homicides of men and women are concentrated in different police areas
+
+Since most homicide victims were male, the overall homicide rates at police-force-area level are mainly driven by homicides of male victims. Homicides of female victims were less geographically concentrated than homicides of men, and in different places. While the highest rates of homicides involving male victims were in urban forces, homicide rates for female victims were highest in non-urban forces (@fig-pfa-sex). The forces with the highest rates of female homicides were `r combine_words(pull(slice_max(filter(pfa_counts_sex, victim_sex == "female"), order_by = rate, n = 5), "police_force_name"))`. This is likely to reflect the higher number of homicides of male victims that were related to drug markets, the night-time economy, etc. and the higher proportion of female victims who are killed in domestic homicides (see [part six of this series](../homicide-profile-vulnerable/)).
+
+
+```{r}
+#| label: fig-pfa-sex-prep
+#| warning: false
+#| message: false
+#| cache: true
+
+fig_pfa_sex <- pfa_counts_sex_notgrays |> 
+  left_join(pfa, by = c("police_force_name" = "pfa22nm")) |> 
+  nest(.by = victim_sex, .key = "counts") |> 
+  mutate(counts = map(counts, st_as_sf)) |> 
+  pmap(function(victim_sex, counts) {
+    
+    counts <- counts |> 
+      mutate(police_force_name = case_match(
+        police_force_name,
+        "Greater Manchester" ~ "GMP",
+        "Metropolitan Police" ~ "MPS",
+        "West Midlands" ~ "WMP",
+        .default = police_force_name
+      ))
+    
+    overall_rate <- counts |> 
+      st_drop_geometry() |> 
+      summarise(
+        rate = sum(n, na.rm = TRUE) / (sum(people, na.rm = TRUE) / 1000000)
+      ) |> 
+      pluck("rate", 1) |>
+      number(accuracy = 0.1)
+    
+    top_rate <- counts |> 
+      mutate(
+        rank = min_rank(desc(rate)),
+        label = str_glue("{rank}. {police_force_name}")
+      ) |> 
+      slice_max(order_by = rate, n = 5) |> 
+      st_centroid()
+    
+    ggplot(counts) + 
+      annotation_spatial(data = ne_coastline, colour = "grey85") +
+      geom_sf(aes(fill = rate), colour = "white") + 
+      geom_sf(
+        aes(colour = rate), 
+        data = top_rate, 
+        size = 3, 
+        show.legend = FALSE
+      ) +
+      geom_sf_text(
+        aes(label = rank), 
+        data = top_rate,
+        colour = "white",
+        size = 2.75
+      ) +
+      geom_table(
+        aes(x = 50000, y = st_bbox(counts)$ymax, label = data), 
+        data = tibble(
+          data = list(st_drop_geometry(select(top_rate, label)))
+        ),
+        table.colnames = FALSE,
+        table.theme = gridExtra::ttheme_minimal(
+          base_size = 10, 
+          padding = unit(c(0, 2), "mm")
+        ),
+        vjust = 1
+      ) +
+      scale_fill_gradient(
+        low = "grey90", 
+        high = "#361a54", 
+        aesthetics = c("colour", "fill")
+      ) +
+      labs(
+        subtitle = str_glue(
+          "{victim_sex} victims (national rate = {overall_rate})"
+        ), 
+        fill = "homicides per\nmillion residents"
+      ) +
+      theme_void() +
+      theme(legend.position = "bottom")
+    
+  }) |> 
+  wrap_plots(ncol = 2) + 
+  plot_annotation(
+    caption = str_glue(
+      'Source: Home Office Homicide Index<br>Base: the ',
+      '{prop_base(victims, !is.na(victim_sex))} of homicides for which victim ',
+      'sex was known<br>Note: excludes 9 female and 30 male victims who died ',
+      'in the Grays lorry incident'
+    ),
+    theme = theme(
+      plot.caption = element_textbox_simple(
+        colour = "grey33",
+        margin = margin(t = 11),
+        size = 8
+      ),
+      plot.caption.position = "plot",
+      plot.subtitle = element_textbox_simple(
+        lineheight = 1,
+        margin = margin(t = 3, b = 6),
+        size = 8
+      ),
+      plot.title = element_textbox_simple(
+        face = "bold",
+        lineheight = 1,
+        size = 14
+      ),
+      plot.title.position = "plot"
+    )
+  )
+```
+
+```{r}
+#| label: fig-pfa-sex-social
+
+ggsave(
+  filename = "pfa_sex.png",
+  fig_pfa_sex + plot_annotation(
+    title = "Homicides of men and women are concentrated in different police-force areas",
+    subtitle = "Homicides of men are concentrated in urban police-force areas such as Cleveland and the West Midlands, while homicides of women are concentrated more in rural police-force areas such as Dyfed-Powys and Warwickshire.",
+    caption = str_glue(
+      'Source: Home Office Homicide Index<br>Base: the ',
+      '{prop_base(victims, !is.na(victim_sex))} of homicides for which victim ',
+      'sex was known<br>Note: excludes 9 female and 30 male victims who died ',
+      'in the Grays lorry incident<br>Chart by Matt Ashby, UCL Security and ',
+      'Crime Science. More details at lesscrime.info/post/homicide-profile'
+    )
+  ),
+  width = 500 / 72,
+  height = (500 / 72) * 1,
+  units = "in",
+  bg = "white"
+)
+
+social_post(
+  "Homicides of men are most concentrated in urban police-force areas such as Cleveland and the West Midlands. But homicides of women are more concentrated in suburban and rural police-force areas such as Dyfed-Powys, Warwickshire and Norfolk.",
+  image = "pfa_sex",
+  alt = "Side-by-side choropleth maps of England and Wales show homicide rates by police jurisdiction, separated by victim sex. The left map displays male homicide victims with a national rate of 45.4 per million residents. Darker shades indicate higher rates, with Cleveland (northeast) having the highest, followed by West Midlands Police (WMP), the Metropolitan Police Service (MPS), Greater Manchester Police (GMP), and Lincolnshire. The right map shows female homicide victims with a national rate of 16.6 homicides per million residents. Dyfed-Powys in Wales has the highest rate, followed by Warwickshire, Norfolk, Staffordshire, and West Mercia. Both maps use varying shades of blue to represent homicide rates per million, with a darker hue indicating a higher rate. A note clarifies that victims from the Grays lorry incident were excluded. The maps are sourced from the Home Office Homicide Index and based on data where victim sex was known, covering 99.9% of all homicides recorded."
+)
+```
+
+```{r}
+#| label: fig-pfa-sex
+#| column: body-outset
+#| fig-align: center
+#| fig-asp: 0.81
+#| fig-width: 10
+#| fig-cap: Homicide rates by police-force area and victim sex
+#| fig-alt: "Side-by-side choropleth maps of England and Wales show homicide rates by police jurisdiction, separated by victim sex. The left map displays male homicide victims with a national rate of 45.4 per million residents. Darker shades indicate higher rates, with Cleveland (northeast) having the highest, followed by West Midlands Police (WMP), the Metropolitan Police Service (MPS), Greater Manchester Police (GMP), and Lincolnshire. The right map shows female homicide victims with a national rate of 16.6 homicides per million residents. Dyfed-Powys in Wales has the highest rate, followed by Warwickshire, Norfolk, Staffordshire, and West Mercia. Both maps use varying shades of blue to represent homicide rates per million, with a darker hue indicating a higher rate. A note clarifies that victims from the Grays lorry incident were excluded. The maps are sourced from the Home Office Homicide Index and based on data where victim sex was known, covering 99.9% of all homicides recorded."
+#| warning: false
+#| message: false
+#| cache: true
+
+fig_pfa_sex
+```
+
+
+### Some local authorities have much higher homicide rates than others
+
+
+```{r}
+#| label: fig-lad-prep
+
+victims_lad <- victims |> 
+  drop_na(easting, northing) |> 
+  st_as_sf(coords = c("easting", "northing"), crs = "EPSG:27700") |> 
+  st_join(lad) |> 
+  st_drop_geometry() |> 
+  count(lad23cd, name = "homicides") |> 
+  right_join(lad, by = "lad23cd") |> 
+  left_join(pop_lad, by = c("lad23cd" = "lad_code")) |> 
+  replace_na(list(homicides = 0)) |> 
+  filter(lad23nm != "City of London") |> 
+  mutate(
+    homicides = if_else(lad23cd == "E06000034", homicides - 39, homicides),
+    rate = (homicides / (people / 100000)) / 3,
+    # Which LAs have a homicide rate higher than twice the national rate
+    higher_rate = rate > 2 * ((sum(homicides) / (sum(people) / 100000)) / 3),
+    lad23nm = case_match(
+      lad23nm, 
+      "Bristol, City of" ~ "Bristol", 
+      .default = lad23nm
+    ),
+    area = units::set_units(st_area(geometry), "km^2"),
+    pop_density = people / area,
+    urban = as.numeric(pop_density) > 1000
+  ) |> 
+  arrange(desc(homicides)) |> 
+  mutate(
+    cum_prop_h = cumsum(homicides) / sum(homicides),
+    cum_prop_p = cumsum(people) / sum(people)
+  ) |> 
+  mutate(reg_rate = (sum(homicides) / (sum(people) / 100000)) / 3, .by = rgn23nm) |> 
+  mutate(rgn23nm = fct_reorder(rgn23nm, reg_rate))
+```
+
+
+Homicides were also concentrated at local authority district level^[This includes districts within administrative counties, and unitary authorities.]. Of the `r nrow(victims_lad)` local authority districts in England and Wales, half of homicides occurred in `r nrow(filter(victims_lad, cum_prop_h < 0.5)) + 1` districts, a quarter in `r nrow(filter(victims_lad, cum_prop_h < 0.25)) + 1` districts^[`r combine_words(sort(pull(head(victims_lad, n = nrow(filter(victims_lad, cum_prop_h < 0.25)) + 1), "lad23nm")))`] and 10% in just `r nrow(filter(victims_lad, cum_prop_h < 0.1)) + 1` districts (`r combine_words(sort(pull(head(victims_lad, n = nrow(filter(victims_lad, cum_prop_h < 0.1)) + 1), "lad23nm")))`). 
+
+@fig-lad shows the homicide rate per 100,000 residents per year in local-authority districts, with districts labelled if they had a homicide rate higher than twice the national average^[`r nrow(filter(victims_lad, higher_rate))` districts had a homicide rate that was greater than twice the national homicide rate: `r combine_words(sort(pull(filter(victims_lad, higher_rate), "lad23nm")))`]. While the homicide rate was higher in some regions than in others, there was substantial variation within each region. For example, while London had the highest regional homicide rate and the South East region the lowest, `r english::words(nrow(filter(victims_lad, rgn23nm == "London", rate < min(reg_rate))))` London boroughs had homicide rates below the regional rate for the South East. 
+
+
+```{r}
+#| label: fig-lad
+#| column: body-outset
+#| fig-align: center
+#| fig-width: 10
+#| fig-asp: 0.5
+#| fig-cap: "Homicide rates in local-authority areas in England and Wales"
+#| fig-alt: "Scatter plot showing the annual homicide victimisation rate per 100,000 residents across local authorities in England and Wales, grouped by region. Each dot represents a local authority, with red circles for mainly urban areas and blue for mainly rural. The x-axis shows homicide rates ranging from 0 to over 5; the y-axis lists regions like London, West Midlands, and East of England. Black bars represent the regional average homicide rate, while a dashed vertical line shows the national average. London shows many urban authorities with rates above 1. Some outliers with high rates include Lambeth, Greenwich, and Boston. South East and East of England have clusters of low-rate rural areas. The chart visualizes both the variability within regions and the urban-rural divide in homicide rates. Sourced from the Home Office Homicide Index, based on 94.4% of cases with known offence locations. Legend clarifies circle colors and rate markers."
+
+fig_lad <- ggplot(victims_lad) + 
+  aes(x = rate, y = rgn23nm) +
+  geom_vline(
+    aes(xintercept = rate, linetype = "21"), 
+    data = summarise(victims_lad, rate = (sum(homicides) / (sum(people) / 100000)) / 3),
+    colour = "grey50"
+  ) +
+  geom_spoke(
+    aes(x = reg_rate, alpha = 1), 
+    data = summarise(victims_lad, reg_rate = first(reg_rate), .by = rgn23nm), 
+    angle = pi / 2, 
+    radius = 0.33
+  ) + 
+  geom_spoke(
+    aes(x = reg_rate, alpha = 1), 
+    data = summarise(victims_lad, reg_rate = first(reg_rate), .by = rgn23nm), 
+    angle = -pi / 2, 
+    radius = 0.33
+  ) + 
+  geom_text_repel(
+    aes(label = lad23nm), 
+    # data = slice_max(victims_lad, order_by = rate, n = 15), 
+    data = filter(victims_lad, higher_rate),
+    size = 2.75
+  ) + 
+  ggbeeswarm::geom_quasirandom(
+    aes(colour = urban, fill = urban),
+    orientation = "y", 
+    shape = 21, 
+    width = 0.2
+  ) + 
+  scale_x_continuous(expand = expansion(c(0.01, 0.05))) + 
+  scale_y_discrete(labels = label_wrap(width = 15)) + 
+  scale_alpha_identity(
+    labels = c(`1` = "regional average\nhomicide rate"),
+    guide = guide_legend()
+  ) +
+  scale_linetype_identity(
+    labels = c(`21` = "national\nhomicide rate"),
+    guide = guide_legend()
+  ) +
+  scale_colour_manual(
+    values = c(`TRUE` = ucl_brand[["e"]], `FALSE` = ucl_brand[["c"]]),
+    labels = c(`TRUE` = "mainly urban", `FALSE` = "mainly rural"),
+    aesthetics = c("colour", "fill")
+  ) +
+  labs(
+    x = "annual homicide victimisation rate per 100,000 residents", 
+    y = NULL, 
+    alpha = NULL, 
+    colour = NULL,
+    fill = NULL,
+    linetype = NULL
+  ) +
+  theme_homicide() + 
+  theme(
+    axis.ticks.y = element_blank(), 
+    legend.justification = c(1, 0),
+    legend.position.inside = c(1, 0),
+    panel.grid.major.x = element_line(), 
+    panel.grid.minor.x = element_line(), 
+    panel.grid.major.y = element_blank()
+  )
+
+social_figure(
+  fig_lad,
+  title = "Some local authorities have much higher homicide rates than others",
+  subtitle = "Homicide is heavily concentrated in a few local-authority districts, but not always those you might think. While some London boroughs have high rates, the highest rates are in deprived coastal areas such as Boston and Blackpool.",
+  caption = str_glue('Source: Home Office Homicide Index<br>Base: the {prop_base(victims, !is.na(easting))} of cases for which the offence location was known'),
+  name = "fig_lad"
+)
+
+social_post(
+  "Homicide is heavily concentrated in a few local-authority areas, but not not always those you might think. Some London boroughs have high homicide rates, but the highest rates are in deprived coastal areas such as Boston and Blackpool.",
+  image = "fig_lad",
+  alt = "Scatter plot showing the annual homicide victimisation rate per 100,000 residents across local authorities in England and Wales, grouped by region. Each dot represents a local authority, with red circles for mainly urban areas and blue for mainly rural. The x-axis shows homicide rates ranging from 0 to over 5; the y-axis lists regions like London, West Midlands, and East of England. Black bars represent the regional average homicide rate, while a dashed vertical line shows the national average. London shows many urban authorities with rates above 1. Some outliers with high rates include Lambeth, Greenwich, and Boston. South East and East of England have clusters of low-rate rural areas. The chart visualizes both the variability within regions and the urban-rural divide in homicide rates. Sourced from the Home Office Homicide Index, based on 94.4% of cases with known offence locations. Legend clarifies circle colors and rate markers."
+)
+
+fig_lad + 
+  labs(
+  caption = str_glue('Source: Home Office Homicide Index<br>Base: the {prop_base(victims, !is.na(easting))} of cases for which the offence location was known')
+  )
+```
+
+
+```{r}
+#| label: boston-whiteness
+#| message: false
+
+boston_whiteness <- str_glue("{proj_dir}/original_data/nomisweb_RM032_2021.csv") |> 
+  read_csv(skip = 8, n_max = 318) |> 
+  clean_names() |> 
+  mutate(whiteness = white / total) |> 
+  select(lad_name = 1, lad_code = 2, whiteness) |> 
+  filter(lad_name == "Boston") |> 
+  pluck("whiteness") |> 
+  percent()
+```
+
+
+It would be easy to think of homicide as a purely urban phenomenon, but `r english::words(pluck(filter(count(slice_max(victims_lad, order_by = rate, n = 10), urban), !urban), "n"))` of the 10 districts with the highest homicide rates (`r combine_words(sort(pull(filter(slice_max(victims_lad, order_by = rate, n = 10), !urban), "lad23nm")))`) were largely rural. While Black people are over-represented as both [victims of homicide](../homicide-profile-victims/) and as [homicide offenders](../homicide-profile-offenders/), the district with the highest homicide rate (Boston in Lincolnshire) has a population that is more than `r boston_whiteness` White.
+
+
+### Homicide is concentrated in a small number of neighbourhoods
+
+Homicide was also concentrated within each local authority district. This is partly because homicide is a relatively rare event, so it is inevitable that most areas will have no homicides in a given period. Nevertheless, homicides were substantially more clustered in a few places than we would expect by chance. 
+
+For example, in London homicides were tightly concentrated in a small number of areas (@fig-map-london). It's important to note that while I've chosen London for this map, a similar pattern of heavy concentration in a few areas would be apparent in maps of other parts of England and Wales.
+
+The strong concentration of homicide in a few neighbourhoods emphasises the importance of ensuring that efforts to tackle homicide were concentrated in the areas with the highest need.
+
+
+```{r}
+#| label: fig-map-london-prep
+#| cache: true
+#| warning: false
+#| message: false
+
+london_bbox <- lad |> 
+  filter(rgn23nm == "London") |> 
+  st_bbox() |> 
+  st_as_sfc() |> 
+  st_as_sf() |> 
+  st_buffer(25000)
+
+if (!file.exists("london_kde.gpkg")) {
+
+  victims |> 
+    drop_na(easting, northing) |> 
+    filter(
+      !(
+        offence_date == ymd("2019-10-23") & 
+          police_force_name == "Essex"
+      )
+    ) |> 
+    st_as_sf(coords = c("easting", "northing"), crs = "EPSG:27700") |> 
+    st_intersection(london_bbox) |> 
+    hotspot_gistar(
+      bandwidth_adjust = 0.15, 
+      grid = hotspot_grid(london_bbox, cell_size = 750, grid_type = "hex"),
+      quiet = TRUE
+    ) |> 
+    st_intersection(london_bbox) |> 
+    write_sf("london_kde.gpkg")
+
+}
+
+london_kde <- read_sf("london_kde.gpkg")
+  
+london_hotspots <- london_kde |> 
+  filter(gistar > quantile(gistar, 0.99), pvalue < 0.05) |> 
+  st_union() |> 
+  st_cast("POLYGON") |> 
+  st_as_sf() |> 
+  st_set_geometry("geometry")
+
+london_hotspot_labels <- london_kde |> 
+  st_centroid() |> 
+  hotspot_count(grid = london_hotspots, weights = kde, quiet = TRUE) |> 
+  arrange(desc(sum)) |> 
+  st_centroid() |> 
+  st_join(london_stations, join = st_nearest_feature) |> 
+  distinct(name, .keep_all = TRUE) |> 
+  slice_max(order_by = sum, n = 5) |> 
+  df_spatial()
+
+fig_map_london <- ggplot() + 
+  geom_sf(data = st_buffer(london_bbox, -22000), colour = NA, fill = NA) +
+  annotation_spatial(
+    data = london_kde, 
+    aes(colour = kde, fill = kde)
+  ) + 
+  annotation_spatial(data = lad, colour = "grey70", fill = NA, linewidth = 0.25) +
+  annotation_spatial(data = pfa, colour = "grey70", fill = NA, linewidth = 0.75) +
+  annotation_scale(width_hint = 1/10, style = "ticks", location = "br") +
+  geom_label_repel(
+    aes(x = x, y = y, label = str_wrap(name, 25)),
+    data = london_hotspot_labels,
+    box.padding = unit(2, "lines"),
+    colour = "grey25",
+    hjust = 0,
+    label.padding = unit(0.2, "lines"),
+    label.size = NA,
+    lineheight = 1,
+    linewidth = 0,
+    max.iter = 10^5,
+    segment.color = "grey50",
+    segment.size = 0.25,
+    size = 2.75,
+    xlim = c(
+      pluck(st_bbox(filter(lad, rgn23nm == "London")), "xmax"), 
+      pluck(st_bbox(london_bbox), "xmax")
+    )
+  ) +
+  scale_fill_distiller(
+    breaks = range(pull(london_kde, "kde")),
+    labels = c("low", "high"),
+    palette = "Oranges",
+    direction = 1, 
+    aesthetics = c("colour", "fill")
+  ) +
+  labs(
+    colour = "density of homicides", 
+    x = NULL,
+    y = NULL,
+    fill = "density of homicides"
+  ) +
+  fixed_plot_aspect(16/9) +
+  theme_homicide() +
+  theme(
+    axis.text = element_blank(),
+    axis.ticks = element_blank(),
+    axis.title = element_blank(),
+    legend.background = element_rect(
+      colour = NA,
+      fill = rgb(1, 1, 1, alpha = 0.75)
+    ),
+    legend.direction = "horizontal",
+    legend.justification = c(0, 0),
+    legend.margin = margin(6, 6, 6, 18),
+    legend.position = "inside",
+    legend.position.inside = c(0, 0),
+    legend.title.position = "top",
+    panel.grid = element_blank()
+  )
+  # theme_void() +
+  # theme(
+  #   legend.background = element_rect(
+  #     colour = NA,
+  #     fill = rgb(1, 1, 1, alpha = 0.75)
+  #   ),
+  #   legend.direction = "horizontal",
+  #   legend.justification = c(0, 0),
+  #   legend.margin = margin(6, 6, 6, 18),
+  #   legend.position = "inside",
+  #   legend.position.inside = c(0, 0),
+  #   legend.title.position = "top",
+  #   plot.caption = element_textbox_simple(
+  #     colour = "grey33", 
+  #     margin = margin(t = 11), 
+  #     size = 8
+  #   ),
+  #   plot.caption.position = "plot"
+  # )
+```
+
+```{r}
+#| label: fig-map-london-social
+#| warning: false
+
+social_figure(
+  fig_map_london,
+  title = "Homicide is heavily concentrated in a few areas",
+  subtitle = "All types of crime and heavily concentrated in a small number of places, and homicide is no exception. In London, for example, homicide is concentated in a small number of areas.",
+  caption = str_glue('Source: Home Office Homicide Index<br>Base: the {prop_base(victims, !is.na(easting))} of cases for which the offence location was known'),
+  name = "map_london"
+)
+
+social_post(
+  "Homicide is also heavily concentrated in a few neighbourhoods.\n\nFor ",
+  "example, homicide in London is heavily concentrated in a small number of ",
+  "areas. But it's worth noting that not all of those areas are in the inner ",
+  "city where you might expect.",
+  image = "map_london",
+  alt = "A hexagonal heat map of London shows the density of homicides based on data from the Home Office Homicide Index. The map uses a gradient from light beige to dark red-orange to indicate areas of low to high homicide density. Central and southeastern parts of London, including areas around Stockwell, Warwick Avenue, and Newbury Park, show the highest concentrations, marked by darker red-orange hexagons. Other named areas include Turnpike Lane and Selhurst, which show moderate to lower densities. The map features borough boundaries and a scale bar indicating 8 km for reference. A legend at the bottom left explains the color gradient, and a note beneath it states that the data covers 94.4% of cases with known offence locations. The map emphasizes geographical variation in homicide frequency across Greater London."
+)
+```
+
+```{r}
+#| label: fig-map-london
+#| column: body-outset
+#| fig-align: center
+#| fig-width: 10
+#| fig-asp: 0.6
+#| fig-cap: Spatial concentrations of homicide in and around London
+#| fig-alt: "A hexagonal heat map of London shows the density of homicides based on data from the Home Office Homicide Index. The map uses a gradient from light beige to dark red-orange to indicate areas of low to high homicide density. Central and southeastern parts of London, including areas around Stockwell, Warwick Avenue, and Newbury Park, show the highest concentrations, marked by darker red-orange hexagons. Other named areas include Turnpike Lane and Selhurst, which show moderate to lower densities. The map features borough boundaries and a scale bar indicating 8 km for reference. A legend at the bottom left explains the color gradient, and a note beneath it states that the data covers 94.4% of cases with known offence locations. The map emphasizes geographical variation in homicide frequency across Greater London."
+#| cache: true
+#| warning: false
+#| message: false
+
+fig_map_london +
+  labs(
+    caption = str_glue('Source: Home Office Homicide Index<br>Base: the {prop_base(victims, !is.na(easting))} of cases for which the offence location was known')
+  )
+```
+
+
+### Homicide is concentrated in deprived areas
+
+
+```{r}
+#| label: deprivation-prep
+
+victims_lsoa <- victims |> 
+  drop_na(easting, northing) |> 
+  st_as_sf(coords = c("easting", "northing"), crs = "EPSG:27700") |> 
+  st_join(select(lsoa, lsoa11cd, geometry)) |> 
+  st_drop_geometry() |> 
+  count(lsoa11cd, name = "homicides") |> 
+  right_join(lsoa, by = "lsoa11cd") |> 
+  select(lsoa = lsoa11cd, imd_rank = imd_rank0, pop = tot_pop, homicides) |> 
+  replace_na(list(homicides = 0)) |> 
+  filter(lsoa != "E01016012") |> 
+  arrange(imd_rank) |> 
+  mutate(
+    imd_perc = floor((cumsum(pop) / sum(pop)) * 100),
+    imd_dec = floor((cumsum(pop) / sum(pop)) * 10)
+  )
+
+imd_perc_counts <- victims_lsoa |> 
+  summarise(
+    n = sum(homicides), 
+    pop = sum(pop), 
+    .by = c(imd_dec, imd_perc)
+  ) |> 
+  mutate(
+    prop = n / sum(n), 
+    rate = (n / (pop / 1000000)) / 3,
+    cum_prop = cumsum(n) / sum(n)
+  )
+
+imd_dec_counts <- victims_lsoa |> 
+  count(imd_dec, wt = homicides, name = "homicides") |> 
+  slice(1:10) |> 
+  mutate(
+    imd_perc = (imd_dec * 10) + 5, 
+    prop = homicides / sum(homicides)
+  )
+
+
+```
+
+
+Homicides are more likely to occur in neighbourhoods that have higher levels of deprivation (@fig-map-deprivation)^[Deprivation data were taken from the government English Indices of Deprivation 2019. This analysis includes only homicides that occurred in England, since comparable deprivation data were not available for neighbourhoods in Wales.]. A quarter of all homicides occurred in the `r pluck(slice_min(filter(imd_perc_counts, cum_prop > 0.25), order_by = cum_prop), "imd_perc", 1)`% of most-deprived neighbourhoods, while half of all homicides occurred in the `r pluck(slice_min(filter(imd_perc_counts, cum_prop > 0.5), order_by = cum_prop), "imd_perc", 1)`% of most-deprived neighbourhoods.
+
+
+```{r}
+#| label: fig-map-deprivation
+#| column: body-outset
+#| fig-align: center
+#| fig-width: 10
+#| fig-asp: 0.6
+#| fig-cap: Concentration of homicides in England by neighbourhood deprivation levels 
+#| fig-alt: "A bar chart shows the relationship between neighbourhood deprivation and homicide rates in England. The x-axis represents the population of England arranged by level of deprivation, from 0% (most deprived) to 100% (least deprived). Each bar represents 1% of the population and shows the annual number of homicides per million residents in that group. The y-axis ranges from 0 to 35 homicides per million. Homicide rates are highest in the most-deprived areas on the left side of the chart, with most-deprived percentile showing a rate over 30 homicides per million. The rates generally decline as deprivation decreases, although there are some fluctuations. The right side of the chart, representing less-deprived areas, shows consistently lower homicide rates, mostly below 10 homicides per million. Above the chart, a row of percentages indicates the share of total homicides that occurred in each decile of deprivation. These are: 23%, 16%, 14%, 12%, 10%, 8%, 7%, 5%, 4%, and 2%. An explanatory note states: “Each number shows the percentage of all homicides that happen in neighbourhoods containing 10% of the population of England, arranged in order of how deprived they were. If there were no relationship between deprivation and homicides, we would expect 10% of homicides to occur in each 10% of neighbourhoods.” Another note explains the bars: “Each bar represents neighbourhoods occupied by 1% of the population of England, arranged in order of how deprived those neighbourhoods were. The height of each bar represents the rate of homicides in an area inhabited by that 1% of the population.” The chart visually demonstrates a clear relationship: more-deprived neighbourhoods experience disproportionately higher homicide rates than less-deprived ones. Source: Home Office Homicide Index. Based on 94.4% of homicides with a known offence location. Excludes 39 homicides from the Grays lorry deaths incident."
+
+fig_map_deprivation <- ggplot(imd_perc_counts) +
+  aes(x = imd_perc / 100) +
+  annotate(
+    "rect", 
+    xmin = -Inf, 
+    xmax = Inf, 
+    ymin = 95 / 3, 
+    ymax = Inf, 
+    colour = NA, 
+    fill = "white"
+  ) +
+  geom_vline(
+    xintercept = seq(0.1, 0.9, by = 0.1), 
+    colour = "grey70", 
+    linetype = "22"
+  ) +
+  geom_col(aes(y = rate, fill = imd_dec / 10), just = 0, orientation = "x") + 
+  geom_label(
+    aes(y = 100 / 3, label = percent(prop, accuracy = 1)),
+    data = imd_dec_counts,
+    linewidth = 0
+  ) +
+  annotate(
+    "curve",
+    x = 0.25,
+    y = 96 / 3,
+    xend = 0.32,
+    yend = 85 / 3,
+    curvature = 0.3,
+    arrow = arrow(ends = "first", length = unit(0.5, "lines"))
+  ) +
+  annotate(
+    "label",
+    x = 0.32,
+    y = 85 / 3,
+    label = str_glue("Each number shows the percentage of all homicides that happen in \nneighbourhoods containing 10% of the population of England, arranged \nin order of how deprived they were. If there were no relationship between \ndeprivation and homicides, we would expect 10% of homicides to occur \nin each 10% of neighbourhoods."),
+    hjust = 0,
+    lineheight = 1,
+    linewidth = 0,
+    size = 3
+  ) +
+  annotate(
+    "curve",
+    x = 0.43,
+    y = 56 / 3,
+    xend = 0.49,
+    yend = 61 / 3,
+    curvature = -0.3,
+    arrow = arrow(ends = "first", length = unit(0.5, "lines"))
+  ) +
+  annotate(
+    "label",
+    x = 0.49,
+    y = 61 / 3,
+    label = str_glue("Each bar represents neighbourhoods occupied by 1% \nof the population of England, arranged in order of how \ndeprived those neighbourhoods were. The height of \neach bar represents the rate of homicides in an area \ninhabited by that 1% of the population."),
+    hjust = 0,
+    lineheight = 1,
+    linewidth = 0,
+    size = 3
+  ) +
+  annotate(
+    "label",
+    x = 0.50,
+    y = 105 / 3,
+    label = "← more-deprived neighbourhoods               less-deprived neighbourhoods →",
+    linewidth = 0,
+    size = 4,
+    vjust = 0
+  ) +
+  scale_x_continuous(
+    breaks = seq(0, 1, by = 0.1), 
+    labels = label_percent(),
+    expand = expansion(c(0, 0.01))
+  ) +
+  scale_y_continuous(expand = expansion(c(0, 0.05))) +
+  scale_fill_gradient(low = ucl_brand[["a"]], high = ucl_brand[["c"]]) +
+  labs(
+    x = "percentage of population of England (arranged by level of deprivation)",
+    y = "annual homicides per million residents"
+  ) +
+  theme_homicide() +
+  theme(
+    legend.position = "none"
+  )
+
+social_figure(
+  fig_map_deprivation,
+  title = "Homicides are concentrated in deprived neighbourhoods",
+  subtitle = str_glue(
+    'Homicide rates are higher in neighbourhoods that are more deprived. A ',
+    'quarter of all homicides occurred in the ',
+    '{pluck(slice_min(filter(imd_perc_counts, cum_prop > 0.25), order_by = cum_prop), "imd_perc", 1)}% ',
+    'of most-deprived neighbourhoods, while half of all homicides occurred in ',
+    'the {pluck(slice_min(filter(imd_perc_counts, cum_prop > 0.5), order_by = cum_prop), "imd_perc", 1)}% ',
+    'of most-deprived neighbourhoods.'
+  ),
+  caption = str_glue('Source: Home Office Homicide Index<br>Base: the {prop_base(victims, !is.na(easting))} of homicides for which the offence location was known<br>Note: excludes 39 homicides in the Grays lorry deaths incident'),
+  name = "map_deprivation",
+  asp = 0.8
+)
+
+social_post(
+  str_glue(
+    'Homicides concentrated in areas with high levels of deprivation: a ',
+    'quarter of all homicides occurred in the ',
+    '{pluck(slice_min(filter(imd_perc_counts, cum_prop > 0.25), order_by = cum_prop), "imd_perc", 1)}% ',
+    'of most-deprived neighbourhoods in England.'
+  ),
+  image = "map_deprivation",
+  alt = "A bar chart shows the relationship between neighbourhood deprivation and homicide rates in England. The x-axis represents the population of England arranged by level of deprivation, from 0% (most deprived) to 100% (least deprived). Each bar represents 1% of the population and shows the annual number of homicides per million residents in that group. The y-axis ranges from 0 to 35 homicides per million. Homicide rates are highest in the most-deprived areas on the left side of the chart, with most-deprived percentile showing a rate over 30 homicides per million. The rates generally decline as deprivation decreases, although there are some fluctuations. The right side of the chart, representing less-deprived areas, shows consistently lower homicide rates, mostly below 10 homicides per million. Above the chart, a row of percentages indicates the share of total homicides that occurred in each decile of deprivation. These are: 23%, 16%, 14%, 12%, 10%, 8%, 7%, 5%, 4%, and 2%. An explanatory note states: “Each number shows the percentage of all homicides that happen in neighbourhoods containing 10% of the population of England, arranged in order of how deprived they were. If there were no relationship between deprivation and homicides, we would expect 10% of homicides to occur in each 10% of neighbourhoods.” Another note explains the bars: “Each bar represents neighbourhoods occupied by 1% of the population of England, arranged in order of how deprived those neighbourhoods were. The height of each bar represents the rate of homicides in an area inhabited by that 1% of the population.” The chart visually demonstrates a clear relationship: more-deprived neighbourhoods experience disproportionately higher homicide rates than less-deprived ones. Source: Home Office Homicide Index. Based on 94.4% of homicides with a known offence location. Excludes 39 homicides from the Grays lorry deaths incident."
+)
+
+fig_map_deprivation +
+  labs(
+    caption = str_glue('Source: Home Office Homicide Index<br>Base: the {prop_base(victims, !is.na(easting))} of homicides for which the offence location was known<br>Note: excludes 39 homicides in the Grays lorry deaths incident')
+  )
+```
+
+### Most female and older male victims are killed at home
+
+
+```{r}
+#| label: offence-location-types
+
+offence_location_types <- victims |> 
+  mutate(
+    location_groupings_published = str_remove(
+      location_groupings_published, 
+      "\\(in (and|or) around\\)"
+    ),
+    location = case_when(
+      offence_location == "Hostel, hotel, lodging house" ~ "Hotel, hostel, etc.",
+      offence_location == "Nursing/care home" ~ "Other location",
+      offence_location == "Street, footpath, alleyway" |
+        location_groupings_published == "Open outdoor area" ~ 
+        "Street, open space, etc.",
+      location_groupings_published %in% c("Other", "Other public places") ~ 
+        "Other location",
+      location_groupings_published == "Location unknown" ~ "Unknown location",
+      TRUE ~ location_groupings_published
+    ),
+    location = str_squish(location)
+  ) |> 
+  drop_na(suspect_victim_relationship, victim_sex) |> 
+  count(suspect_victim_relationship, location, victim_sex, sort = TRUE) |> 
+  mutate(
+    suspect_victim_relationship = factor(
+      suspect_victim_relationship, 
+      levels = c("partner/ex-partner", "family member", "acquaintance", "stranger", "not known")
+    )
+  ) |> 
+  mutate(sum = sum(n), .by = location) |> 
+  mutate(
+    location = fct_reorder(str_to_lower(location), sum),
+    location = fct_relevel(location, "unknown location", "other location"),
+    location_label = str_replace(str_remove(location, ", etc."), ", ", " or ")
+  ) |> 
+  mutate(prop_sex = n / sum(n), .by = victim_sex) |> 
+  mutate(
+    prop_sex_rel = n / sum(n), 
+    .by = c(suspect_victim_relationship, victim_sex)
+  )
+
+offence_location_types_sex <- offence_location_types |> 
+  summarise(n = sum(n), .by = c("location", "location_label", "victim_sex")) |> 
+  mutate(prop = n / sum(n), .by = victim_sex) |> 
+  arrange(desc(prop))
+```
+
+
+Homicide most-often occurred at someone's home (@fig-location-types). This was especially true for female victims: `r percent(pluck(filter(offence_location_types_sex, victim_sex == "Female"), "prop", 1))` of female victims were killed in `r english::indefinite(pluck(filter(offence_location_types_sex, victim_sex == "Female"), "location_label", 1))`, compared to `r percent(pluck(filter(offence_location_types_sex, victim_sex == "Male", location == pluck(filter(offence_location_types_sex, victim_sex == "Female"), "location", 1)), "prop", 1))` of male victims. Conversely, only `r percent(pluck(filter(offence_location_types_sex, victim_sex == "Female"), "prop", 2))` of female victims were killed in `r english::indefinite(pluck(filter(offence_location_types_sex, victim_sex == "Female"), "location_label", 2))`, compared to `r percent(pluck(filter(offence_location_types_sex, victim_sex == "Male", location == pluck(filter(offence_location_types_sex, victim_sex == "Female"), "location", 2)), "prop", 1))` of male victims. 
+
+```{r}
+#| label: fig-location-types
+#| fig-asp: 0.5
+#| fig-cap: Homicides by location type
+
+fig_location_types <- victims |> 
+  # replace_na(replace = list(suspect_victim_relationship = "not known")) |> 
+  mutate(
+    location_groupings_published = str_remove(
+      location_groupings_published, 
+      "\\(in (and|or) around\\)"
+    ),
+    location = case_when(
+      offence_location == "Hostel, hotel, lodging house" ~ "Hotel, hostel, etc.",
+      offence_location == "Nursing/care home" ~ "Other location",
+      offence_location == "Street, footpath, alleyway" |
+        location_groupings_published == "Open outdoor area" ~ 
+        "Street, open space, etc.",
+      location_groupings_published %in% c("Other", "Other public places") ~ 
+        "Other location",
+      location_groupings_published == "Location unknown" ~ "Unknown location",
+      TRUE ~ location_groupings_published
+    ),
+    location = str_squish(location),
+    suspect_victim_relationship = factor(
+      suspect_victim_relationship, 
+      levels = c("partner/ex-partner", "family member", "acquaintance", "stranger", "not known")
+    )
+  ) |> 
+  drop_na(suspect_victim_relationship) |> 
+  count(location, suspect_victim_relationship) |> 
+  mutate(total = sum(n), .by = location) |> 
+  mutate(
+    prop = n / sum(n),
+    location = fct_reorder(location, total)
+  ) |> 
+  ggplot() +
+  aes(x = prop, y = location, fill = suspect_victim_relationship) +
+  geom_col() +
+  scale_x_continuous(labels = label_percent(), expand = c(0, 0)) +
+  scale_fill_manual(
+    values = c(
+      "acquaintance" = ucl_brand[["d"]],
+      "family member" = ucl_brand[["c"]],
+      "partner/ex-partner" = ucl_brand[["a"]],
+      "stranger" = ucl_brand[["h"]]
+    )
+  ) + 
+  labs(
+    x = "percentage of homicides", 
+    y = NULL, 
+    fill = "suspect\nrelationship\nto victim"
+  ) +
+  theme_homicide() + 
+  theme(
+    axis.ticks.y = element_blank(),
+    legend.justification = c(1, 0),
+    legend.position = "inside",
+    legend.position.inside = c(1, 0),
+    panel.grid.major.x = element_line(),
+    panel.grid.minor.x = element_line(),
+    panel.grid.major.y = element_blank(),
+    panel.grid.minor.y = element_blank()
+  )
+
+social_figure(
+  fig_location_types,
+  title = "Most homicides happen in the home",
+  subtitle = "Most homicides occurred in the home. Homicides at home were almost always committed by someone who knew the victim. Homicides on the street, however, were often committed by strangers.",
+  caption = str_glue(
+    'Source: Home Office Homicide Index<br>Base: the ',
+    '{prop_base(victims, !is.na(suspect_victim_relationship))} of homicides ',
+    'for which suspect--victim relationship was known'
+  ),
+  name = "location_types",
+  asp = 0.6
+)
+
+social_post(
+  str_glue(
+    'A majority of homicides occurred in homes, especially for female victims: ',
+    '{percent(pluck(filter(offence_location_types_sex, victim_sex == "Female"), "prop", 1))} ',
+    'of female victims were killed in a dwelling, compared to ',
+    '{percent(pluck(filter(offence_location_types_sex, victim_sex == "Male", location == pluck(filter(offence_location_types_sex, victim_sex == "Female"), "location", 1)), "prop", 1))} ',
+    'of male victims.\n\nAlmost all homicides in dwellings were committed by ',
+    'someone the victim knew. '
+  ),
+  image = "location_types"
+)
+
+social_post(
+  str_glue(
+    'Intimate-partner homicides almost always occur in a home: among victims ',
+    'killed by a current/ex-partner ',
+    '{percent(pluck(filter(offence_location_types, victim_sex == "Female", suspect_victim_relationship == "partner/ex-partner", location == "house, dwelling"), "prop_sex_rel", 1))} ',
+    'of female victims and ',
+    '{percent(pluck(filter(offence_location_types, victim_sex == "Male", suspect_victim_relationship == "partner/ex-partner", location == "house, dwelling"), "prop_sex_rel", 1))} ',
+    'of male victims were killed in a house or dwelling.'
+  )
+)
+
+female_victims_public_stranger <- victims |> 
+  filter(
+    victim_age >= 18,
+    victim_sex == "Female", 
+    !is.na(suspect_victim_relationship)
+  ) |> 
+  count(
+    public_stranger = location_groupings_published %in% c("Street, footpath, alleyway", "Open outdoor area") & 
+      suspect_victim_relationship == "stranger"
+  )
+
+social_post(
+  str_glue(
+    'Women were much more likely to be killed in a residence by someone they ',
+    'knew than a stranger in public. Each year about ',
+    '{number(pluck(filter(female_victims_public_stranger, public_stranger), "n") / 3)} ',
+    'women were killed by strangers in an outdoor public place, compared to ',
+    'about ',
+    '{number(nrow(filter(victims, victim_age >= 18, victim_sex == "Female", location_groupings_published %in% c("House, dwelling (in and around)", "Residential home"), suspect_victim_relationship != "stranger")) / 3, accuracy = 10)} ',
+    'women killed in a dwelling by someone they knew.'
+  )
+)
+
+fig_location_types +
+  labs(
+    caption = str_glue(
+      'Source: Home Office Homicide Index<br>Base: the ',
+      '{prop_base(victims, !is.na(suspect_victim_relationship))} of homicides ',
+      'for which suspect--victim relationship was known'
+    )
+  )
+```
+
+
+Some types of homicide we particularly likely to happen at home. `r percent(pluck(filter(offence_location_types, victim_sex == "Female", suspect_victim_relationship == "partner/ex-partner", location == "house, dwelling"), "prop_sex_rel", 1))` of homicides of female victims in which the suspect was a current or ex-partner occurred in a house or dwelling, along with `r percent(pluck(filter(offence_location_types, victim_sex == "Male", suspect_victim_relationship == "partner/ex-partner", location == "house, dwelling"), "prop_sex_rel", 1))` of homicides of male victims in which the suspect was a partner. 
+
+However, in homicides in which the suspect was a stranger, `r percent(pluck(filter(offence_location_types, victim_sex == "Male", suspect_victim_relationship == "stranger", location == "street, open space, etc."), "prop_sex_rel"))` of male victims were killed in a street or other public place, compared to `r percent(pluck(filter(offence_location_types, victim_sex == "Female", suspect_victim_relationship == "stranger", location == "street, open space, etc."), "prop_sex_rel"))` of female victims -- `r percent(pluck(filter(offence_location_types, victim_sex == "Female", suspect_victim_relationship == "stranger", location == "house, dwelling"), "prop_sex_rel"))` of female victims killed by strangers were killed in a home.
+
+
+```{r}
+#| label: fig-location-age
+#| fig-cap: Proportion of homicides in different types of location, by victim age and sex
+
+fig_location_age <- victims |> 
+  drop_na(victim_age, victim_sex) |> 
+  mutate(
+    # at_home = offence_location_grouping == "Residential",
+    at_home = case_when(
+      offence_location_grouping == "Residential" ~ "residence",
+      offence_location %in% c("Street, footpath, alleyway", "Open outdoor area") ~
+        "street, open space, etc.",
+      TRUE ~ "other location"
+    ),
+    at_home = factor(
+      at_home, 
+      levels = c("other location", "street, open space, etc.", "residence")
+    ),
+    victim_age = if_else(victim_age > 90, 90, victim_age),
+    age_upper = ceiling((victim_age + 1) / 10) * 10,
+    age_lower = age_upper - 10,
+    victim_sex = str_glue("{str_to_lower(victim_sex)} victims")
+  ) |> 
+  count(age_lower, victim_sex, at_home) |> 
+  mutate(prop = n / sum(n), .by = c(victim_sex, age_lower)) |> 
+  ggplot(aes(x = age_lower, y = prop, fill = at_home)) +
+  geom_col(just = 0) +
+  geom_hline(yintercept = 0, colour = "grey90") +
+  facet_grid(rows = vars(victim_sex), cols = vars(at_home)) +
+  scale_x_continuous(breaks = seq(0, 100, by = 10), expand = c(0, 0)) +
+  scale_y_continuous(
+    breaks = seq(0, 1, by = 0.2), 
+    limits = c(0, 1),
+    labels = label_percent(),
+    expand = c(0, 0)
+  ) +
+  scale_fill_manual(
+  values = c(
+    "other location" = colours[["darkgreen"]], 
+    "street, open space, etc." = colours[["midgreen"]],
+    "residence" = colours[["lightgreen"]]
+  )
+  ) +
+  labs(
+    x = "victim age", 
+    y = "percent of victims of each age and sex", 
+    fill = NULL
+  ) +
+  theme_homicide() +
+  theme(
+    legend.position = "none",
+    panel.grid.minor.y = element_blank(),
+    panel.spacing.y = unit(1, "lines")
+  )
+
+social_figure(
+  fig_location_age,
+  title = "Most female and older male victims are killed at home",
+  subtitle = str_glue(
+    "A large majority of female victims were killed in a dwelling at all ages ",
+    "except 10--19 years -- more than 80% of female victims aged 20 or over ",
+    "were killed in a residence. Male victims aged 10--40 were more likely to ",
+    "be killed in a street or open space than in a dwelling, while for male ",
+    "victims under 10 or over 50, most homicides occurred in residences."
+  ),
+  caption = str_glue(
+    'Source: Home Office Homicide Index<br>Base: the ',
+    '{prop_base(victims, !is.na(victim_age) & !is.na(victim_sex))} ',
+    'of homicides for which victim age and sex were known'
+  ),
+  name = "location_age"
+)
+
+social_post(
+  "While female victims were most likely to be killed in a dwelling at almost ",
+  "all ages, male victims between 10 and 40 were more likely to be killed in ",
+  "a public place.",
+  image = "location_age"
+)
+
+fig_location_age +
+  labs(
+    caption = str_glue(
+      'Source: Home Office Homicide Index<br>Base: the ',
+      '{prop_base(victims, !is.na(victim_age) & !is.na(victim_sex))} ',
+      'of homicides for which victim age and sex were known'
+    )
+  )
+```
+
+
+A large majority of female victims were killed in a dwelling at all ages except 10--19 years -- more than 80% of female victims aged 20 or over were killed in a residential location (@fig-location-age). Male victims aged 10--40 were more likely to be killed in a street or open space than in a residential location, while for male victims under 10 or over 50, most homicides occurred in residences.
+
+
+```{r}
+#| label: common-circumstances
+
+common_circumstances <- victims |> 
+  drop_na(main_circumstance_of_offence_group, offence_location, victim_sex) |>
+  filter(main_circumstance_of_offence_group != "Unknown") |> 
+  mutate(
+    location_groupings_published = str_remove(
+      location_groupings_published, 
+      "\\(in (and|or) around\\)"
+    ),
+    location = case_when(
+      offence_location == "Hostel, hotel, lodging house" ~ "Hotel, hostel, etc.",
+      offence_location == "Nursing/care home" ~ "Other location",
+      offence_location == "Street, footpath, alleyway" |
+        location_groupings_published == "Open outdoor area" ~ 
+        "Street, open space, etc.",
+      location_groupings_published %in% c("Other", "Other public places") ~ 
+        "Other location",
+      location_groupings_published == "Location unknown" ~ "Unknown location",
+      TRUE ~ location_groupings_published
+    ),
+    location = location |> 
+      str_remove(", etc.") |> 
+      str_replace(", ", " or ") |> 
+      str_to_lower()
+  ) |> 
+  count(victim_sex, circumstance_group, location, sort = TRUE) |> 
+  mutate(prop = n / sum(n), .by = victim_sex) |> 
+  filter(!circumstance_group %in% c("Other known circumstances")) |> 
+  mutate(
+    # Convert the existing groups to make sense in a sentence
+    circumstance_label = case_match(
+      circumstance_group, 
+      "Irrational act" ~ "irrational acts (e.g. by disturbed individuals)",
+      "Fights, brawls, etc." ~ 
+        "non-domestic fights, brawls, etc. (e.g. pub fight, argument over girlfriend)",
+      "In the course of another crime" ~
+        "the suspect committing another crime (e.g. burglary, robbery)",
+      "Long running disputes" ~ 
+        "Long running disputes (e.g. neighbour disputes, feuds)",
+      "Reckless act" ~ "Reckless acts (e.g. gross negligence)",
+      "Sexual" ~ "Sexual motive",
+      .default = circumstance_group
+    ),
+    # Create the labels
+    label = str_glue(
+      "{percent(prop, accuracy = 1)} of homicides occurred in the context of ",
+      "{str_to_lower(circumstance_label)} in {english::indefinite(location)} "
+    ),
+    # Remove introductory information except from the first line for each sex
+    label = if_else(
+      row_number() == 1, 
+      label, 
+      str_remove(label, "of homicides occurred ")
+    ),
+    .by = victim_sex
+  ) |> 
+  # Remove parenthetical information except from first time each circumstance is
+  # mentioned
+  mutate(
+    label = if_else(row_number() == 1, label, str_remove_all(label, "\\(.+?\\)")),
+    .by = circumstance_label
+  ) |> 
+  # mutate(
+  #   label = if_else(
+  #     victim_sex == "Female", 
+  #     str_remove(label, " \\(e\\.g\\. .+?\\)"), 
+  #     label
+  #   ),
+  #   label = str_squish(label)
+  # ) |> 
+  # Remove duplicate spaces and add homicide frequency
+  mutate(label = str_squish(label)) |> 
+  # Keep only most common types
+  slice_max(order_by = prop, n = 3, by = victim_sex)
+```
+
+
+We can combine homicide circumstances (which I covered in [Part 2 of this series](../homicide-profile-victims/#circs)) and location types to further understand where homicide is most concentrated. For male victims: 
+
+
+```{r}
+#| label: common-circs-male
+#| results: asis
+
+common_circumstances |> 
+  filter(victim_sex == "Male") |> 
+  pull("label") |> 
+  map_chr(\(x) str_glue("* {x}")) |> 
+  cat(sep = "\n")
+```
+
+
+Meanwhile for female victims:
+
+
+```{r}
+#| label: common-circs-female
+#| results: asis
+
+common_circumstances |> 
+  filter(victim_sex == "Female") |> 
+  pull("label") |> 
+  map_chr(\(x) str_glue("* {x}")) |> 
+  cat(sep = "\n")
+```
+
+
+
+```{r}
+#| label: final-social-posts
+
+social_post(
+  "This analysis of homicide methods in England and Wales comes from a report ",
+  "written by me and Prof Iain Brennan for the UK College of Policing. You ",
+  "can get more detail at https://lesscrime.info/post/homicide-profile-hotspots/"
+)
+
+social_post(
+  "This is the fifth in a series of seven threads summarising different ",
+  "aspects of homicide in England and Wales. You can find links to the ",
+  "other threads at https://lesscrime.info/post/homicide-profile/"
+)
+```
+
+
+### In summary
+
+Like all other types of crime, homicide his heavily concentrated in a few places. In England and Wales, half of homicides occur in six of the 43 police-force areas, and in 56 of the 317 local authority districts. Homicides of male victims are more concentrated in urban areas, while homicides of female victims are more concentrated in rural police-force areas. Homicides are also concentrated at local level, and are particularly likely to occur in deprived areas.

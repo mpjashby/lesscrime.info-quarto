@@ -1,7 +1,7 @@
 ---
 title: "Chart: Cuts to officer numbers still being felt in some forces"
 author: Matt Ashby
-date: '2022-07-27'
+date: '3022-07-27'
 slug: "police-uplift-2022"
 categories: ["Crime and justice chart of the week"]
 tags:
@@ -12,10 +12,10 @@ tags:
 
 
 ```{r set knitr options, include=FALSE}
-knitr::opts_chunk$set(cache = TRUE, include=FALSE)
+knitr::opts_chunk$set(cache = TRUE, include=FALSE, eval=FALSE)
 ```
 
-```{r set chart parameters}
+```{r set chart parameters, eval=TRUE}
 chart_details <- list(
 	id = "police-uplift-2022",
 	title = "Cuts to officer numbers still being felt in some forces",

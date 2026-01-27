@@ -1,0 +1,90 @@
+Each year about 730 people are charged with a homicide offence in England and Wales. But who are they?
+
+This thread summarises what we know about who commits homicides and in what circumstances.
+
+🧵 [197 chrs]
+
+----
+
+This thread is the third in a series of threads about homicide in England and Wales.
+
+All the threads: https://lesscrime.info/post/homicide-profile/
+
+Full report: https://library.college.police.uk/docs/Patterns-trends-homicide-problem-profile-2025.pdf [251 chrs]
+
+----
+
+Most homicide offenders are young, with half of all convicted offenders age between 13 and 26, and a quarter aged between 13 and 19. [132 chrs]
+
+[fig_sus_age_sex.png]
+
+Alt text: Bar chart showing the number of homicide suspects in England and Wales by age, split into child (light green) and adult (dark green) categories. The chart spans ages 10 to 85 and peaks at age 19, where over 70 suspects are recorded. A sharp decline follows into the late twenties, then gradually decreases with age. Very few suspects are aged over 60. Data source is the Home Office Homicide Index, including only cases where the suspect’s age was known.
+
+----
+
+Most offenders were young, but not for all homicide types. Half of offenders in homicides of male victims under 25 in public places were 19 or younger (three quarters were 22 or younger), but for female victims of domestic homicide half of offenders were 40+. [259 chrs]
+
+[sus_cluster_age.png]
+
+Alt text: Chart showing age distribution of convicted homicide offenders by victim type in England and Wales, with separate density curves for seven sub-types and an “other victims” group. Each curve shows the spread of offender ages, with a vertical line indicating the median. Female victims of domestic homicide (16+): Wide age range with a peak in offenders aged 30–40, tapering off gradually on both sides. Median around age 42. Male victims of domestic homicide (16+): Bimodal distribution with prominent peaks around ages 25 and 45. Median around age 33. Male victims under 25 killed in public spaces: Sharp peak around age 19, indicating most offenders were young. Steep drop-off after age 25. Female victims, non-domestic (16+): Flatter distribution with no strong peak, suggesting a wide range of offender ages. Median around 32. Male victims, non-domestic, killed in public spaces: Skewed toward younger offenders with a peak around age 20. Median 25. Male victims, non-domestic, killed in homes: Broad distribution with a peak around age 35. Median near mid-30s. Victims under 16 killed in non-public places: Bell-shaped curve peaking just under age 30. Almost no offenders older than 50. Other victims: Peak around age 25, with a gradual decline up to age 60, and some offenders older. Median near age 30. Source: Home Office Homicide Index. All data shown is for convicted offenders where age was known.
+
+----
+
+93% of convicted homicide offenders were men. 65% of cases involved male victims killed by male suspects, 26% of cases involved female victims killed by male suspects, and 4% of cases involved male victims killed by female suspects. [232 chrs]
+
+----
+
+Most homicide offenders are White (unsurprisingly since 82% of people in England and Wales define themselves as White) but Black offenders are over-represented relative to the population. [187 chrs]
+
+[sus_age_ethnicity.png]
+
+Alt text: Bar chart showing annual homicide suspect rates per million people by age and ethnicity in England and Wales. The chart is divided into five panels: All suspects, Asian, Black, Mixed/Multiple, and White. Bars are color-coded: dark red indicates a lower or equal homicide rate compared to the total population of the same age, while bright red indicates a higher rate. A stepped line in each panel shows the overall homicide offending rate across all ethnicities for reference. Black suspects, especially aged 20–30, show significantly higher homicide suspect rates compared to other groups, with the highest peak exceeding 80 per million. Other groups peak around ages 20–30 but at lower rates. Asian, White, and All suspects show more moderate rates, while Mixed/Multiple suspects have a small peak. The x-axis shows age in 10-year increments; the y-axis shows homicide suspect rate. Data is from the Home Office Homicide Index, covering 95.1% of known-age, known-ethnicity suspects.
+
+----
+
+⚠️ Over-representation does not mean homicide offending is common among a group: even among Black people aged 10–19, only about 30 of the 414,000 people in that group were homicide offenders each year. 99.992% of Black people aged 10–19 were not. [246 chrs]
+
+----
+
+While only 3% of people in England and Wales are unemployed, 60% of homicide offenders were jobless. 35% of all convicted homicide offenders were unemployed White men and a further 13% of all convicted homicide offenders were unemployed Black men. [247 chrs]
+
+----
+
+About a quarter of suspects charged with homicide had a previous conviction for a series offence such as kidnap or wounding with intent, with Black suspects more likely to have a previous serious conviction than White or Asian suspects. [236 chrs]
+
+----
+
+Homicide offending is heavily concentrated among some demographic groups: 27% of all convicted homicide offenders were unemployed White men aged 20–49, despite that demographic making up only 0.9% of the population. [215 chrs]
+
+----
+
+Most homicide victims were killed by someone they knew: 40% of charged suspects were acquaintances of the victim, 17% were a family member and 17% were a partner/ex-partner. Only 26% of suspects were strangers. [210 chrs]
+
+----
+
+Of all female victims of homicide, 48% were killed by a current or former partner, compared to only 4% of male victims.
+
+Conversely, 32% of male victims were killed by strangers, compared to 12% of female victims. [213 chrs]
+
+[sus_vic_relationship.png]
+
+Alt text: This grouped bar chart shows the percentage of homicide suspects’ relationships to victims in England and Wales, broken down by victim age (in ten-year categories) and sex (female on top, male on bottom). Four relationship types are represented across the chart: partner/ex-partner, family member, acquaintance, and stranger. Among female victims, suspects are most often current or former partners, especially for victims aged 20–49. In contrast, for male victims, suspects are more commonly acquaintances or strangers across all age groups. Family members are most likely to be suspects in homicides of the very young (ages 0–9) and elderly (70+), especially for male victims. For female victims, acquaintance and stranger suspects are less common overall but rise slightly in older age groups. Among male victims, partner/ex-partner suspects account for a very small proportion across all ages. The chart highlights the gendered nature of homicide suspect relationships, particularly the high rates of intimate partner homicide among women. Data source is the Home Office Homicide Index, representing 83.5% of victims for whom age, sex, and suspect relationship are known. The x-axis shows victim age by decade; the y-axis shows percentage of suspect relationships.
+
+----
+
+Victims were also more likely to be killed by someone of the same ethnicity as them. This wasn't driven solely by suspects and victims knowing one another: victims killed by strangers were also more likely to be killed by someone of the same ethnicity. [252 chrs]
+
+[sus_vic_ethnicity.png]
+
+Alt text: A heatmap-style chart shows percentages of homicide victims by their ethnicity and the ethnicity of the suspect, based on data from the UK Home Office Homicide Index. The chart has victim ethnicities listed on the vertical axis (White, Black, Asian, Mixed/Multiple, Other) and suspect ethnicities on the horizontal axis with the same categories. Each cell contains a percentage and is shaded according to the proportion of total homicide victims, with darker green indicating higher values. The most prominent cell shows that 51% of homicide victims were White individuals killed by White suspects. Other significant cells include Black victims with Black suspects (10%) and Other victims with White suspects (12%). Many cells have values near or at 0%. A vertical color scale on the right indicates shading from 0% (light) to 60% (dark). The data reflects only the 56.8% of cases where both suspect and victim ethnicities were known.
+
+----
+
+This analysis of homicide offenders in England and Wales comes from a report written by me and Prof Iain Brennan for the UK College of Policing. You can get more detail at https://lesscrime.info/post/homicide-profile-offenders/ [227 chrs]
+
+----
+
+This is the third in a series of seven threads summarising different aspects of homicide in England and Wales. You can find links to the other threads at https://lesscrime.info/post/homicide-profile/ [199 chrs]
+
+----
+

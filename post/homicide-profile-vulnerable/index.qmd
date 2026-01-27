@@ -1,0 +1,583 @@
+---
+title: "Homicide in England and Wales, Part 6: Homicide vulnerability"
+date: 2026-01-26
+fig-cap-location: top
+format: 
+  html:
+    css: "../homicide_theme.css"
+bibliography: "../homicide-bibliography.bib"
+execute:
+  echo: false
+  freeze: auto
+---
+
+```{r}
+#| label: setup
+#| include: false
+
+# Load packages, functions and data
+source("../homicide_functions.R")
+```
+
+
+```{r}
+#| label: initial-posts
+
+social_post(
+  "Most homicides happen in two circumstances: domestic abuse and ",
+  "non-domestic brawls. But what about child homicide, elder abuse and gang ",
+  "homicide? This thread summarises what we know about homicide ",
+  "characteristics.",
+  add = FALSE
+)
+
+social_post(
+  "This is the sixth thread in a series of threads about homicide in England ",
+  "and Wales.\n\n",
+  "All the threads: https://lesscrime.info/post/homicide-profile/\n\n",
+  "Full report: https://library.college.police.uk/docs/Patterns-trends-homicide-problem-profile-2025.pdf"
+)
+```
+
+
+This is the sixth in a [series of blog posts summarising the nature of homicide in England and Wales](../homicide-profile/). Each post covers a different aspect of homicide, based on data from the Home Office Homicide Index. This post looks at homicides of specific groups of people: children, older people and victims of domestic abuse. This post is a summary of part of a longer [national problem profile of homicide in England and Wales](https://library.college.police.uk/docs/Patterns-trends-homicide-problem-profile-2025.pdf) written by me and Prof Iain Brennan.
+
+
+```{r}
+#| label: unemployed-victims
+
+unemployed_white_vic_count <- victims |> 
+  filter(
+    between(victim_age, 20, 49), 
+    victim_employment_status == "Unemployed", 
+    victim_ethnicity == "White", 
+    victim_sex == "Male"
+  ) |> 
+  nrow()
+
+unemployed_rate <- econ_act |> 
+  n_from_table(status == "Unemployed", accuracy = 0.01, column = "prop") |> 
+  as.numeric()
+
+unemployed_white_men_20_40 <- pop_age_groups_ethnicity |> 
+  mutate(prop = population / sum(population)) |> 
+  filter(ethnic_group == "White", between(age_lower, 20, 40)) |> 
+  summarise(prop = sum(prop) * unemployed_rate) |> 
+  pluck("prop")
+```
+
+
+It's worth reading this post after reading [Part 2 of this series](../homicide-profile-victims/), which explains who in society is most likely to be a victim of society. In short, most victims are men, with especially young men being at higher risk. Also, while most homicide victims are White, Black people (especially young Black men) are at higher risk of being victims of homicide once the number of victims per million people in the population is taken into account. Homicide risk is also particularly high for unemployed people: unemployed White men aged 20--49 make up `r percent(unemployed_white_vic_count / nrow(victims))` of homicide victims but only `r percent(unemployed_white_men_20_40)` of the population.
+
+
+### Female victims of domestic homicide are most-often killed by their current partner
+
+```{r domestic-abuse}
+domestic_prop <- victims |> 
+  filter(
+    domestic_homicide_ho_definition != "No suspect charged/acquitted", 
+    victim_age >= 16
+  ) |>
+  count(domestic_homicide_ho_definition) |> 
+  mutate(prop = n / sum(n))
+
+domestic_prop_sex <- victims |> 
+  filter(
+    domestic_homicide_ho_definition != "No suspect charged/acquitted", 
+    victim_age >= 16
+  ) |>
+  count(domestic_homicide_ho_definition, victim_sex) |> 
+  mutate(prop = n / sum(n), .by = victim_sex) |> 
+  filter(domestic_homicide_ho_definition == "Domestic")
+
+domestic_prop_rel <- victims |> 
+  filter(
+    domestic_homicide_ho_definition == "Domestic", 
+    !is.na(suspect_victim_relationship),
+    victim_age >= 16
+  ) |>
+  count(victim_sex, suspect_victim_relationship) |> 
+  mutate(prop = n / sum(n), .by = victim_sex)
+
+current_partner_prop <- victims |> 
+  filter(
+    domestic_homicide_ho_definition == "Domestic", 
+    suspect_victim_relationship == "partner/ex-partner"
+  ) |> 
+  mutate(
+    current_partner = case_match(
+      relationship_to_suspect,
+      c("Spouse (incl. civil partner)", "Boyfriend, girlfriend", "Common-law spouse or cohabiting partner") ~ TRUE,
+      c("Ex- spouse, ex-common-law spouse or ex-cohabiting partner", "Ex-boyfriend, girlfriend") ~ FALSE
+    )
+  ) |> 
+  count(victim_sex, current_partner, sort = TRUE) |> 
+  mutate(prop = n / sum(n), .by = victim_sex) |> 
+  filter(current_partner)
+
+family_member_prop <- victims |> 
+  filter(
+    domestic_homicide_ho_definition == "Domestic", 
+    suspect_victim_relationship == "family member"
+  ) |> 
+  mutate(
+    # NOTE: This code reverses the relationship, so we can talk about victims 
+    # rather than suspects
+    killed_by = case_match(
+      relationship_to_suspect,
+      c("Parent", "Step-parent") ~ "child",
+      "Brother/sister" ~ "sibling",
+      c("Son/daughter", "Step-son/step-daughter") ~ "parent",
+      .default = "other"
+    )
+  ) |> 
+  count(victim_sex, killed_by) |> 
+  mutate(prop = n / sum(n), .by = victim_sex) |> 
+  arrange(victim_sex, desc(prop))
+
+domestic_precon <- suspects |> 
+  filter(previous_serious_conviction %in% c("NO", "YES")) |> 
+  count(domestic_homicide_ho_definition, previous_serious_conviction) |> 
+  mutate(prop = n / sum(n), .by = domestic_homicide_ho_definition)
+```
+
+Domestic abuse is an important factor in homicide. The Homicide Index records domestic abuse in multiple ways, so the information below is based on whether the case met the Home Office definition of a domestic homicide. That definition includes people aged 16 or older killed by a current or former partner, or killed by a member of their own household (e.g. a family member)^[The formal definition is those cases in which "the death of a person aged 16 or over has, or appears to have, resulted from violence, abuse, or neglect by a person to whom they were related or with whom they were, or had been, in an intimate personal relationship, or a member of the same household"].
+
+
+```{r}
+#| label: domestic-ethnicity
+
+victims_domestic_ethnicity_sex_rel <- victims |> 
+  filter(
+    domestic_homicide_ho_definition != "No suspect charged/acquitted", 
+    victim_ethnicity != "Mixed/Multiple",
+    !is.na(suspect_victim_relationship),
+    victim_sex %in% c("Female", "Male")
+  ) |> 
+  count(
+    domestic = domestic_homicide_ho_definition, 
+    ethnicity = victim_ethnicity, 
+    victim_sex,
+    relationship = suspect_victim_relationship
+  ) |> 
+  complete(domestic, ethnicity, victim_sex, relationship, fill = list(n = 0)) |> 
+  mutate(prop = n / sum(n), .by = c(victim_sex, ethnicity))
+
+victims_domestic_ethnicity <- victims_domestic_ethnicity_sex_rel |> 
+  summarise(n = sum(n), .by = c(domestic, ethnicity)) |> 
+  mutate(prop = n / sum(n), .by = ethnicity) |> 
+  filter(domestic == "Domestic")
+
+victims_domestic_ethnicity_sex <- victims_domestic_ethnicity_sex_rel |> 
+  summarise(n = sum(n), .by = c(domestic, ethnicity, victim_sex)) |> 
+  mutate(prop = n / sum(n), .by = c(ethnicity, victim_sex)) |> 
+  filter(domestic == "Domestic")
+
+victims_domestic_ethnicity_rate <- victims |> 
+  filter(
+    domestic_homicide_ho_definition == "Domestic", 
+    victim_ethnicity != "Not known/not recorded"
+  ) |> 
+  count(victim_sex, victim_ethnicity) |> 
+  complete(victim_sex, victim_ethnicity, fill = list(n = 0)) |> 
+  left_join(
+    count(filter(pop, age >= 16), sex, ethnic_group, wt = n),
+    by = join_by(victim_sex == sex, victim_ethnicity == ethnic_group)
+  ) |> 
+  rename(victims = n.x, people = n.y) |> 
+  mutate(rate = (victims / (people / 1000000)) / 3) |> 
+  mutate(rate_overall = sum(rate), .by = victim_ethnicity) |> 
+  arrange(desc(rate_overall))
+```
+
+
+`r percent(pluck(filter(domestic_prop_sex, victim_sex == "Female"), "prop"))` of homicides of female victims and `r percent(pluck(filter(domestic_prop_sex, victim_sex == "Male"), "prop"))` of homicides of male victims with an identified suspect met the Home Office definition of domestic abuse. The rate of domestic homicides varied across ethnic groups (@fig-domestic-ethnicity-rate). The rate of domestic homicides was highest for `r pluck(victims_domestic_ethnicity_rate, "victim_ethnicity", 1)` victims. However, the small number of homicides in some categories mean that the calculation of victimisation rates is inherently less stable than for larger population groups, so the differences between groups should be treated with caution.
+
+
+```{r}
+#| label: fig-domestic-ethnicity-rate
+#| fig-cap: "Domestic homicide rate by ethnicity and sex"
+#| fig-alt: "Bar chart comparing domestic homicide victimisation rates per million people in England and Wales by ethnicity and sex. The chart is split horizontally: light blue bars show female victims, dark blue bars show male victims. Domestic-homicide risk is highest for Black women (7 homicides per million people), Black men (4.5 homicides per million) and Asian women and women of other ethnicities (4 per million). Looking at the number of victims in each category, the highest average annual number of victims is among White women (60 victims), followed by Asian (8), Black (7), Other (2), and Mixed/Multiple (1). Among males, White victims also have the highest rate at 29, followed by Asian (5), Black (4), Other (1), and Mixed/Multiple (0). The x-axis shows victimisation rate per million people; the y-axis lists ethnicities, grouped by sex. A note explains that 97.5% of homicides had known victim sex and ethnicity, and population data refers to those aged 16+ per the Home Office definition of domestic homicide. Data source is the Home Office Homicide Index. The chart highlights significant differences in victimisation rates across both sex and ethnic groups."
+
+fig_domestic_ethnicity_rate <- victims_domestic_ethnicity_rate |> 
+  mutate(
+    label = if_else(
+      victim_sex == "Female" & rate_overall == max(rate_overall),
+      str_glue("average number of victims per year: {round(victims / 3)}"),
+      str_glue("{round(victims / 3)}")
+    ),
+    victim_ethnicity = fct_reorder(victim_ethnicity, rate_overall),
+    victim_sex = str_glue("{victim_sex} victims")
+  ) |> 
+  ggplot() +
+  aes(x = rate, y = victim_ethnicity, colour = victim_sex, fill = victim_sex, label = label) +
+  geom_col(colour = NA) +
+  geom_label(fill = NA, hjust = 1, linewidth = 0) +
+  facet_grid(rows = vars(victim_sex), switch = "y") +
+  scale_x_continuous(expand = expansion(c(0, 0.05))) +
+  scale_colour_manual(
+    values = c("Female victims" = "black", "Male victims" = "white")
+  ) +
+  scale_fill_manual(
+    values = c(
+      "Female victims" = colours[["lightblue"]], 
+      "Male victims" = colours[["midblue"]]
+    )
+  ) +
+  labs(
+    x = "domestic homicide victimisation rate per million people", 
+    y = NULL
+  ) +
+  theme_homicide() + 
+  theme(
+    axis.ticks.y = element_blank(),
+    legend.position = "none",
+    panel.grid.major.x = element_line(),
+    panel.grid.major.y = element_blank(),
+    panel.grid.minor.x = element_line()
+  )
+
+social_post(
+  str_glue(
+    'DOMESTIC HOMICIDE\n\nDomestic abuse is a really important factor in ',
+    'homicide: {percent(pluck(filter(domestic_prop_sex, victim_sex == "Female"), "prop"))} ',
+    'of women and ',
+    '{percent(pluck(filter(domestic_prop_sex, victim_sex == "Male"), "prop"))} ',
+    'of men who were homicide victims were killed by a current/ex-partner or ',
+    'by a family member.'
+  )  
+)
+
+social_figure(
+  fig_domestic_ethnicity_rate,
+  title = "Domestic homicide risk is highest for Black people and Asian women",
+  subtitle = "The rate of domestic-abuse homicides is higher for women, but varies substantially across ethnic groups. Black women have the highest victimisation risk, but the next highest risk is for Black men. Asian women and women from other non-White ethnic groups are also at higher risk. These rates should be treated with caution, though, because of the number homicides in some groups is small.",
+  caption = str_glue('Source: Home Office Homicide Index<br>Base: the {prop_base(filter(victims, domestic_homicide_ho_definition == "Domestic"), victim_ethnicity != "Not known/not recorded")} of domestic homicides for which victim ethnicity and sex were known<br>Note: population figures are for the population of England and Wales aged 16 and over to correspond to the Home Office definition of domestic homicide.'),
+  name = "domestic_ethnicity_rate"
+)
+
+social_post(
+  'Some ethnic groups were at much higher risk from domestic homicide than ',
+  'others. While a majority of victims of domestic homicide were White women, ',
+  'Black men and women as well as Asian women had higher homicide rates per ',
+  'million people.',
+  image = "domestic_ethnicity_rate",
+  alt = "Bar chart comparing domestic homicide victimisation rates per million people in England and Wales by ethnicity and sex. The chart is split horizontally: light blue bars show female victims, dark blue bars show male victims. Domestic-homicide risk is highest for Black women (7 homicides per million people), Black men (4.5 homicides per million) and Asian women and women of other ethnicities (4 per million). Looking at the number of victims in each category, the highest average annual number of victims is among White women (60 victims), followed by Asian (8), Black (7), Other (2), and Mixed/Multiple (1). Among males, White victims also have the highest rate at 29, followed by Asian (5), Black (4), Other (1), and Mixed/Multiple (0). The x-axis shows victimisation rate per million people; the y-axis lists ethnicities, grouped by sex. A note explains that 97.5% of homicides had known victim sex and ethnicity, and population data refers to those aged 16+ per the Home Office definition of domestic homicide. Data source is the Home Office Homicide Index. The chart highlights significant differences in victimisation rates across both sex and ethnic groups."
+)
+
+social_post(
+  str_glue(
+    'Female domestic-homicide victims were more likely to be killed by a ',
+  'current/ex-partner ',
+  '({percent(pluck(filter(domestic_prop_rel, victim_sex == "Female", suspect_victim_relationship == "partner/ex-partner"), "prop"))} ',
+  'of such victims) than by a family member ',
+  '({percent(pluck(filter(domestic_prop_rel, victim_sex == "Female", suspect_victim_relationship == "family member"), "prop"))}). ',
+  'For male domestic-homicide victims the opposite was true: ',
+  '{percent(pluck(filter(domestic_prop_rel, victim_sex == "Male", suspect_victim_relationship == "family member"), "prop"))} ',
+  'were killed by a family member, ',
+  '{percent(pluck(filter(domestic_prop_rel, victim_sex == "Male", suspect_victim_relationship == "partner/ex-partner"), "prop"))} ',
+  'by a partner.'
+  )
+)
+
+social_post(
+  'For both male and female victims who were killed by a partner, more than ',
+  'three quarters were killed by their current partner and less than a ',
+  'quarter by an ex-partner.'
+)
+
+social_post(
+  'This data suggests that efforts to protect women from homicide should ',
+  'primarily focus on protecting them from being killed at home by their ',
+  'current partners.'
+)
+
+social_post(
+  str_glue(
+    'Among people killed by family members, the most common circumstance was ',
+    'a person being killed by one of their own children (especially for ',
+    'female victims). Victims killed by family members had a median age of ',
+    '{median(pluck(filter(victims, domestic_homicide_ho_definition == "Domestic", suspect_victim_relationship == "family member"), "victim_age"), na.rm = TRUE)}, ',
+    'compared to {median(victims$victim_age, na.rm = TRUE)} ',
+    'for homicide victims as a whole.'
+  )
+)
+
+fig_domestic_ethnicity_rate +
+  labs(
+    caption = str_glue('Source: Home Office Homicide Index<br>Base: the {prop_base(filter(victims, domestic_homicide_ho_definition == "Domestic"), victim_ethnicity != "Not known/not recorded")} of domestic homicides for which victim ethnicity and sex were known<br>Note: population figures are for the population of England and Wales aged 16 and over to correspond to the Home Office definition of domestic homicide.'),
+  )
+```
+
+
+Across all ethnic groups, female victims of domestic homicide were more likely to be killed by a current or ex-partner (`r percent(pluck(filter(domestic_prop_rel, victim_sex == "Female", suspect_victim_relationship == "partner/ex-partner"), "prop"))` of female domestic-homicide victims) than by a family member (`r percent(pluck(filter(domestic_prop_rel, victim_sex == "Female", suspect_victim_relationship == "family member"), "prop"))`). Conversely, male domestic-homicide victims were more likely to be killed by a family member (`r percent(pluck(filter(domestic_prop_rel, victim_sex == "Male", suspect_victim_relationship == "family member"), "prop"))` of male domestic-homicide victims) than by a current or former partner (`r percent(pluck(filter(domestic_prop_rel, victim_sex == "Male", suspect_victim_relationship == "partner/ex-partner"), "prop"))`).
+
+
+::: {.blockquote .homicide-quote}
+`r percent(pluck(filter(domestic_prop_sex, victim_sex == "Female"), "prop"))` of homicides of female victims and `r percent(pluck(filter(domestic_prop_sex, victim_sex == "Male"), "prop"))` of homicides of male victims with an identified suspect met the Home Office definition of domestic abuse
+:::
+
+
+Among victims that were killed by a current/former partner, both men and women were more likely to be killed by a _current_ partner (`r percent(pluck(filter(current_partner_prop, victim_sex == "Female"), "prop"))` of those female victims who were killed by a current/ex-partner and `r percent(pluck(filter(current_partner_prop, victim_sex == "Male"), "prop"))` of male victims) than by an ex-parter. 
+
+Among domestic homicides committed by family members rather than partners, `r percent(pluck(filter(family_member_prop, victim_sex == "Female", killed_by == "child"), "prop"))` of female victims were killed by one of their own children or step-children, compared to `r percent(pluck(filter(family_member_prop, victim_sex == "Male", killed_by == "child"), "prop"))` of male victims. This reflects the higher age of victims killed by family members: while homicide victims overall had a median age of `r median(victims$victim_age, na.rm = TRUE)` years, victims of domestic homicide who were killed by family members had a median age of `r median(pluck(filter(victims, domestic_homicide_ho_definition == "Domestic", suspect_victim_relationship == "family member"), "victim_age"), na.rm = TRUE)` years. 
+<!-- A lower proportion (`r prop_from_table(filter(domestic_precon, domestic_homicide_ho_definition == "Domestic"), previous_serious_conviction == "YES")`) of suspects in domestic homicides than in non-domestic homicides (`r prop_from_table(filter(domestic_precon, domestic_homicide_ho_definition == "Non-Domestic"), previous_serious_conviction == "YES")`) had a previous conviction for a serious offence. -->
+
+
+### Very-young homicide victims are most likely to be killed by their own parents
+
+
+```{r}
+#| label: child-abuse
+
+child_homicide_sex <- victims |> 
+  filter(victim_age < 18) |> 
+  count(victim_sex)
+
+child_homicide_types <- victims |> 
+  filter(victim_age < 18) |> 
+  drop_na(offence_location_grouping, suspect_victim_relationship) |> 
+  mutate(
+    child_type = case_when(
+      victim_age < 12 & 
+        suspect_victim_relationship == "family member" ~ 
+        "child abuse", 
+      victim_age >= 12 & 
+        offence_location_grouping != "Residential" & 
+        suspect_victim_relationship %in% c("acquaintance", "stranger") ~ 
+        "serious youth violence", 
+      TRUE ~ "other"
+    )
+  ) |> 
+  count(child_type)
+
+child_abuse_homicides <- victims |> 
+  filter(victim_age < 12, suspect_victim_relationship == "family member")
+
+child_abuse_age <- count(child_abuse_homicides, victim_age)
+child_abuse_age_sex <- count(child_abuse_homicides, victim_age, victim_sex)
+child_abuse_location <- count(child_abuse_homicides, offence_location_grouping)
+
+child_abuse_relationship <- count(
+  child_abuse_homicides,
+  killed_by_parent = relationship_to_suspect %in% 
+    c("Adopted son/ daughter", "Son/daughter", "Step-son/step-daughter")
+)
+
+killed_by_parent <- victims |> 
+  filter(victim_age < 12, !is.na(suspect_victim_relationship)) |> 
+  mutate(
+    killed_by_parent = relationship_to_suspect %in% 
+      c("Adopted son/ daughter", "Son/daughter", "Step-son/step-daughter")
+  ) |> 
+  count(killed_by_parent)
+
+child_abuse_nsuspect <- homicides |> 
+  filter(victim_age < 12, suspect_victim_relationship == "family member") |> 
+  count(suspect_charged, .by = case, name = "suspects") |> 
+  count(suspects)
+
+social_post(
+  str_glue(
+    'CHILD HOMICIDE\n\nAbout ',
+    '{comma(nrow(filter(victims, victim_age < 18)) / 3)} under 18s were ',
+    'homicide victims each year ',
+    '({prop_from_table(child_homicide_sex, victim_sex == "Male")} of them ',
+    'boys). These fall into two groups: under 12s killed by family members ',
+    'and over 12s killed by acquaintances/strangers outside the home.'
+  )
+)
+
+social_post(
+  str_glue(
+    'Very young children were most at risk of being killed by family members: ',
+    '{prop_from_table(child_abuse_age, victim_age == 0)} of under 12s killed ',
+    'by family members were under 1 year old and ',
+    '{prop_from_table(child_abuse_age, victim_age < 5)} under 5.'
+  )
+)
+
+social_post(
+  str_glue(
+    '{prop_from_table(child_abuse_location, offence_location_grouping == "Residential")} ',
+    'of children under 12 killed by a family member were killed in a dwelling ',
+    'and {prop_from_table(child_abuse_relationship, killed_by_parent)} were ',
+    'killed by one of their own parents or step-parents, typically a parent ',
+    'the victim lived with.'
+  )
+)
+
+social_post(
+  'Protecting young childen from homicide is largely a question of protecting ',
+  'them from their own parents. This is obviously very difficult because ',
+  'parents are also the people who primarily care for almost all young ',
+  'children.'
+)
+```
+
+There were about `r comma(nrow(filter(victims, victim_age < 18)) / 3)` homicides of child victims each year (`r prop_from_table(child_homicide_sex, victim_sex == "Male")` boys and `r prop_from_table(child_homicide_sex, victim_sex == "Female")` girls). While all homicides of victims under 18 can be described as child abuse, child homicides fall into two distinct groups: children under 12 killed by family members (`r prop_from_table(child_homicide_types, child_type == "child abuse")` of homicides of children), and children 12 or older killed by acquaintances or strangers outside the home (`r prop_from_table(child_homicide_types, child_type == "serious youth violence")` of homicides of children). The latter category can be considered part of the wider problem of serious youth violence.
+
+
+:::{.blockquote .homicide-quote}
+Among cases with an identified suspect, `r prop_from_table(killed_by_parent, killed_by_parent)` of homicide victims under 12 were killed by one or more of their own parents or step-parents.
+:::
+
+
+Of the roughly `r number(pluck(filter(child_homicide_types, child_type == "child abuse"), "n") / 3)` children under 12 killed by family members each year, `r prop_from_table(child_abuse_age, victim_age == 0)` were aged under 1 year, `r prop_from_table(child_abuse_age, victim_age < 3)` under 3 years and `r prop_from_table(child_abuse_age, victim_age < 5)` under 5 years. `r prop_from_table(child_abuse_location, offence_location_grouping == "Residential")` of victims under 12 killed by a family member were killed in residential premises and `r prop_from_table(child_abuse_relationship, killed_by_parent)` were killed by one or more of their parents or step-parents. Suspects typically (in `r prop_from_table(count(child_abuse_homicides, victim_living_with_suspect), victim_living_with_suspect)` of cases) lived with the victim, although a minority (`r prop_from_table(count(child_abuse_homicides, victim_living_with_suspect), !victim_living_with_suspect)`) did not.
+
+Homicides of children under 12 by a family member were much less likely to involve the use of a weapon and much more likely to involve the suspect hitting, kicking or shaking the victim. In `r prop_from_table(count(child_abuse_homicides, mental_state = linked_to_mental_state_of_suspect), mental_state)` of these cases, the homicide was believed to have been linked to the mental state of the suspect at the time, including cases of infanticide^[In the law of England and Wales, infanticide is defined as a mother killing their child while "the balance of her mind was disturbed by reason of her not having fully recovered from the effect of giving birth to the child" (Infanticide Act 1938, s. 1).].
+
+
+
+### Older victims are more likely to be killed by their own children
+
+```{r elder-abuse}
+elder_abuse_homicides <- filter(victims, victim_age >= 65)
+
+elder_abuse_sex <- count(elder_abuse_homicides, victim_sex)
+
+elder_abuse_rel_diff <- victims |> 
+  filter(victim_age >= 18) |> 
+  count(elder = victim_age >= 65, suspect_victim_relationship) |> 
+  drop_na(suspect_victim_relationship) |> 
+  add_prop(elder) |> 
+  select(-n) |> 
+  pivot_wider(names_from = elder, values_from = .prop, values_fill = 0) |> 
+  mutate(
+    diff = `TRUE` - `FALSE`,
+    label = str_glue(
+      "{suspect_victim_relationship} ({percent(`TRUE`, accuracy = 1)} of ",
+      "older victims, compared to {percent(`FALSE`, accuracy = 1)} of other",
+      " adults)"
+    ),
+    label = if_else(
+      suspect_victim_relationship == "acquaintance", 
+      str_glue("an {label}"), 
+      str_glue("a {label}")
+    )
+  )
+
+elder_abuse_relationship <- elder_abuse_homicides |>
+  filter(suspect_victim_relationship == "family member") |> 
+  count(
+    killed_by_child = relationship_to_suspect %in% c("Parent", "Step-parent")
+  )
+
+killed_by_child <- victims |> 
+  filter(victim_age >= 18) |> 
+  mutate(
+    older_victim = victim_age >= 65,
+    killed_by_child = relationship_to_suspect %in% c("Parent", "Step-parent")
+  ) |> 
+  count(older_victim, killed_by_child)
+
+elder_abuse_loc_diff <- victims |> 
+  filter(victim_age >= 18) |> 
+  count(elder = victim_age >= 65, offence_location_grouping) |> 
+  add_prop(elder) |> 
+  select(-n) |> 
+  pivot_wider(names_from = elder, values_from = .prop, values_fill = 0) |> 
+  mutate(
+    diff = `TRUE` - `FALSE`,
+    location_type = case_match(
+      offence_location_grouping,
+      "Public places" ~ "a public place",
+      "Residential" ~ "a residence",
+      .default = offence_location_grouping
+    ),
+    label = str_glue(
+      "{location_type} ({percent(`TRUE`, accuracy = 1)} of ",
+      "older victims, compared to {percent(`FALSE`, accuracy = 1)} of other",
+      " adults)"
+    )
+  ) |> 
+  filter(!between(diff, -0.05, 0.05), max(`TRUE`, `FALSE`) > 0.1)
+
+elder_abuse_living_with <- victims |> 
+  filter(victim_age >= 18) |> 
+  drop_na(victim_living_with_suspect) |> 
+  count(elder = victim_age >= 65, victim_living_with_suspect) |> 
+  add_prop(elder) |> 
+  filter(victim_living_with_suspect)
+
+elder_abuse_vict_drug <- victims |>
+  filter(victim_age >= 18) |> 
+  count(
+    elder = victim_age >= 65, 
+    drink_drug = victim_drinkdrug_level != "None of the above"
+  ) |> 
+  add_prop(elder) |> 
+  filter(drink_drug)
+
+elder_abuse_susp_drug <- suspects |> 
+  filter(victim_age >= 18, suspect_drink_drug_level != "No suspect charged") |> 
+  count(
+    elder = victim_age >= 65, 
+    drink_drug = suspect_drink_drug_level != "None of the above"
+  ) |> 
+  add_prop(elder) |> 
+  filter(drink_drug)
+
+social_post(
+  str_glue(
+  'ELDER-ABUSE HOMICIDE\n\nEach year there were about ',
+  '{number(nrow(elder_abuse_homicides) / 3)} homicides of victims aged 65+, ',
+  'making up {percent(nrow(elder_abuse_homicides) / nrow(victims))} of all ',
+  'homicides. Unlike younger victims, victims over 65 were equally likely to ',
+  'be male or female.'
+  )
+)
+
+social_post(
+  str_glue(
+    'Homicides of over 65s were much more likely to be committed by ',
+    '{pull(filter(elder_abuse_rel_diff, diff > 0.05), "label")}. Of victims ',
+    'aged 65+, ',
+    '{prop_from_table(filter(killed_by_child, older_victim), killed_by_child)} ',
+    'were killed by their own child or step-child, compared to only ',
+    '{prop_from_table(filter(killed_by_child, !older_victim), killed_by_child)} ',
+    'of adult victims aged under 65.'
+  )
+)
+
+social_post(
+  'So just as protecting very-young children from homicide is often a ',
+  'question of protecting them from their own parents, protecting older ',
+  'people is often a question of protecting then from their adult children.'
+)
+```
+
+At the other end of the age spectrum, there were about `r number(nrow(elder_abuse_homicides) / 3)` homicides of victims aged 65 or older each year (`r prop_from_table(elder_abuse_sex, victim_sex == "Male")` men and `r prop_from_table(elder_abuse_sex, victim_sex == "Female")` women), `r percent(nrow(elder_abuse_homicides) / nrow(victims))` of all homicides in that period. Homicides of victims aged 65 or over were more likely to be committed by `r pull(filter(elder_abuse_rel_diff, diff > 0.05), "label")` and less likely to be committed by `r combine_words(pull(arrange(filter(elder_abuse_rel_diff, diff < -0.05), diff), "label"), and = " or ")`. Of the older victims killed by a family member, `r prop_from_table(elder_abuse_relationship, killed_by_child)` were killed by their own child or step-child -- homicides where the principal suspect was the victim's child or step-child accounted for `r prop_from_table(count(elder_abuse_homicides, killed_by_child = relationship_to_suspect %in% c("Parent", "Step-parent")), killed_by_child)` of all homicides of victims aged 65 or over in which there was an identified suspect.
+
+
+::: {.blockquote .homicide-quote}
+Among cases with an identified suspect, `r prop_from_table(filter(killed_by_child, older_victim), killed_by_child)` of homicide victims aged 65 or more were killed by one of their own children or step-children, compared to `r prop_from_table(filter(killed_by_child, !older_victim), killed_by_child)` adult victims aged under 65.
+:::
+
+
+Victims aged 65 or over were more likely than other adult victims to be killed in `r combine_words(pull(filter(elder_abuse_loc_diff, diff > 0), "label"), and = " or ")` and much less likely to be killed in `r combine_words(pull(filter(elder_abuse_loc_diff, diff < 0), "label"), and = " or ")`. Suspects in homicides of older victims were also more likely to live with the victim (`r percent(pluck(filter(elder_abuse_living_with, elder), ".prop", 1))`) than suspects in homicides of other adults (`r percent(pluck(filter(elder_abuse_living_with, !elder), ".prop", 1))`). Victims aged 65 or over were much less likely to be under the influence of alcohol or illicit drugs (`r percent(pluck(filter(elder_abuse_vict_drug, elder), ".prop", 1))` of older victims were under the influence, compared to `r percent(pluck(filter(elder_abuse_vict_drug, !elder), ".prop", 1))` of adult victims aged under 65), but suspects in homicides of those aged 65 or over were only slightly less likely to be under the influence (`r percent(pluck(filter(elder_abuse_susp_drug, elder), ".prop", 1))` of suspects) than suspects in homicides of adults under 65 (`r percent(pluck(filter(elder_abuse_susp_drug, !elder), ".prop", 1))` of suspects).
+
+
+### In summary
+
+```{r}
+#| label: final-social-posts
+
+social_post(
+  "This analysis of homicide vulnerability in England and Wales comes from a ",
+  "report written by me and Prof Iain Brennan for the UK College of Policing. ",
+  "You can get more detail at ",
+  "https://lesscrime.info/post/homicide-profile-vulnerable/"
+)
+
+social_post(
+  "This is the sixth in a series of seven threads summarising different ",
+  "aspects of homicide in England and Wales. You can find links to the ",
+  "other threads at https://lesscrime.info/post/homicide-profile/"
+)
+```
+
+
+This post highlights that homicide patterns are different for some types of victim, compared to homicides in the population as a whole. A majority of female homicide victims were killed in domestic homicides, most often by their current partner. Black people were at higher risk of domestic homicide, such that -- even though in the population as a whole women were much more likely to be domestic-homicide victims than men were -- Black men were at higher risk of being killed in a domestic homicide than White women were.
+
+Young children -- especially those who are very young -- are at higher risk of homicide. Almost all homicides of young children occur at home, and in a large majority of cases the child is killed by one more of their own parents or step-parents. Older victims are also particularly vulnerable to being killed by a family member, with a disproportionate number of older victims being killed by one of their own children.

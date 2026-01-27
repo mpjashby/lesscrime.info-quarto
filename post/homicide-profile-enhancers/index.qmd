@@ -1,0 +1,1082 @@
+---
+title: "Homicide in England and Wales, Part 7: Homicide enhancers"
+date: 2026-01-26
+fig-cap-location: top
+format: 
+  html:
+    css: "../homicide_theme.css"
+bibliography: "../homicide-bibliography.bib"
+execute:
+  echo: false
+  freeze: auto
+---
+
+```{r}
+#| label: setup
+#| include: false
+
+# Load packages, functions and data
+source("../homicide_functions.R")
+```
+
+
+This is the last in a [series of blog posts summarising the nature of homicide in England and Wales](../homicide-profile/). Each post covers a different aspect of homicide, based on data from the Home Office Homicide Index. This post looks at some common _enhancers_ of homicide: drugs, alcohol, mental health, gangs and organised-crime groups. This post is a summary of part of a longer [national problem profile of homicide in England and Wales](https://library.college.police.uk/docs/Patterns-trends-homicide-problem-profile-2025.pdf) written by me and Prof Iain Brennan.
+
+
+:::{.callout-note collapse="true"}
+#### What are 'enhancers' of crime? (click to expand)
+
+Enhancers are factors that increase the likelihood of severity of a crime occurring. They intensify existing crime opportunities by making offending easier, increasing the rewards of offending, or otherwise pushing people towards committing a crime. The term enhancers comes from the book [_Reducing Crime_ by Jerry Ratcliffe](https://www.reducingcrime.com/). Common enhancers for many types of crime include drugs and alcohol, technology or design that makes crime easier, situational factors such as how places are managed, and social conditions such as crowds.
+:::
+
+
+I've already mentioned some enhancers of homicide in other posts in this series. For example, [Part 3 of this series](../homicide-profile-methods/) looked at the different weapons and other methods used in homicide.
+
+
+```{r}
+#| label: initial-posts
+
+social_post(
+  "Homicide is often made more likely by 'enhancers' such as drugs, alcohol, ",
+  "mental health, street gangs and organised-crime groups. This thread ",
+  "summarises what we know about homicide enhancers.",
+  add = FALSE
+)
+
+social_post(
+  "This is the final thread in a series of threads about homicide in England ",
+  "and Wales.\n\n",
+  "All the threads: https://lesscrime.info/post/homicide-profile/\n\n",
+  "Full report: https://library.college.police.uk/docs/Patterns-trends-homicide-problem-profile-2025.pdf"
+)
+```
+
+
+
+### Homicide is often driven by drugs or alcohol
+
+```{r drugs-circumstances}
+suspect_alcohol_circs <- suspects |> 
+  drop_na(suspect_drink_drug_level) |> 
+  count(
+    circumstance_group, 
+    person = "suspect",
+    type = "alcohol", 
+    related = str_detect(suspect_drink_drug_level, "alcohol")
+  )
+
+suspect_drug_circs <- suspects |> 
+  drop_na(suspect_drink_drug_level) |> 
+  count(
+    circumstance_group, 
+    person = "suspect",
+    type = "drugs", 
+    related = str_detect(suspect_drink_drug_level, "illicit drug")
+  )
+
+victim_alcohol_circs <- count(
+  victims, 
+  circumstance_group, 
+  person = "victim",
+  type = "alcohol", 
+  related = str_detect(victim_drinkdrug_level, "alcohol")
+)
+
+victim_drug_circs <- count(
+  victims, 
+  circumstance_group, 
+  person = "victim",
+  type = "drugs", 
+  related = str_detect(victim_drinkdrug_level, "illicit drug")
+)
+
+drinkdrug_circs <- bind_rows(
+  suspect_alcohol_circs, 
+  suspect_drug_circs, 
+  victim_alcohol_circs, 
+  victim_drug_circs
+) |> 
+  mutate(
+    prop = n / sum(n), 
+    .by = c(circumstance_group, person, type)
+  ) |> 
+  mutate(group_n = sum(n), .by = c(person, type)) |> 
+  filter(related) |> 
+  mutate(mean_prop = sum(n) / first(group_n), .by = c(person, type)) |> 
+  mutate(
+    circumstance_group = case_when(
+      circumstance_group == "Domestic abuse" ~ "domestic homicides",
+      circumstance_group == "In the course of another crime" ~ 
+        "homicides that occurred in the course of another crime",
+      circumstance_group == "Irrational act" ~ 
+        "homicides related to an irrational act",
+      circumstance_group == "Reckless act" ~ 
+        "homicides related to a reckless act",
+      circumstance_group == "Sexual" ~ "sexual homicides",
+      TRUE ~ str_glue("homicides related to {str_to_lower(circumstance_group)}")
+    ),
+    label = str_glue(
+      "in {str_to_lower(circumstance_group)} ({percent(prop, accuracy = 1)})"
+    )
+  ) |>
+  filter(
+    n > 10, 
+    circumstance_group != "homicides related to unknown",
+    # Keep only those proportions that are at least 3% higher than the overall
+    # proportion
+    prop >= mean_prop + 0.05
+  )
+```
+
+
+```{r drugs}
+victim_drugs <- count(victims, drinkdrug = victim_drinkdrug_level)
+suspect_drugs <- suspects |> 
+  drop_na(suspect_drink_drug_level) |> 
+  filter(suspect_drink_drug_level != "No suspect charged") |> 
+  count(drinkdrug = suspect_drink_drug_level)
+
+case_drug_related <- victims |> 
+  group_by(case) |> 
+  summarise(
+    alcohol_related = any(alcohol_related), 
+    drug_related = any(drug_related)
+  ) |> 
+  count(alcohol_related, drug_related)
+
+social_post(
+  str_glue(
+    "DRUGS AND ALCOHOL\n\nHomicides very often involve drugs or alcohol: in ",
+    "{prop_from_table(case_drug_related, alcohol_related | drug_related)} of ",
+    "homicides, either the victim and/or a suspect was under the influence of ",
+    "alcohol or an illicit drug."
+  )
+)
+
+social_post(
+  str_glue(
+    'About a quarter of suspects had been drinking at the time they killed ',
+    'the victim and ',
+    '{prop_from_table(suspect_drugs, drinkdrug %in% c("Taken an illicit drug", "Both drinking alcohol and taking an illicit drug"))} ',
+    'of suspects had taken an illicit drug, while ',
+    '{prop_from_table(suspect_drugs, drinkdrug == "Both drinking alcohol and taking an illicit drug")} ',
+    'were under the influence of both drugs and alcohol.'
+  )
+)
+
+social_post(
+  str_glue(
+    'Suspects were particularly likely to have been drinking ',
+    '{combine_words(pull(slice_max(filter(drinkdrug_circs, person == "suspect", type == "alcohol"), order_by = prop, n = 3), "label"))}.\n\n',
+    'Suspects were most likely to be under the influence of drugs ',
+    '{combine_words(pull(slice_max(filter(drinkdrug_circs, person == "suspect", type == "drugs"), order_by = prop, n = 3), "label"))}.'
+  )
+)
+
+social_post(
+  str_glue(
+    'Similarly, over a quarter of victims had been drinking when they were ',
+    'killed and about ',
+    '{prop_from_table(victim_drugs, drinkdrug %in% c("Taken an illicit drug", "Both drinking alcohol and taking an illicit drug"))} ',
+    'had taken an illicit drug, while ',
+    '{prop_from_table(victim_drugs, drinkdrug == "Both drinking alcohol and taking an illicit drug")} ',
+    'were under the influence of both drugs and alcohol.'
+  )
+)
+
+social_post(
+  str_glue(
+    'Victims were particularly likely to have been drinking ',
+    '{combine_words(pull(slice_max(filter(drinkdrug_circs, person == "victim", type == "alcohol"), order_by = prop, n = 3), "label"))}, ',
+    'and to have been under the influence of drugs ',
+    '{combine_words(pull(slice_max(filter(drinkdrug_circs, person == "victim", type == "drugs"), order_by = prop, n = 3), "label"))}.'
+  )
+)
+```
+
+
+Drugs and alcohol are associated with homicide in a variety of ways. A third of victims were under the influence of drugs and/or alcohol at the time of the homicide: `r prop_from_table(victim_drugs, drinkdrug %in% c("Been drinking alcohol", "Both drinking alcohol and taking an illicit drug"))` had been drinking alcohol and `r prop_from_table(victim_drugs, drinkdrug %in% c("Taken an illicit drug", "Both drinking alcohol and taking an illicit drug"))` had taken an illicit drug, while `r prop_from_table(victim_drugs, drinkdrug == "Both drinking alcohol and taking an illicit drug")` were under the influence of both drugs and alcohol. 
+
+Similarly, a third of suspects were under the influence of drugs and/or alcohol: `r prop_from_table(suspect_drugs, drinkdrug %in% c("Been drinking alcohol", "Both drinking alcohol and taking an illicit drug"))` had been drinking and `r prop_from_table(suspect_drugs, drinkdrug %in% c("Taken an illicit drug", "Both drinking alcohol and taking an illicit drug"))` had taken an illicit drug, while `r prop_from_table(suspect_drugs, drinkdrug == "Both drinking alcohol and taking an illicit drug")` were under the influence of drugs and alcohol. Overall, `r prop_from_table(case_drug_related, alcohol_related | drug_related)` of cases were related to drugs and/or alcohol through either the victim and/or a suspect: `r prop_from_table(case_drug_related, alcohol_related & !drug_related)` were related to alcohol alone, `r prop_from_table(case_drug_related, !alcohol_related & drug_related)` were related to illicit drugs alone and `r prop_from_table(case_drug_related, alcohol_related & drug_related)` were related to both.
+Both victims and suspects were more likely to be under the influence of alcohol if they were middle aged, while being under the influence of illicit drugs was more common for younger adult victims (@fig-drugs-age). 
+
+```{r}
+#| label: fig-drugs-age-prep
+
+plot_drinkdrug <- function(data, rev, fill, title) {
+
+  blank_data <- tibble(prop = 0.4, age10 = seq(0, 90, by = 10))
+
+  data |> 
+    ggplot() +
+    aes(x = prop, y = factor(age10, levels = seq(0, 90, by = 10))) +
+    geom_col(data = blank_data, fill = NA, just = 0) +
+    geom_col(fill = fill, just = 0) +
+    scale_x_continuous(
+      labels = label_percent(), 
+      expand = expansion(c(0, 0)),
+      transform = if_else(rev, "reverse", "identity")
+    ) +
+    scale_y_discrete(
+      expand = expansion(c(0, 0)), 
+      drop = FALSE, 
+      position = if_else(rev, "right", "left")
+    ) +
+    labs(
+      title = title,
+      subtitle = if_else(rev, "suspects", "victims"),
+      x = if_else(rev, "proportion of suspects", "proportion of victims"),
+      y = NULL
+    ) +
+    theme_homicide() +
+    theme(
+      axis.title.x.bottom = element_text(hjust = as.numeric(!rev)),
+      panel.grid.major.x = element_line(), 
+      panel.grid.minor.x = element_line(), 
+      panel.grid.major.y = element_blank(),
+      plot.subtitle = element_textbox_simple(
+        hjust = as.numeric(!rev), 
+        margin = margin(b = 6)
+      )
+    )
+
+}
+
+drinkdrug_prop <- function(data) {
+  data |> 
+    complete(age10, yes, fill = list(n = 0)) |> 
+    mutate(prop = n / sum(n), .by = age10) |> 
+    filter(yes)
+}
+
+suspect_alcoholrelated_age <- suspects |> 
+  drop_na(suspect_age10) |> 
+  count(
+    yes = str_detect(suspect_drink_drug_level, "alcohol"), 
+    age10 = suspect_age10
+  ) |> 
+  drinkdrug_prop()
+
+victim_alcoholrelated_age <- victims |> 
+  drop_na(victim_age10) |> 
+  count(
+    yes = str_detect(victim_drinkdrug_level, "alcohol"), 
+    age10 = victim_age10
+  ) |> 
+  drinkdrug_prop()
+
+suspect_drugrelated_age <- suspects |> 
+  drop_na(suspect_age10) |> 
+  count(
+    yes = str_detect(suspect_drink_drug_level, "illicit drug"), 
+    age10 = suspect_age10
+  ) |> 
+  drinkdrug_prop()
+
+victim_drugrelated_age <- victims |> 
+  drop_na(victim_age10) |> 
+  count(
+    yes = str_detect(victim_drinkdrug_level, "illicit drug"), 
+    age10 = victim_age10
+  ) |> 
+  drinkdrug_prop()
+
+fig_drugs_age <- wrap_plots(
+  wrap_plots(
+    plot_drinkdrug(
+      suspect_alcoholrelated_age, 
+      rev = TRUE, 
+      fill = colours[["midred"]],
+      title = "alcohol"
+    ) + theme(plot.margin = margin(l = 9, r = 3)),
+    plot_drinkdrug(
+      victim_alcoholrelated_age, 
+      rev = FALSE, 
+      fill = colours[["lightred"]],
+      title = ""
+    ) + theme(plot.margin = margin(l = 3, r = 9))
+  ),
+  wrap_plots(
+    plot_drinkdrug(
+      suspect_drugrelated_age, 
+      rev = TRUE, 
+      fill = colours[["midblue"]],
+      title = "illicit drug"
+    ) + theme(plot.margin = margin(l = 9, r = 3)),
+    plot_drinkdrug(
+      victim_drugrelated_age, 
+      rev = FALSE, 
+      fill = colours[["lightblue"]],
+      title = ""
+    ) + theme(plot.margin = margin(l = 3, r = 9))
+  )
+) +
+  plot_layout(design = "AAAAAAAAAAAAAAAAAAA#BBBBBBBBBBBBBBBBBBB") +
+  plot_annotation(
+    caption = "Source: Home Office Homicide Index<br>Base: all recorded homicides",
+    theme = theme(
+      plot.caption = element_textbox_simple(
+        colour = "grey33",
+        margin = margin(t = 11),
+        size = 8
+      ),
+      plot.caption.position = "plot",
+      plot.subtitle = element_textbox_simple(
+        lineheight = 1,
+        margin = margin(t = 3, b = 6),
+        size = 8
+      ),
+      plot.title = element_textbox_simple(
+        face = "bold",
+        lineheight = 1,
+        size = 14
+      ),
+      plot.title.position = "plot"
+    )
+  )
+```
+
+
+
+```{r}
+#| label: fig-drugs-age
+#| column: body-outset
+#| fig-align: center
+#| fig-width: 10
+#| fig-cap: "Proportion of victims and convicted suspects who were under the influence of alcohol or drugs, by suspect/victim age"
+#| fig-alt: "Bar chart comparing the proportions of homicide suspects and victims who had consumed alcohol or illicit drugs across age groups. Two side-by-side horizontal bar charts are shown. On the left, alcohol-related data indicates the highest proportion of suspects and victims were in their 40s to 60s. On the right, illicit drug-related data shows a peak among those in their 30s and 40s, with lower involvement in older age groups. Alcohol use among suspects is highest in the 50s age group, while drug use among victims peaks in their 30s. Data source: Home Office Homicide Index, UK."
+
+ggsave(
+  filename = "drugs_age.png",
+  fig_drugs_age + plot_annotation(
+    title = "Homicides are more likely to involve drugs when victim or suspect is younger, alcohol when they are middle aged",
+    subtitle = "",
+    caption = "Source: Home Office Homicide Index<br>Base: all recorded homicides"
+  ),
+  width = 500 / 72,
+  height = (500 / 72) * 0.7,
+  units = "in",
+  bg = "white"
+)
+
+fig_drugs_age
+```
+
+
+_Victims_ were more likely to have been drinking `r combine_words(pull(slice_max(filter(drinkdrug_circs, person == "victim", type == "alcohol"), order_by = prop, n = 3), "label"))` than in other homicides (`r percent(pluck(filter(drinkdrug_circs, person == "victim", type == "alcohol"), "mean_prop", 1))`), while _suspects_ were more likely to have been drinking `r combine_words(pull(slice_max(filter(drinkdrug_circs, person == "suspect", type == "alcohol"), order_by = prop, n = 3), "label"))` than in other cases (`r percent(pluck(filter(drinkdrug_circs, person == "suspect", type == "alcohol"), "mean_prop", 1))`). _Victims_ were more likely to have taken an illicit drug `r combine_words(pull(slice_max(filter(drinkdrug_circs, person == "victim", type == "drugs"), order_by = prop, n = 3), "label"))` than in other homicides (`r percent(pluck(filter(drinkdrug_circs, person == "victim", type == "drugs"), "mean_prop", 1))`), while _suspects_ were more likely to have taken an illicit drug `r combine_words(pull(slice_max(filter(drinkdrug_circs, person == "suspect", type == "drugs"), order_by = prop, n = 3), "label"))` than in other cases (`r percent(pluck(filter(drinkdrug_circs, person == "suspect", type == "drugs"), "mean_prop", 1))`).
+
+
+```{r drug-users}
+victim_drug_user <- victims |> 
+  filter(victim_illegal_drug_user != "UNKNOWN") |> 
+  count(victim_illegal_drug_user)
+
+victim_drug_user_taken <-  victims |> 
+  filter(victim_illegal_drug_user != "UNKNOWN") |> 
+  mutate(taken_drug = str_detect(victim_drinkdrug_level, "illicit drug")) |> 
+  count(taken_drug, victim_illegal_drug_user)
+
+suspect_drug_user <- suspects |> 
+  filter(suspect_known_illegal_drug_user %in% c("YES", "NO")) |>
+  count(suspect_known_illegal_drug_user)
+
+suspect_drug_user_taken <- suspects |> 
+  filter(suspect_known_illegal_drug_user %in% c("YES", "NO")) |> 
+  mutate(taken_drug = str_detect(suspect_drink_drug_level, "illicit drug")) |> 
+  count(taken_drug, suspect_known_illegal_drug_user)
+
+both_drug_user <- homicides |> 
+  filter(
+    victim_illegal_drug_user != "UNKNOWN", 
+    suspect_known_illegal_drug_user %in% c("YES", "NO")
+  ) |> 
+  group_by(case) |> 
+  summarise(
+    victim_drug_user = any(victim_illegal_drug_user == "YES"), 
+    suspect_drug_user = any(suspect_known_illegal_drug_user == "YES")
+  ) |> 
+  count(suspect_drug_user, victim_drug_user)
+
+victim_drug_dealer <- victims |> 
+  filter(victim_illegal_drug_dealer != "UNKNOWN") |> 
+  count(victim_illegal_drug_dealer)
+
+suspect_drug_dealer <- suspects |> 
+  filter(suspect_known_illegal_drug_dealer %in% c("YES", "NO")) |>
+  count(suspect_known_illegal_drug_dealer)
+
+both_drug_dealer <- homicides |> 
+  filter(
+    victim_illegal_drug_dealer != "UNKNOWN", 
+    suspect_known_illegal_drug_dealer %in% c("YES", "NO")
+  ) |> 
+  group_by(case) |> 
+  summarise(
+    victim_drug_dealer = any(victim_illegal_drug_dealer == "YES"), 
+    suspect_drug_dealer = any(suspect_known_illegal_drug_dealer == "YES")
+  ) |> 
+  count(suspect_drug_dealer, victim_drug_dealer)
+
+victim_dealer_robbery <- victims |> 
+  filter(
+    victim_illegal_drug_dealer %in% c("YES", "NO"), 
+    main_circumstance_of_offence == "Robbery"
+  ) |> 
+  count(victim_illegal_drug_dealer)
+
+victim_dealer_dispute <- victims |> 
+  filter(
+    victim_illegal_drug_dealer %in% c("YES", "NO"), 
+    circumstance_group == "Long running disputes"
+  ) |> 
+  count(victim_illegal_drug_dealer)
+
+social_post(
+  str_glue(
+    'Even if they weren\'t under the influence at the time they were killed, ',
+    'drug users were at higher risk of homicide: ',
+    '{prop_from_table(victim_drug_user, victim_illegal_drug_user == "YES")} ',
+    'of homicide victims were believed to be drug users, much more than the ',
+    '10% of adults who say they\'ve used an illicit drug in the past year.'
+  )
+)
+
+social_post(
+  str_glue(
+    'Homicide suspects were even more likely to be drug users: ',
+    '{prop_from_table(suspect_drug_user, suspect_known_illegal_drug_user == "YES")} ',
+    'of suspects were known to use illegal drugs, including ',
+    '{prop_from_table(filter(suspect_drug_user_taken, !taken_drug), suspect_known_illegal_drug_user == "YES")} ',
+    'of suspects who were not believed to be under the influence of drugs at ',
+    'the time of the homicide.'
+  )
+)
+
+social_post(
+  str_glue(
+    'People believed by police to be drug dealers were also at elevated ',
+    'homicide risk, especially in some circumstances: ',
+    '{prop_from_table(victim_dealer_robbery, victim_illegal_drug_dealer == "YES")} ',
+    'of people killed during robberies were believed to be drug dealers, ',
+    'along with ',
+    '{prop_from_table(victim_dealer_dispute, victim_illegal_drug_dealer == "YES")} ',
+    'of people killed in long-running feuds.'
+  )
+)
+```
+
+Homicides are sometimes linked to illicit drugs even when neither suspect nor victim were known to be under the influence at the time of the incident. For example, `r prop_from_table(victim_drug_user, victim_illegal_drug_user == "YES")` of homicide victims were known to be users of illicit drugs. While 'drug user' in the Homicide Index data is not precisely defined, this is much higher than the 9.5% of all adults who say they have used an illicit drug in the past year^[Based on estimates of the proportion of people aged 16--59 years interviewed for the Crime Survey for England and Wales who have used an illicit drug in the past 12 months [@Office-for-National-Statistics:2023aa].]. Drug users were at higher risk of homicide even in cases where it had not been identified that the victim had taken an illicit drug at the time they were killed: `r prop_from_table(filter(victim_drug_user_taken, !taken_drug), victim_illegal_drug_user == "YES")` of victims who had not taken an illicit drug were nevertheless known to be drug users.
+
+
+::: {.blockquote .homicide-quote}
+Overall, `r prop_from_table(case_drug_related, alcohol_related | drug_related)` of cases were related to drugs and/or alcohol through either the victim and/or a suspect
+:::
+
+
+Homicide _suspects_ were even more likely to be known drug users, with `r prop_from_table(suspect_drug_user, suspect_known_illegal_drug_user == "YES")` of suspects for whom this information was recorded being known to use illegal drugs, including `r prop_from_table(filter(suspect_drug_user_taken, !taken_drug), suspect_known_illegal_drug_user == "YES")` of suspects who were not believed to be under the influence of drugs at the time of the homicide. Among the cases where the drug-user status of both victims and suspects was known^[Whether a person was believed to be a drug user or not was recorded for `r prop_base(victims, victim_illegal_drug_user != "UNKNOWN")` of victims and `r prop_base(suspects, suspect_known_illegal_drug_user %in% c("YES", "NO"))` of suspects.], both the victim _and_ at least one suspect were known to be drug users in `r prop_from_table(both_drug_user, suspect_drug_user & victim_drug_user)` of homicides, while either the victim _or_ at least one suspect were known drug users in `r prop_from_table(both_drug_user, suspect_drug_user | victim_drug_user)` of homicides. 
+
+There was also a clear relationship between suspect and victim drug use: in cases where at least one suspect was a drug user, there was a `r prop_from_table(filter(both_drug_user, suspect_drug_user), victim_drug_user)` chance the victim was also a drug user, while in cases where the suspects were not known drug users, there was only a `r prop_from_table(filter(both_drug_user, !suspect_drug_user), victim_drug_user)` chance the victim was a drug user.
+
+People believed by police to be drug _dealers_ were also at elevated risk of being involved in homicide, either as a victim or suspect: `r prop_from_table(victim_drug_dealer, victim_illegal_drug_dealer == "YES")` of victims were believed to be drug dealers, along with `r prop_from_table(suspect_drug_dealer, suspect_known_illegal_drug_dealer == "YES")` of suspects. Either the victim or a suspect were believed to be drug dealers in `r prop_from_table(both_drug_dealer, suspect_drug_dealer | victim_drug_dealer)` of homicides for which that information was known^[Whether a person was believed to be a drug dealer or not was recorded for `r prop_base(victims, victim_illegal_drug_dealer != "UNKNOWN")` of victims and `r prop_base(suspects, suspect_known_illegal_drug_dealer %in% c("YES", "NO"))` of suspects.], and in `r prop_from_table(both_drug_dealer, suspect_drug_dealer & victim_drug_dealer)` both the victim and at least one suspect were believed to be drug dealers. Drug dealers were particularly likely to be victims of homicide in certain circumstances: `r prop_from_table(victim_dealer_robbery, victim_illegal_drug_dealer == "YES")` of people killed during robberies were believed to be drug dealers, along with `r prop_from_table(victim_dealer_dispute, victim_illegal_drug_dealer == "YES")` of people killed as a result of long-running feuds (long-running feuds were also linked to gang homicides -- see below).
+
+
+### A sixth of homicides are linked to suspect mental health
+
+
+```{r mental-health}
+victims_mh_all <- count(victims_mh, mh_linked)
+victims_mh_all_prop <- victims_mh_all |> 
+  drop_na() |> 
+  mutate(prop = n / sum(n)) |> 
+  filter(mh_linked) |> 
+  pluck("prop", 1)
+victims_mh_s_sex <- suspects_mh |> 
+  filter(suspect_sex %in% c("Female", "Male")) |> 
+  count(suspect_sex, mh_linked)
+victims_mh_v_sex <- count(victims_mh, victim_sex, mh_linked)
+victims_mh_sex <- suspects_mh |> 
+  filter(suspect_sex %in% c("Female", "Male")) |> 
+  count(suspect_sex, victim_sex, mh_linked)
+suspects_mh_drug <- count(suspects_mh, suspect_drink_drug_level, mh_linked)
+victims_mh_drugdrink <- victims_mh |> 
+  mutate(
+    drink_drugs_mh = mh_linked | suspect_drink_drug_level %in% c(
+      "Been drinking alcohol", 
+      "Taken an illicit drug", 
+      "Both drinking alcohol and taking an illicit drug"
+    )
+  ) |> 
+  count(drink_drugs_mh)
+
+victims_mh_circs <- victims_mh |> 
+  filter(!circumstance_group %in% c("Other known circumstances", "Unknown")) |> 
+  count(circumstance_group, mh_linked) |> 
+  mutate(total = sum(n), prop = n / total, .by = circumstance_group) |> 
+  filter(mh_linked) |> 
+  arrange(desc(prop)) |>
+  mutate(
+    circumstance_label = case_match(
+      circumstance_group, 
+      "Irrational act" ~ "irrational acts",
+      "Fights, brawls, etc." ~ 
+        "non-domestic fights, brawls, etc.",
+      "In the course of another crime" ~
+        "the suspect committing another crime",
+      "Long running disputes" ~ "long-running disputes",
+      "Reckless act" ~ "reckless acts",
+      "Sexual" ~ "a sexual motive",
+      .default = str_to_lower(circumstance_group)
+    ),
+    label = str_glue(
+      "{circumstance_label} ({percent(prop, accuracy = 1)} of homicides ",
+      "were linked to suspect mental health)"
+    )
+  )
+
+mh_linked_circs_max <- victims_mh_circs |> 
+  filter(prop > victims_mh_all_prop) |> 
+  slice_max(order_by = prop, n = 3) |> 
+  mutate(
+    label = if_else(
+      row_number() == 1, 
+      label, 
+      str_remove(label, " were linked to suspect mental health")
+    )
+  ) |> 
+  pull(label) |> 
+  combine_words(and = " or ")
+
+mh_linked_circs_min <- victims_mh_circs |> 
+  filter(prop < victims_mh_all_prop) |> 
+  slice_min(order_by = prop, n = 3) |> 
+  mutate(
+    label = if_else(
+      row_number() == 1, 
+      label, 
+      str_remove(label, " linked to suspect mental health")
+    )
+  ) |> 
+  pull(label) |> 
+  combine_words(and = " or ")
+
+social_post(
+  str_glue(
+    'MENTAL HEALTH\n\nPolice believed about ',
+    '{prop_from_table(victims_mh_all, mh_linked)} of homicides to be linked ',
+    'to a suspect\'s mental health. Overall this was similar whether the ',
+    'victim was male or female, but homicides of women by men were more ',
+    'likely to be linked to the suspect\'s mental health.'
+  )
+)
+
+# `str_remove_all()` needs to be run outside `str_glue()` because otherwise
+# everything needs to be escaped twice
+mh_linked_circs_max_short <- str_remove_all(mh_linked_circs_max, "\\s\\(.+?\\)")
+mh_linked_circs_min_short <- str_remove_all(mh_linked_circs_min, "\\s\\(.+?\\)")
+
+social_post(
+  str_glue(
+    'Mental health was particularly likely to be a factor in homicides ',
+    'related to {mh_linked_circs_max_short}, but only very rarely a factor in ',
+    'homicides related to {mh_linked_circs_min_short}.'
+  )
+)
+
+social_post(
+  str_glue(
+    'Homicides were also more likely to be linked to suspect mental health ',
+    'if they were also linked to drugs: mental health was a factor in ',
+    '{prop_from_table(filter(suspects_mh_drug, suspect_drink_drug_level %in% c("Taken an illicit drug", "Both drinking alcohol and taking an illicit drug")), mh_linked)} ',
+    'of homicides where the suspect had taken an illicit drugs, compared to ',
+    '{prop_from_table(filter(suspects_mh_drug, !suspect_drink_drug_level %in% c("Taken an illicit drug", "Both drinking alcohol and taking an illicit drug"), !is.na(suspect_drink_drug_level)), mh_linked)} ',
+    'where they had not.'
+  )
+)
+```
+
+
+Overall, in `r prop_from_table(victims_mh_all, mh_linked)` of homicides the senior investigating officer judged that the homicide was linked to the mental health of one or more suspects. The likelihood of a homicide being linked to the mental health of female suspects was broadly similar whether the victim was male or female, while for male suspects, homicides were more likely to be linked to suspect mental health if the victim was female (`r prop_from_table(filter(victims_mh_sex, suspect_sex == "Male", victim_sex == "Female"), mh_linked)` of such cases) than if the victim was also male (`r prop_from_table(filter(victims_mh_sex, suspect_sex == "Male", victim_sex == "Male"), mh_linked)` of such cases).
+
+Homicides were much more likely to be linked to suspect mental health in some circumstances than others. Mental health was particularly likely to be a factor in homicides related to `r mh_linked_circs_max`. Conversely, mental health was only very rarely a factor in homicides related to `r mh_linked_circs_min`.
+
+Homicides were more likely to be linked to suspect mental health in cases that were also linked to illicit drugs. Suspect mental health was a factor in `r prop_from_table(filter(suspects_mh_drug, suspect_drink_drug_level %in% c("Taken an illicit drug", "Both drinking alcohol and taking an illicit drug")), mh_linked)` of homicides where the suspect had taken an illicit drug (whether or not they had also been drinking), compared to `r prop_from_table(filter(suspects_mh_drug, suspect_drink_drug_level == "None of the above"), mh_linked)` of homicides where the suspect was not under the influence of drink or drugs, and `r prop_from_table(filter(suspects_mh_drug, suspect_drink_drug_level == "Been drinking alcohol"), mh_linked)` of homicides where the suspect had been drinking but had not taken drugs.
+
+
+### Only a small minority of homicides are related to gangs or organised crime
+
+```{r}
+#| label: gang
+
+gang_related <- victims |> 
+  filter(offence_date <= gang_related_last_date) |> 
+  count(gang_related_removed)
+
+gang_related_circumstance <- victims |> 
+  filter(
+    offence_date <= gang_related_last_date, 
+    !is.na(gang_related_removed),
+    !circumstance_group %in% c("Unknown", "Other known circumstances")
+  ) |> 
+  mutate(
+    circumstance_label = case_match(
+      circumstance_group, 
+      "Irrational act" ~ "irrational acts",
+      "Fights, brawls, etc." ~ 
+        "non-domestic fights, brawls, etc.",
+      "In the course of another crime" ~
+        "the suspect committing another crime",
+      "Long running disputes" ~ 
+        "long running disputes",
+      "Reckless act" ~ "reckless acts (e.g. gross negligence)",
+      "Sexual" ~ "Sexual motive",
+      .default = str_to_lower(circumstance_group)
+    )
+  ) |> 
+  count(circumstance_label, gang_related_removed) |> 
+  mutate(total = sum(n), prop = n / total, .by = circumstance_label) |> 
+  filter(gang_related_removed)
+
+gang_related_age <- victims |> 
+  filter(
+    offence_date <= gang_related_last_date, 
+    !is.na(gang_related_removed), 
+    !is.na(victim_age10),
+    !is.na(victim_sex)
+  ) |> 
+  count(victim_age10, gang_related_removed) |> 
+  complete(victim_age10, gang_related_removed, fill = list(n = 0)) |> 
+  mutate(total = sum(n), .by = victim_age10) |> 
+  filter(gang_related_removed) |> 
+  mutate(
+    prop = n / total,
+    age_label = str_glue("{victim_age10}--{victim_age10 + 9}"), 
+    label = str_glue(
+      "{percent(prop, accuracy = 1)} of homicides of ",
+      "victims aged {age_label}"
+    )    
+  ) |> 
+  slice_max(order_by = prop, n = 2) |> 
+  pull("label") |> 
+  str_flatten_comma(last = " were gang-related, along with ")
+
+gang_related_suspect_age <- suspects |> 
+  filter(
+    offence_date <= gang_related_last_date, 
+    !is.na(gang_related_removed), 
+    !is.na(suspect_age10)
+  ) |> 
+  count(suspect_age10, gang_related_removed) |> 
+  mutate(prop_cum = cumsum(n) / sum(n), .by = gang_related_removed)
+
+gang_related_sex <- victims |> 
+  filter(
+    offence_date <= gang_related_last_date, 
+    !is.na(gang_related_removed), 
+    !is.na(victim_sex)
+  ) |> 
+  count(victim_sex, gang_related_removed) |> 
+  mutate(prop = n / sum(n), .by = victim_sex) |> 
+  filter(gang_related_removed)
+
+gang_related_suspect_sex <- suspects |> 
+  filter(
+    offence_date <= gang_related_last_date, 
+    !is.na(gang_related_removed), 
+    suspect_sex %in% c("Male", "Female")
+  ) |> 
+  count(suspect_sex, gang_related_removed) |> 
+  filter(gang_related_removed)
+
+gang_related_ethnicity <- victims |> 
+  filter(
+    offence_date <= gang_related_last_date, 
+    !is.na(gang_related_removed), 
+    !is.na(victim_ethnicity),
+    victim_ethnicity %in% c(
+      "Asian", 
+      "Black", 
+      "White"
+    )
+  ) |> 
+  count(victim_ethnicity, gang_related_removed) |> 
+  mutate(total = sum(n), prop = n / total, .by = victim_ethnicity) |> 
+  filter(gang_related_removed) |> 
+  arrange(desc(prop)) |> 
+  mutate(
+    label = str_glue(
+      "{percent(prop, accuracy = 1)} of homicides of {victim_ethnicity} victims"
+    ),
+    label = if_else(row_number() == 2, str_glue(" (and {label})"), label)
+  ) |> 
+  pull("label") |> 
+  str_flatten(last = " were gang-related, compared to ")
+
+gang_related_firearm <- victims |> 
+  filter(offence_date <= gang_related_last_date) |> 
+  count(gang_related_removed, firearm_used) |> 
+  mutate(prop = n / sum(n), .by = gang_related_removed) |> 
+  filter(firearm_used)
+
+gang_related_knife <- victims |> 
+  filter(offence_date <= gang_related_last_date) |> 
+  count(gang_related_removed, sharp_instrument_used) |> 
+  mutate(prop = n / sum(n), .by = gang_related_removed) |>
+  filter(sharp_instrument_used)
+
+gang_related_ethnicity_disparity <- victims |> 
+  filter(
+    offence_date <= gang_related_last_date, 
+    gang_related_removed,
+    !is.na(victim_ethnicity),
+    victim_ethnicity %in% c(
+      "Asian", 
+      "Black", 
+      "White"
+    ), victim_sex == "Male"
+  ) |> 
+  count(victim_ethnicity, victim_age10, victim_sex) |>
+  left_join(
+    count(pop, sex, age10, ethnic_group, wt = n, name = "residents"), 
+    by = c(
+      "victim_ethnicity" = "ethnic_group", 
+      "victim_age10" = "age10", 
+      "victim_sex" = "sex"
+    )
+  ) |> 
+  mutate(rate = n / (residents / 100000)) |> 
+  mutate(disparity_ratio = rate / last(rate), .by = victim_age10) |> 
+  slice_max(order_by = disparity_ratio, n = 2) |> 
+  mutate(
+    label = str_glue(
+      "{victim_ethnicity} men aged {victim_age10}--{victim_age10 + 9} were ",
+      "{number(disparity_ratio)} times more likely to be the victim of a ",
+      "gang-related homicide than White men of the same age"
+    ),
+    label = if_else(
+      victim_age10 < 18,
+      str_replace_all(label, "\\bmen\\b", "men/boys"),
+      label
+    )
+  ) |> 
+  pull("label")
+
+gang_suspect_ethnicity_disparity <- suspects |> 
+  filter(
+    offence_date <= gang_related_last_date, 
+    !is.na(gang_related_removed), 
+    !is.na(suspect_ethnicity)
+  ) |> 
+  count(suspect_ethnicity, gang_related_removed) |> 
+  mutate(prop = n / sum(n), .by = gang_related_removed)
+
+social_post(
+  str_glue(
+    'GANGS AND ORGANISED CRIME\n\nAbout ',
+    '{prop_from_table(gang_related, gang_related_removed)} of homicides were ',
+    'believed to be gang related. Gang-related homicides are much less common ',
+    'than (for example) the ',
+    '{prop_from_table(count(filter(victims, domestic_homicide_ho_definition != "No suspect charged/acquitted"), domestic_homicide_ho_definition), domestic_homicide_ho_definition == "Domestic")} ',
+    'of homicides that met the definition of domestic abuse.'
+  )
+)
+
+social_post(
+  str_glue(
+    'Gang-related homicides were heavily concentrated among young victims: ',
+    '{str_replace_all(gang_related_age, "--", "–")}.'
+  )
+)
+
+social_post(
+  str_glue(
+    'Victims of gang-related homicides were almost exclusively male: ',
+    '{percent(pluck(filter(gang_related_sex, victim_sex == "Male"), "prop", 1))} ',
+    'of homicides of male victims were gang-related, compared to only one ',
+    'homicide of a female victim.'
+  )
+)
+
+social_post(
+  str_glue(
+    'Black victims were also more likely to be killed in gang-related ',
+    'homicide: {gang_related_ethnicity}.'
+  )
+)
+
+social_post(
+  str_glue(
+    'Combining data on age, sex and ethnicity shows huge variation in the ',
+    'risk of being a victim of gang-related homicide: ',
+    '{str_replace(pluck(gang_related_ethnicity_disparity, 1), "--", "–")}.'
+  )
+)
+
+social_post(
+  str_glue(
+    'Gang-related homicide offenders were much more likely to be young: ',
+    '{percent(pluck(slice(filter(gang_related_suspect_age, gang_related_removed), 1:2), "prop_cum", 2))} ',
+    'of gang-related offenders were {pluck(slice(filter(gang_related_suspect_age, gang_related_removed), 1:2), "suspect_age10", 2) + 9} ',
+    'or younger, compared to {percent(pluck(slice(filter(gang_related_suspect_age, !gang_related_removed), 1:2), "prop_cum", 2))} ',
+    'in non-gang-related homicides. Gang-related homicide offenders were also more likely to be Black and less likely to be White.'
+  )
+)
+```
+
+
+The Home Office changed how they recorded information about organised crime groups (OCGs) and street gangs half-way through the period covered by this analysis. Until `r format(gang_related_last_date, "%B %Y")`, the data contained a field stating whether or not the police believed a homicide to be gang related. From `r format(gang_related_last_date + days(1), "%B %Y")`, the same information is instead recorded for each suspect individually, meaning that whether a homicide was believed to be gang-related or not was not recorded for homicides where there were no recorded suspects. At the same time, a new field was introduced stating whether or not police believed a homicide to be related to an OCG, but there is no indication in the data of whether homicides recorded before `r format(ocg_related_first_date, "%B %Y")` were believed to be OCG-related or not. 
+
+Of those homicides that occurred up to `r format(gang_related_last_date, "%B %Y")`, `r prop_from_table(gang_related, gang_related_removed)` were believed to be gang related. Gang-related homicides were heavily concentrated among younger victims: `r gang_related_age`. They were also heavily concentrated among male victims: `r percent(pluck(filter(gang_related_sex, victim_sex == "Male"), "prop", 1))` of homicides of male victims were gang-related, compared to only one homicide of a female victim. The proportion of gang-related homicides also varied by victim ethnicity: `r gang_related_ethnicity` were believed to be gang related. Combining data on age, sex and ethnicity shows some groups in society were much more likely to be victims of gang-related homicides than others: `r combine_words(gang_related_ethnicity_disparity, and = ", while ")`.
+
+
+::: {.blockquote .homicide-quote}
+`r pluck(gang_related_ethnicity_disparity, 1)`
+:::
+
+
+Of all the offenders in homicides believed to be gang-related, all but `r pluck(filter(gang_related_suspect_sex, suspect_sex == "Female"), "n", 1)` were male. Offenders in gang-related homicides were also very likely to be young: `r percent(pluck(slice(filter(gang_related_suspect_age, gang_related_removed), 1:2), "prop_cum", 2))` of gang-related offenders were `r pluck(slice(filter(gang_related_suspect_age, gang_related_removed), 1:2), "suspect_age10", 2) + 9` years old or younger (and `r percent(pluck(slice(filter(gang_related_suspect_age, gang_related_removed), 1), "prop_cum", 1))` were `r pluck(slice(filter(gang_related_suspect_age, gang_related_removed), 1), "suspect_age10", 1) + 9` or younger), compared to `r percent(pluck(slice(filter(gang_related_suspect_age, !gang_related_removed), 1:2), "prop_cum", 2))` of offenders being `r pluck(slice(filter(gang_related_suspect_age, gang_related_removed), 1:2), "suspect_age10", 2) + 9` or younger in non-gang-related homicides. Half of all offenders in gang-related homicides were Black (in non-gang-related homicides, `r percent(pluck(filter(gang_suspect_ethnicity_disparity, !gang_related_removed, suspect_ethnicity == "Black"), "prop", 1))` of offenders were Black), while only `r percent(pluck(filter(gang_suspect_ethnicity_disparity, gang_related_removed, suspect_ethnicity == "White"), "prop", 1))` of offenders in gang-related homicides were White (compared to `r percent(pluck(filter(gang_suspect_ethnicity_disparity, !gang_related_removed, suspect_ethnicity == "White"), "prop", 1))` of offenders in non-gang-related homicides).
+
+Police were more likely to believe homicides were gang- or OCG-related in some circumstances (@fig-gang-circumstances). than others. Gang-related homicides were more likely than other homicides to involve the use of a firearm (`r percent(pluck(filter(gang_related_firearm, gang_related_removed), "prop", 1))` of gang-related homicides, compared to `r percent(pluck(filter(gang_related_firearm, !gang_related_removed), "prop", 1))` of homicides that were not gang related) and more likely to involve the use of a sharp instrument (`r percent(pluck(filter(gang_related_knife, gang_related_removed), "prop", 1))` of gang-related homicides, compared to `r percent(pluck(filter(gang_related_knife, !gang_related_removed), "prop", 1))` of homicides that were not gang related). Suspects in gang-related homicides were more likely than those in non-gang-related homicides to have a previous serious conviction in all age groups.
+
+```{r}
+#| label: fig-gang-circumstances
+#| fig-cap: How often homicides were believed to be related to gangs or organised crime
+#| fig-alt: "Bar chart showing the percentage of homicides believed to be gang-related or organized crime group (OCG)-related in England and Wales, categorized by circumstance. The x-axis shows percentages from 0% to 40%, and the y-axis lists homicide circumstances. Dark blue bars represent gang-related cases, and light blue bars represent OCG-related cases. “Long running disputes” accounts for the highest percentage in both categories, with nearly 50% gang-related and about 27% OCG-related. “In the course of the suspect committing another crime” is the second highest for OCG-related homicides, while “non-domestic fights, brawls, etc.” and “other known circumstances” are the next most common for gang-related cases. Other categories like “domestic abuse,” “sexual motive,” and “terrorist attack” show negligible or no association with gang or OCG involvement. The data is sourced from the Home Office Homicide Index, covering cases up to March 2021 and from April 2021 onwards, depending on classification type."
+
+ocg_related_count <- victims |> 
+  filter(offence_date >= ocg_related_first_date, !is.na(ocg_related_new)) |> 
+  count(circumstance_group, ocg_related_new) |> 
+  complete(circumstance_group, ocg_related_new, fill = list(n = 0)) |> 
+  mutate(total = sum(n), prop = n / total, .by = circumstance_group) |> 
+  filter(ocg_related_new) |> 
+  select(circumstance_group, prop)
+
+# This ordered vector of types must be derived from the OCG count beceause there
+# were no terrorism homicides in the period covered by the gang data
+ocg_related_count_order <- ocg_related_count |> 
+  arrange(desc(prop)) |> 
+  pull("circumstance_group")
+
+gang_related_count <- victims |> 
+  filter(
+    offence_date <= gang_related_last_date, 
+    !is.na(gang_related_removed)
+  ) |> 
+  count(circumstance_group, gang_related_removed) |> 
+  complete(circumstance_group, gang_related_removed, fill = list(n = 0)) |> 
+  mutate(total = sum(n), prop = n / total, .by = circumstance_group) |> 
+  filter(gang_related_removed) |> 
+  select(circumstance_group, prop)
+
+fig_gang_circumstances <- bind_rows(
+  gang = gang_related_count,
+  ocg = ocg_related_count,
+  .id = "type"
+) |> 
+  complete(type, circumstance_group, fill = list(prop = 0)) |> 
+  mutate(
+    circumstance_group_fct = factor(
+      str_to_lower(circumstance_group), 
+      levels = str_to_lower(ocg_related_count_order)
+    ),
+    circumstance_label = fct_recode(
+      circumstance_group_fct, 
+      "irrational acts" = "irrational act",
+      "non-domestic\nfights, brawls, etc." = "fights, brawls, etc.",
+      "in the course of the suspect\ncommitting another crime" = "in the course of another crime",
+      "long running disputes" = "long running disputes",
+      "reckless acts\n(e.g. gross negligence)" = "reckless act",
+      "sexual motive" = "sexual",
+      "other known\ncircumstances" = "other known circumstances",
+      "unknown circumstances" = "unknown",
+      "during a\nterrorist attack" = "terrorism"
+    ),
+    circumstance_label = fct_rev(circumstance_label)
+  ) |> 
+  ggplot() +
+  aes(x = prop, y = circumstance_label, fill = type) +
+  geom_col(position = position_dodge()) +
+  scale_x_continuous(labels = label_percent(), expand = expansion()) +
+  scale_fill_manual(
+    values = c("gang" = ucl_brand[["a"]], "ocg" = ucl_brand[["c"]]),
+    labels = c("gang" = "gang related", "ocg" = "OCG related")
+  ) +
+  labs(
+    x = "percent of homicides that were believed to be gang/OCG related", 
+    y = NULL,
+    fill = "homicide\nbelieved to be …"
+  ) +
+  theme_homicide() + 
+  theme(
+    axis.ticks.y = element_blank(),
+    legend.justification = c(1, 0),
+    legend.position = "inside",
+    legend.position.inside = c(1, 0),
+    panel.grid.major.x = element_line(),
+    panel.grid.major.y = element_blank(),
+    panel.grid.minor.x = element_line()
+  )
+
+social_figure(
+  fig_gang_circumstances,
+  title = "Gang-related homicides are often driven by long-running feuds",
+  subtitle = "Gang-related homicides are most-likely to occur as part of long-running disputes, or during non-domestic brawls. Homicides related to organised-crime groups (OCGs) are also likely to occur as part of a long-running feud, or to be committed in the course of the offender committing another crime.",
+  caption = str_glue(
+    'Source: Home Office Homicide Index<br>Base: the {prop_base(filter(victims, offence_date <= gang_related_last_date), !is.na(gang_related_removed))} of homicides occurring up to {format(gang_related_last_date, "%B %Y")} for which whether or not police believed the homicide to be gang-related was recorded and {prop_base(filter(victims, offence_date >= ocg_related_first_date), !is.na(ocg_related_new))} of homicides occurring from {format(ocg_related_first_date, "%B %Y")} onwards for which whether or not police believed the homicide to be OCG-related was recorded'
+  ),
+  name = "gang_circumstances"
+)
+
+social_post(
+  "Gang-related homicides are often linked to on-going disputes, happen during feuds or brawls, or are committed in the course of the offender committing another crime.",
+  image = "gang_circumstances",
+  alt = "Bar chart showing the percentage of homicides believed to be gang-related or organized crime group (OCG)-related in England and Wales, categorized by circumstance. The x-axis shows percentages from 0% to 40%, and the y-axis lists homicide circumstances. Dark blue bars represent gang-related cases, and light blue bars represent OCG-related cases. “Long running disputes” accounts for the highest percentage in both categories, with nearly 50% gang-related and about 27% OCG-related. “In the course of the suspect committing another crime” is the second highest for OCG-related homicides, while “non-domestic fights, brawls, etc.” and “other known circumstances” are the next most common for gang-related cases. Other categories like “domestic abuse,” “sexual motive,” and “terrorist attack” show negligible or no association with gang or OCG involvement. The data is sourced from the Home Office Homicide Index, covering cases up to March 2021 and from April 2021 onwards, depending on classification type."
+)
+
+fig_gang_circumstances +
+  labs(
+    caption = str_glue(
+      'Source: Home Office Homicide Index<br>Base: the {prop_base(filter(victims, offence_date <= gang_related_last_date), !is.na(gang_related_removed))} of homicides occurring up to {format(gang_related_last_date, "%B %Y")} for which whether or not police believed the homicide to be gang-related was recorded and {prop_base(filter(victims, offence_date >= ocg_related_first_date), !is.na(ocg_related_new))} of homicides occurring from {format(ocg_related_first_date, "%B %Y")} onwards for which whether or not police believed the homicide to be OCG-related was recorded'
+    )
+  )
+```
+
+
+
+```{r gang-new}
+victim_in_gang <- victims |> 
+  filter(date_recorded_correct_format >= ocg_related_first_date) |>
+  count(victim_part_of_gang_new)
+
+suspect_in_gang <- suspects |> 
+  filter(date_recorded_correct_format >= ocg_related_first_date) |> 
+  count(suspect_partofagang_new)
+
+either_in_gang <- homicides |> 
+  filter(date_recorded_correct_format >= ocg_related_first_date) |> 
+  summarise(
+    victim_gang = any(victim_part_of_gang_new == "YES", na.rm = TRUE), 
+    suspect_gang = any(suspect_partofagang_new == "YES", na.rm = TRUE), 
+    .by = case
+  ) |> 
+  count(suspect_gang, victim_gang)
+
+either_in_gang_sex <- homicides |> 
+  filter(date_recorded_correct_format >= ocg_related_first_date) |> 
+  filter(
+    any(victim_part_of_gang_new == "YES", na.rm = TRUE) | 
+      any(suspect_partofagang_new == "YES", na.rm = TRUE), 
+    .by = case
+  ) |> 
+  filter(suspect_sex != "No suspect charged", victim_number == 1) |> 
+  count(suspect_sex)
+
+victim_gang_drug_user <- victims |> 
+  filter(
+    date_recorded_correct_format >= ocg_related_first_date,
+    !is.na(victim_illegal_drug_user)
+  ) |>
+  count(victim_part_of_gang_new, victim_illegal_drug_user)
+
+victim_gang_drug_dealer <- victims |> 
+  filter(
+    date_recorded_correct_format >= ocg_related_first_date,
+    !is.na(victim_illegal_drug_dealer)
+  ) |>
+  count(victim_part_of_gang_new, victim_illegal_drug_dealer)
+
+gang_related_circ <- homicides |> 
+  filter(date_recorded_correct_format >= ocg_related_first_date) |> 
+  mutate(
+    gang_related = any(victim_part_of_gang_new == "YES", na.rm = TRUE) | 
+      any(suspect_partofagang_new == "YES", na.rm = TRUE), 
+    .by = case
+  ) |> 
+  count(circumstance_group, gang_related) |> 
+  mutate(prop = n / sum(n), .by = circumstance_group) |> 
+  filter(gang_related) |> 
+  slice_max(order_by = prop, n = 2)
+```
+
+
+While the data after `r format(gang_related_last_date, "%B %Y")` does not specify whether a homicide was gang-related or not, records of homicides after that date include a new variable specifying whether or not a victim or suspect was believed to be part of a gang. Among homicides recorded after `r format(ocg_related_first_date, "%B %Y")`, `r prop_from_table(victim_in_gang, victim_part_of_gang_new == "YES")` of victims and `r prop_from_table(suspect_in_gang, suspect_partofagang_new == "YES")` of suspects were believed to be part of a gang. Overall, the victim and/or at least one suspect were believed to be gang members in `r prop_from_table(either_in_gang, suspect_gang | victim_gang)` of homicides. Suspects believed to be in gangs were much more likely to be involved in homicides of victims who were also believed to be in gangs: in homicides of gang members, `r prop_from_table(filter(either_in_gang, victim_gang), suspect_gang)` of suspects were themselves believed to be gang members, compared to only `r prop_from_table(filter(either_in_gang, !victim_gang), suspect_gang)` of suspects in homicides of non-gang members.
+
+
+::: {.blockquote .homicide-quote}
+Suspects believed to be in gangs were much more likely to be involved in homicides of victims who were also believed to be in gangs
+:::
+
+In every homicide where the victim or a suspect were believed to be in a gang, the victim was male. Similarly, `r prop_from_table(either_in_gang_sex, suspect_sex == "Male")` of suspects in cases linked to gangs were male. 
+
+There was a strong link between gang affiliation and illegal drugs: `r prop_from_table(filter(victim_gang_drug_user, victim_part_of_gang_new == "YES"), victim_illegal_drug_user == "YES")` of victims identified as gang members were also believed to be drug users (compared to `r prop_from_table(filter(victim_gang_drug_user, victim_part_of_gang_new == "NO"), victim_illegal_drug_user == "YES")` of victims who were not gang members), while `r prop_from_table(filter(victim_gang_drug_dealer, victim_part_of_gang_new == "YES"), victim_illegal_drug_dealer == "YES")` of victims identified as gang members were also believed to be drug _dealers_ (compared to `r prop_from_table(filter(victim_gang_drug_dealer, victim_part_of_gang_new == "NO"), victim_illegal_drug_dealer == "YES")` of victims who were not identified as gang members). 
+
+Homicides in which the victim or a suspect were believed to be gang members were particularly likely to have occurred in certain circumstances: `r percent(pluck(gang_related_circ, "prop", 1))` of homicides resulting from `r str_to_lower(pluck(gang_related_circ, "circumstance_group", 1))` were gang-related by this measure (homicides in long-running feuds were also much more likely to be linked to drugs), as were `r percent(pluck(gang_related_circ, "prop", 2))` of homicides that occurred `r str_to_lower(pluck(gang_related_circ, "circumstance_group", 2))`.
+
+
+```{r ocg}
+ocg_related <- victims |> 
+  filter(offence_date >= ocg_related_first_date) |> 
+  count(ocg_related_new)
+
+ocg_related_type <- victims |> 
+  filter(offence_date >= ocg_related_first_date) |> 
+  count(ocg_related_new, circumstance_group) |> 
+  mutate(prop = n / sum(n), .by = circumstance_group) |> 
+  filter(
+    ocg_related_new, 
+    !circumstance_group %in% c("Other known circumstances", "Unknown")
+  ) |> 
+  mutate(
+    label = str_glue(
+      "{percent(prop, accuracy = 1)} of OCG homicides related to ",
+      "{str_to_lower(circumstance_group)}"
+    ), 
+    label = if_else(
+      circumstance_group == "In the course of another crime", 
+      str_replace(label, "related to ", "were committed "), 
+      label
+    )
+  ) |> 
+  slice_max(order_by = prop, n = 2) |> 
+  pull("label") |> 
+  combine_words()
+
+ocg_related_firearm <- victims |> 
+  filter(offence_date >= ocg_related_first_date) |> 
+  count(ocg_related_new, firearm_used) |> 
+  mutate(prop = n / sum(n), .by = ocg_related_new) |> 
+  filter(firearm_used)
+
+ocg_related_knife <- victims |> 
+  filter(offence_date >= ocg_related_first_date) |> 
+  count(ocg_related_new, sharp_instrument_used) |> 
+  mutate(prop = n / sum(n), .by = ocg_related_new) |>
+  filter(sharp_instrument_used)
+```
+
+Of the homicides that occurred from `r format(ocg_related_first_date, "%B %Y")` onwards, `r prop_from_table(ocg_related, ocg_related_new)` were related to organised-crime groups. The limited number of OCG-related homicides mean it is hard to discern any patterns, although all victims and suspects in OCG-related cases were male. OCG-related homicides were particularly likely to occur in certain circumstances: `r ocg_related_type`. OCG-related homicides were also more likely to involve a firearm (`r percent(pluck(filter(ocg_related_firearm, ocg_related_new), "prop", 1))` of OCG-related homicides) and/or a sharp instrument (`r percent(pluck(filter(ocg_related_knife, ocg_related_new), "prop", 1))` of OCG-related homicides).
+
+
+
+### In summary
+
+```{r}
+#| label: final-social-posts
+
+social_post(
+  "This analysis of homicide enhancers in England and Wales comes from a ",
+  "report written by me and Prof Iain Brennan for the UK College of Policing. ",
+  "You can get more detail at ",
+  "https://lesscrime.info/post/homicide-profile-enhancers/"
+)
+
+social_post(
+  "This is the last in a series of seven threads summarising different ",
+  "aspects of homicide in England and Wales. You can find links to the ",
+  "other threads at https://lesscrime.info/post/homicide-profile/"
+)
+```
+
+
+Homicides very often involve either the victim and/or a suspect being under the influence of alcohol or illicit drugs. This isn't surprising: in [Part 2 of this series](../homicide-profile-victims/) I mentioned that the most-common circumstances in which homicides occur is during fights and brawls, which are often aggravated by alcohol or (some types of) illicit drugs.
+
+Drug users are at much higher risk of being homicide victims than other people in society. Less than 10% of people in England and Wales say they have used an illicit drug in the past year, but a third of homicide victims were known to be drug users and `r prop_from_table(victim_drugs, drinkdrug %in% c("Taken an illicit drug", "Both drinking alcohol and taking an illicit drug"))` were known to have taken an illicit drug at the time they were killed. People involved in drugs supply were also at very-high risk of homicide, especially where the homicide was linked to gangs or OCGs.

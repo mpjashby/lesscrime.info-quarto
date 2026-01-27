@@ -1,0 +1,787 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en"><head>
+
+<meta charset="utf-8">
+<meta name="generator" content="quarto-1.6.40">
+
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+
+<meta name="author" content="Matt Ashby">
+<meta name="dcterms.date" content="2026-01-26">
+
+<title>Homicide in England and Wales, Part 1: Homicide in Context – Matt Ashby</title>
+<style>
+code{white-space: pre-wrap;}
+span.smallcaps{font-variant: small-caps;}
+div.columns{display: flex; gap: min(4vw, 1.5em);}
+div.column{flex: auto; overflow-x: auto;}
+div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+ul.task-list{list-style: none;}
+ul.task-list li input[type="checkbox"] {
+  width: 0.8em;
+  margin: 0 0.8em 0.2em -1em; /* quarto-specific, see https://github.com/quarto-dev/quarto-cli/issues/4556 */ 
+  vertical-align: middle;
+}
+</style>
+
+
+<script src="../../site_libs/quarto-nav/quarto-nav.js"></script>
+<script src="../../site_libs/quarto-nav/headroom.min.js"></script>
+<script src="../../site_libs/clipboard/clipboard.min.js"></script>
+<script src="../../site_libs/quarto-search/autocomplete.umd.js"></script>
+<script src="../../site_libs/quarto-search/fuse.min.js"></script>
+<script src="../../site_libs/quarto-search/quarto-search.js"></script>
+<meta name="quarto:offset" content="../../">
+<script src="../../site_libs/quarto-html/quarto.js"></script>
+<script src="../../site_libs/quarto-html/popper.min.js"></script>
+<script src="../../site_libs/quarto-html/tippy.umd.min.js"></script>
+<script src="../../site_libs/quarto-html/anchor.min.js"></script>
+<link href="../../site_libs/quarto-html/tippy.css" rel="stylesheet">
+<link href="../../site_libs/quarto-html/quarto-syntax-highlighting-549806ee2085284f45b00abea8c6df48.css" rel="stylesheet" id="quarto-text-highlighting-styles">
+<script src="../../site_libs/bootstrap/bootstrap.min.js"></script>
+<link href="../../site_libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
+<link href="../../site_libs/bootstrap/bootstrap-ee5d4d5833c2e32a258b66c087c6b3f6.min.css" rel="stylesheet" append-hash="true" id="quarto-bootstrap" data-mode="light">
+<script id="quarto-search-options" type="application/json">{
+  "location": "navbar",
+  "copy-button": false,
+  "collapse-after": 3,
+  "panel-placement": "end",
+  "type": "overlay",
+  "limit": 50,
+  "keyboard-shortcut": [
+    "f",
+    "/",
+    "s"
+  ],
+  "show-item-context": false,
+  "language": {
+    "search-no-results-text": "No results",
+    "search-matching-documents-text": "matching documents",
+    "search-copy-link-title": "Copy link to search",
+    "search-hide-matches-text": "Hide additional matches",
+    "search-more-match-text": "more match in this document",
+    "search-more-matches-text": "more matches in this document",
+    "search-clear-button-title": "Clear",
+    "search-text-placeholder": "",
+    "search-detached-cancel-button-title": "Cancel",
+    "search-submit-button-title": "Submit",
+    "search-label": "Search"
+  }
+}</script>
+
+
+<link rel="stylesheet" href="../../styles.css">
+<link rel="stylesheet" href="../homicide_theme.css">
+</head>
+
+<body class="nav-fixed">
+
+<div id="quarto-search-results"></div>
+  <header id="quarto-header" class="headroom fixed-top">
+    <nav class="navbar navbar-expand-lg " data-bs-theme="dark">
+      <div class="navbar-container container-fluid">
+      <div class="navbar-brand-container mx-auto">
+    <a class="navbar-brand" href="../../index.html">
+    <span class="navbar-title">Matt Ashby</span>
+    </a>
+  </div>
+            <div id="quarto-search" class="" title="Search"></div>
+          <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarCollapse" aria-controls="navbarCollapse" role="menu" aria-expanded="false" aria-label="Toggle navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">
+  <span class="navbar-toggler-icon"></span>
+</button>
+          <div class="collapse navbar-collapse" id="navbarCollapse">
+            <ul class="navbar-nav navbar-nav-scroll me-auto">
+  <li class="nav-item">
+    <a class="nav-link" href="../../index.html"> 
+<span class="menu-text">Home</span></a>
+  </li>  
+  <li class="nav-item">
+    <a class="nav-link" href="../../post/index.html"> 
+<span class="menu-text">Blog posts</span></a>
+  </li>  
+  <li class="nav-item">
+    <a class="nav-link" href="../../publication/index.html"> 
+<span class="menu-text">Publications</span></a>
+  </li>  
+  <li class="nav-item">
+    <a class="nav-link" href="../../talk/index.html"> 
+<span class="menu-text">Talks</span></a>
+  </li>  
+  <li class="nav-item">
+    <a class="nav-link" href="../../cv/index.pdf"> 
+<span class="menu-text">CV</span></a>
+  </li>  
+  <li class="nav-item">
+    <a class="nav-link" href="../../crimpapers/"> 
+<span class="menu-text">CrimPapers</span></a>
+  </li>  
+  <li class="nav-item dropdown ">
+    <a class="nav-link dropdown-toggle" href="#" id="nav-menu-r-packages" role="link" data-bs-toggle="dropdown" aria-expanded="false">
+ <span class="menu-text">R Packages</span>
+    </a>
+    <ul class="dropdown-menu" aria-labelledby="nav-menu-r-packages">    
+        <li>
+    <a class="dropdown-item" href="https://pkgs.lesscrime.info/crimedata">
+ <span class="dropdown-text">crimedata</span></a>
+  </li>  
+        <li>
+    <a class="dropdown-item" href="https://pkgs.lesscrime.info/crimemappingdata">
+ <span class="dropdown-text">crimemappingdata</span></a>
+  </li>  
+        <li>
+    <a class="dropdown-item" href="https://pkgs.lesscrime.info/sfhotspot">
+ <span class="dropdown-text">sfhotspot</span></a>
+  </li>  
+    </ul>
+  </li>
+</ul>
+          </div> <!-- /navcollapse -->
+            <div class="quarto-navbar-tools">
+</div>
+      </div> <!-- /container-fluid -->
+    </nav>
+</header>
+<!-- content -->
+<div id="quarto-content" class="quarto-container page-columns page-rows-contents page-layout-article page-navbar">
+<!-- sidebar -->
+<!-- margin-sidebar -->
+    <div id="quarto-margin-sidebar" class="sidebar margin-sidebar">
+        <nav id="TOC" role="doc-toc" class="toc-active">
+    <h2 id="toc-title">On this page</h2>
+   
+  <ul>
+  <li><a href="#homicide-rates-have-dropped-over-the-past-30-years" id="toc-homicide-rates-have-dropped-over-the-past-30-years" class="nav-link active" data-scroll-target="#homicide-rates-have-dropped-over-the-past-30-years">Homicide rates have dropped over the past 30 years</a></li>
+  <li><a href="#the-homicide-rate-in-england-and-wales-is-close-to-the-european-average" id="toc-the-homicide-rate-in-england-and-wales-is-close-to-the-european-average" class="nav-link" data-scroll-target="#the-homicide-rate-in-england-and-wales-is-close-to-the-european-average">The homicide rate in England and Wales is close to the European average</a></li>
+  <li><a href="#world-homicide" id="toc-world-homicide" class="nav-link" data-scroll-target="#world-homicide">Homicide in England and Wales is lower than in many other countries</a></li>
+  <li><a href="#a-note-on-how-these-posts-were-put-together" id="toc-a-note-on-how-these-posts-were-put-together" class="nav-link" data-scroll-target="#a-note-on-how-these-posts-were-put-together">A note on how these posts were put together</a></li>
+  </ul>
+</nav>
+    </div>
+<!-- main -->
+<main class="content" id="quarto-document-content">
+
+<header id="title-block-header" class="quarto-title-block default">
+<div class="quarto-title">
+<h1 class="title">Homicide in England and Wales, Part 1: Homicide in Context</h1>
+</div>
+
+
+
+<div class="quarto-title-meta">
+
+    <div>
+    <div class="quarto-title-meta-heading">Author</div>
+    <div class="quarto-title-meta-contents">
+             <p>Matt Ashby </p>
+          </div>
+  </div>
+    
+    <div>
+    <div class="quarto-title-meta-heading">Published</div>
+    <div class="quarto-title-meta-contents">
+      <p class="date">26 Jan 2026</p>
+    </div>
+  </div>
+  
+    
+  </div>
+  
+
+
+</header>
+
+
+<p>This is the first in a series of blog posts summarising the nature of homicide in England and Wales. There’s a lot to cover, so I’ve broken it down into a series of seven blog posts. Each post will cover a different aspect of homicide:</p>
+<ol type="1">
+<li>Homicide context (this post)</li>
+<li><a href="../homicide-profile-victims/">Victims of homicide</a></li>
+<li><a href="../homicide-profile-offenders/">Homicide offenders</a></li>
+<li><a href="../homicide-profile-methods/">Homicide methods</a></li>
+<li><a href="../homicide-profile-hotspots/">Homicide hotspots</a></li>
+<li><a href="../homicide-profile-vulnerable/">Homicide vulnerability</a></li>
+<li><a href="../homicide-profile-enhancers/">Homicide enhancers</a></li>
+</ol>
+<div class="callout callout-style-simple callout-none no-icon callout-titled">
+<div class="callout-header d-flex align-content-center" data-bs-toggle="collapse" data-bs-target=".callout-1-contents" aria-controls="callout-1" aria-expanded="false" aria-label="Toggle callout">
+<div class="callout-icon-container">
+<i class="callout-icon no-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+Why are you writing about homicide, not murder? (click to expand)
+</div>
+<div class="callout-btn-toggle d-inline-block border-0 py-1 ps-1 pe-0 float-end"><i class="callout-toggle"></i></div>
+</div>
+<div id="callout-1" class="callout-1-contents callout-collapse collapse">
+<div class="callout-body-container callout-body">
+<p>You might be wondering why this post uses the term <em>homicide</em> rather other terms like murder. <em>Murder</em> means a person being killed by someone who intended to kill or seriously injure them. However, it’s sometimes difficult to know whether the offender intended to kill the victim until the investigation is finished and the case goes to court. That means it can sometimes be many months before we know if a case was really a murder or another type of crime (e.g.&nbsp;manslaughter).</p>
+<p>To be able to analyse crime data without having to wait many months, it has been standard practice for many years to analyse data for homicide (murder + manslaughter + infanticide) rather than just for murder. The national homicide problem profile follows that convention.</p>
+</div>
+</div>
+</div>
+<p>There will be lots of data in these posts, but it’s important to remember that every homicide is a tragedy for the victim and their friends and family. Every data point in these posts represents a human being. These are some of the 1,869 victims of homicide in England and Wales whose cases are included in this analysis.</p>
+<div class="blockquote homicide-quote">
+<p><img src="victims_composite_slide.jpg" class="img-fluid" alt="Pictures of 18 victims of homicide in England and Wales in 2021"></p>
+</div>
+<section id="homicide-rates-have-dropped-over-the-past-30-years" class="level3">
+<h3 class="anchored" data-anchor-id="homicide-rates-have-dropped-over-the-past-30-years">Homicide rates have dropped over the past 30 years</h3>
+<p>Compared to many countries around the world, homicide in England and Wales is rare. Since 1900, the rate of homicide in peacetime has fluctuated between a low of 5.7 per million people in 1961 and 17.0 per million people in 2001 (<a href="#fig-long-term-trend" class="quarto-xref">Figure&nbsp;1</a>). In simpler terms, around one in every 100,000 people is murdered each year in England and Wales. The homicide rate for 2024/25 was 9.5 homicides per million population – 569 homicides across 60.1 million people. The homicide rate in 2024/25 was among the lowest since the mid 1970s.</p>
+<div class="cell">
+<div class="cell-output-display">
+<div id="fig-long-term-trend" class="quarto-float quarto-figure quarto-figure-center anchored" alt="Line chart showing the homicide rate per million people in England and Wales from 1900 to 2024. Light purple dots represent the annual rate, a thick purple line shows the trend, and black triangles mark spikes during the World Wars. A single black dot in 2003 highlights Harold Shipman’s murders, which were recorded that year despite occurring earlier. The rate generally declined from 1900 to the mid-1960s, then rose until the early 2000s before declining again. Data source: Home Office historical crime data. Base: all recorded homicides, 1900–2024. Vertical axis ranges from 0 to 20 homicides per million people.">
+<figure class="quarto-float quarto-float-fig figure">
+<figcaption class="quarto-float-caption-top quarto-float-caption quarto-float-fig" id="fig-long-term-trend-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Figure&nbsp;1: Trend in homicides in England and Wales, 1900–2024
+</figcaption>
+<div aria-describedby="fig-long-term-trend-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<img src="index_files/figure-html/fig-long-term-trend-1.png" class="img-fluid figure-img" alt="Line chart showing the homicide rate per million people in England and Wales from 1900 to 2024. Light purple dots represent the annual rate, a thick purple line shows the trend, and black triangles mark spikes during the World Wars. A single black dot in 2003 highlights Harold Shipman’s murders, which were recorded that year despite occurring earlier. The rate generally declined from 1900 to the mid-1960s, then rose until the early 2000s before declining again. Data source: Home Office historical crime data. Base: all recorded homicides, 1900–2024. Vertical axis ranges from 0 to 20 homicides per million people." width="672">
+</div>
+</figure>
+</div>
+</div>
+</div>
+</section>
+<section id="the-homicide-rate-in-england-and-wales-is-close-to-the-european-average" class="level3">
+<h3 class="anchored" data-anchor-id="the-homicide-rate-in-england-and-wales-is-close-to-the-european-average">The homicide rate in England and Wales is close to the European average</h3>
+<p>For comparison, in 2023, within the 36 countries of Europe the homicide rate in England and Wales (9.8 per million people) was ranked 16th – very similar to the European Union homicide rate of 9.1 per million (<a href="#fig-eu-homicide" class="quarto-xref">Figure&nbsp;2</a>).</p>
+<div class="cell">
+<div class="cell-output-display">
+<div id="fig-eu-homicide" class="quarto-float quarto-figure quarto-figure-center anchored" alt="A bar chart comparing homicide rates per million residents in 2023 across European countries. Each country is represented by a vertical blue bar, except for England and Wales, which is highlighted in dark purple. A dotted line indicates the EU average of 9.1 homicides per million. Malta has the lowest rate, while Latvia has the highest, exceeding 40 homicides per million. England and Wales sits at almost exactly the EU average. Countries are listed along the x-axis, and the y-axis shows homicide rates. Data sources are the Home Office for England and Wales, and Eurostat for other countries.">
+<figure class="quarto-float quarto-float-fig figure">
+<figcaption class="quarto-float-caption-top quarto-float-caption quarto-float-fig" id="fig-eu-homicide-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Figure&nbsp;2: Rate of homicides in European countries
+</figcaption>
+<div aria-describedby="fig-eu-homicide-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<img src="index_files/figure-html/fig-eu-homicide-1.png" class="img-fluid figure-img" alt="A bar chart comparing homicide rates per million residents in 2023 across European countries. Each country is represented by a vertical blue bar, except for England and Wales, which is highlighted in dark purple. A dotted line indicates the EU average of 9.1 homicides per million. Malta has the lowest rate, while Latvia has the highest, exceeding 40 homicides per million. England and Wales sits at almost exactly the EU average. Countries are listed along the x-axis, and the y-axis shows homicide rates. Data sources are the Home Office for England and Wales, and Eurostat for other countries." width="672">
+</div>
+</figure>
+</div>
+</div>
+</div>
+</section>
+<section id="world-homicide" class="level3">
+<h3 class="anchored" data-anchor-id="world-homicide">Homicide in England and Wales is lower than in many other countries</h3>
+<p>Looking further afield, the homicide rate in England and Wales is about one-fifth of the global homicide rate (<a href="#fig-world-homicide" class="quarto-xref">Figure&nbsp;3</a>) and about one-third of the homicide rate in high-income countries as a whole. Compared to England and Wales, the homicide rate in the United States is about six times higher and the rate in Canada is two times higher. However, there are a small number of developed countries with substantially lower homicide rates: the rate in Japan is one-fourth the rate in England and Wales.</p>
+<div class="cell">
+<div class="cell-output-display">
+<div id="fig-world-homicide" class="quarto-float quarto-figure quarto-figure-center anchored" alt="Bar chart showing homicide rates per million residents in countries with populations over 10 million, using the most recent available data (since 2021). Countries are sorted left to right by increasing homicide rate. Japan, Indonesia, and South Korea have the lowest rates, all well below the 2023 world average of 52 homicides per million (marked by a dotted line). England and Wales appears below average. The highest rates are seen in Brazil, Mexico, Colombia, South Africa, and Ecuador, with Ecuador exceeding 450 homicides per million. Source: Home Office (UK) and World Bank. Vertical axis shows homicide rate; horizontal axis lists countries.">
+<figure class="quarto-float quarto-float-fig figure">
+<figcaption class="quarto-float-caption-top quarto-float-caption quarto-float-fig" id="fig-world-homicide-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Figure&nbsp;3: Rate of homicide in large countries around the world
+</figcaption>
+<div aria-describedby="fig-world-homicide-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<img src="index_files/figure-html/fig-world-homicide-1.png" class="img-fluid figure-img" alt="Bar chart showing homicide rates per million residents in countries with populations over 10 million, using the most recent available data (since 2021). Countries are sorted left to right by increasing homicide rate. Japan, Indonesia, and South Korea have the lowest rates, all well below the 2023 world average of 52 homicides per million (marked by a dotted line). England and Wales appears below average. The highest rates are seen in Brazil, Mexico, Colombia, South Africa, and Ecuador, with Ecuador exceeding 450 homicides per million. Source: Home Office (UK) and World Bank. Vertical axis shows homicide rate; horizontal axis lists countries." width="672">
+</div>
+</figure>
+</div>
+</div>
+</div>
+<p>Despite its relatively infrequent nature, the societal cost of homicide is extremely high, with unquantifiable emotional costs for victims’ families, as well as millions in medical expenses, investigation, punishment and lost economic output. Extrapolating from the latest <a href="https://www.gov.uk/government/publications/the-economic-and-social-costs-of-crime">Home Office estimate of the costs of crime</a>, the estimated societal cost of homicides in 2024 was around £2.44bn.</p>
+</section>
+<section id="a-note-on-how-these-posts-were-put-together" class="level3">
+<h3 class="anchored" data-anchor-id="a-note-on-how-these-posts-were-put-together">A note on how these posts were put together</h3>
+<p>This series of blog posts is based on data from the Home Office Homicide Index, a national dataset containing details of every homicide recorded in England and Wales. The Home Office provided access to the data as part of a collaboration between the College of Policing and University College London to produce a <a href="https://library.college.police.uk/docs/Patterns-trends-homicide-problem-profile-2025.pdf">national problem profile for homicide</a>. The analysis was done by me and <a href="https://www.hull.ac.uk/staff-directory/iain-brennan">Prof Iain Brennan at the University of Hull</a>. The Homicide Index is only one source of information about homicide, so it is possible that analysis based on other sources might produce slightly different results.</p>
+<p>The profile is based on the most-recent three years of data available at the time it was written: 2019/20 to 2021/22. This data might seem slightly outdated, but homicide investigations can take many months so there is sometimes a substantial lag between a homicide occurring and full details of it being included in the Homicide Index. Some analysis uses data from earlier years to provide context or comparison.</p>
+<p>The period of data analysed for this report include the coronavirus pandemic which began in late 2019. The pandemic affected patterns and distributions of many types of crime, but it does not appear the pandemic had a substantial effect on the frequency of homicide.</p>
+<p>These blog posts summarise the national problem profile. They do not contain all the detail that is in <a href="https://library.college.police.uk/docs/Patterns-trends-homicide-problem-profile-2025.pdf">the full problem profile report, which is available from the College of Policing website</a>. The full report also contains recommendations for police practice based on the analysis.</p>
+<section id="subtypes" class="level4">
+<h4 class="anchored" data-anchor-id="subtypes">Homicide sub-types</h4>
+<p>Separately from the national homicide problem profile, the Home Office has grouped homicides into set of seven homicide problem sub-types, i.e.&nbsp;groups of incidents that share a common set of characteristics, such as victim age and sex, victim-perpetrator relationship and where it took place (<a href="#tbl-clusters" class="quarto-xref">Table&nbsp;1</a>).</p>
+<p>To help understand how some homicide characteristics vary for different types of homicide, the national problem profile uses the sub-types developed by the Home Office.</p>
+<div id="tbl-clusters" class="quarto-float quarto-figure quarto-figure-center anchored">
+<figure class="quarto-float quarto-float-tbl figure">
+<figcaption class="quarto-float-caption-top quarto-float-caption quarto-float-tbl" id="tbl-clusters-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Table&nbsp;1: Home Office homicide sub-types
+</figcaption>
+<div aria-describedby="tbl-clusters-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<table class="caption-top table">
+<colgroup>
+<col style="width: 9%">
+<col style="width: 90%">
+</colgroup>
+<thead>
+<tr class="header">
+<th style="text-align: left;">Problem sub-type</th>
+<th style="text-align: left;">Description</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td style="text-align: left;">1</td>
+<td style="text-align: left;">Female victims of domestic homicide (offender is a partner/family member, victim is aged 16+)</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">2</td>
+<td style="text-align: left;">Male victims of domestic homicide (offender is a partner/family member, victim is aged 16+)</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">3</td>
+<td style="text-align: left;">Male victims up to age 25 killed in a public place</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">4</td>
+<td style="text-align: left;">Female victims of non-domestic homicide aged 16+</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">5</td>
+<td style="text-align: left;">Male victims of non-domestic homicide aged 25+ killed in a public space</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">6</td>
+<td style="text-align: left;">Male victims of non-domestic homicide aged 25+ killed in a house/dwelling</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">7</td>
+<td style="text-align: left;">Victims under 16 killed in a non-public place (house, residential home, other location or unknown location)</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">other</td>
+<td style="text-align: left;">All other victims of homicide</td>
+</tr>
+</tbody>
+</table>
+</div>
+</figure>
+</div>
+<p>The next post in this series looks at <a href="../homicide-profile-victims/">victims of homicide</a>.</p>
+
+
+</section>
+</section>
+
+</main> <!-- /main -->
+<script id="quarto-html-after-body" type="application/javascript">
+window.document.addEventListener("DOMContentLoaded", function (event) {
+  const toggleBodyColorMode = (bsSheetEl) => {
+    const mode = bsSheetEl.getAttribute("data-mode");
+    const bodyEl = window.document.querySelector("body");
+    if (mode === "dark") {
+      bodyEl.classList.add("quarto-dark");
+      bodyEl.classList.remove("quarto-light");
+    } else {
+      bodyEl.classList.add("quarto-light");
+      bodyEl.classList.remove("quarto-dark");
+    }
+  }
+  const toggleBodyColorPrimary = () => {
+    const bsSheetEl = window.document.querySelector("link#quarto-bootstrap");
+    if (bsSheetEl) {
+      toggleBodyColorMode(bsSheetEl);
+    }
+  }
+  toggleBodyColorPrimary();  
+  const icon = "";
+  const anchorJS = new window.AnchorJS();
+  anchorJS.options = {
+    placement: 'right',
+    icon: icon
+  };
+  anchorJS.add('.anchored');
+  const isCodeAnnotation = (el) => {
+    for (const clz of el.classList) {
+      if (clz.startsWith('code-annotation-')) {                     
+        return true;
+      }
+    }
+    return false;
+  }
+  const onCopySuccess = function(e) {
+    // button target
+    const button = e.trigger;
+    // don't keep focus
+    button.blur();
+    // flash "checked"
+    button.classList.add('code-copy-button-checked');
+    var currentTitle = button.getAttribute("title");
+    button.setAttribute("title", "Copied!");
+    let tooltip;
+    if (window.bootstrap) {
+      button.setAttribute("data-bs-toggle", "tooltip");
+      button.setAttribute("data-bs-placement", "left");
+      button.setAttribute("data-bs-title", "Copied!");
+      tooltip = new bootstrap.Tooltip(button, 
+        { trigger: "manual", 
+          customClass: "code-copy-button-tooltip",
+          offset: [0, -8]});
+      tooltip.show();    
+    }
+    setTimeout(function() {
+      if (tooltip) {
+        tooltip.hide();
+        button.removeAttribute("data-bs-title");
+        button.removeAttribute("data-bs-toggle");
+        button.removeAttribute("data-bs-placement");
+      }
+      button.setAttribute("title", currentTitle);
+      button.classList.remove('code-copy-button-checked');
+    }, 1000);
+    // clear code selection
+    e.clearSelection();
+  }
+  const getTextToCopy = function(trigger) {
+      const codeEl = trigger.previousElementSibling.cloneNode(true);
+      for (const childEl of codeEl.children) {
+        if (isCodeAnnotation(childEl)) {
+          childEl.remove();
+        }
+      }
+      return codeEl.innerText;
+  }
+  const clipboard = new window.ClipboardJS('.code-copy-button:not([data-in-quarto-modal])', {
+    text: getTextToCopy
+  });
+  clipboard.on('success', onCopySuccess);
+  if (window.document.getElementById('quarto-embedded-source-code-modal')) {
+    const clipboardModal = new window.ClipboardJS('.code-copy-button[data-in-quarto-modal]', {
+      text: getTextToCopy,
+      container: window.document.getElementById('quarto-embedded-source-code-modal')
+    });
+    clipboardModal.on('success', onCopySuccess);
+  }
+    var localhostRegex = new RegExp(/^(?:http|https):\/\/localhost\:?[0-9]*\//);
+    var mailtoRegex = new RegExp(/^mailto:/);
+      var filterRegex = new RegExp('/' + window.location.host + '/');
+    var isInternal = (href) => {
+        return filterRegex.test(href) || localhostRegex.test(href) || mailtoRegex.test(href);
+    }
+    // Inspect non-navigation links and adorn them if external
+ 	var links = window.document.querySelectorAll('a[href]:not(.nav-link):not(.navbar-brand):not(.toc-action):not(.sidebar-link):not(.sidebar-item-toggle):not(.pagination-link):not(.no-external):not([aria-hidden]):not(.dropdown-item):not(.quarto-navigation-tool):not(.about-link)');
+    for (var i=0; i<links.length; i++) {
+      const link = links[i];
+      if (!isInternal(link.href)) {
+        // undo the damage that might have been done by quarto-nav.js in the case of
+        // links that we want to consider external
+        if (link.dataset.originalHref !== undefined) {
+          link.href = link.dataset.originalHref;
+        }
+      }
+    }
+  function tippyHover(el, contentFn, onTriggerFn, onUntriggerFn) {
+    const config = {
+      allowHTML: true,
+      maxWidth: 500,
+      delay: 100,
+      arrow: false,
+      appendTo: function(el) {
+          return el.parentElement;
+      },
+      interactive: true,
+      interactiveBorder: 10,
+      theme: 'quarto',
+      placement: 'bottom-start',
+    };
+    if (contentFn) {
+      config.content = contentFn;
+    }
+    if (onTriggerFn) {
+      config.onTrigger = onTriggerFn;
+    }
+    if (onUntriggerFn) {
+      config.onUntrigger = onUntriggerFn;
+    }
+    window.tippy(el, config); 
+  }
+  const noterefs = window.document.querySelectorAll('a[role="doc-noteref"]');
+  for (var i=0; i<noterefs.length; i++) {
+    const ref = noterefs[i];
+    tippyHover(ref, function() {
+      // use id or data attribute instead here
+      let href = ref.getAttribute('data-footnote-href') || ref.getAttribute('href');
+      try { href = new URL(href).hash; } catch {}
+      const id = href.replace(/^#\/?/, "");
+      const note = window.document.getElementById(id);
+      if (note) {
+        return note.innerHTML;
+      } else {
+        return "";
+      }
+    });
+  }
+  const xrefs = window.document.querySelectorAll('a.quarto-xref');
+  const processXRef = (id, note) => {
+    // Strip column container classes
+    const stripColumnClz = (el) => {
+      el.classList.remove("page-full", "page-columns");
+      if (el.children) {
+        for (const child of el.children) {
+          stripColumnClz(child);
+        }
+      }
+    }
+    stripColumnClz(note)
+    if (id === null || id.startsWith('sec-')) {
+      // Special case sections, only their first couple elements
+      const container = document.createElement("div");
+      if (note.children && note.children.length > 2) {
+        container.appendChild(note.children[0].cloneNode(true));
+        for (let i = 1; i < note.children.length; i++) {
+          const child = note.children[i];
+          if (child.tagName === "P" && child.innerText === "") {
+            continue;
+          } else {
+            container.appendChild(child.cloneNode(true));
+            break;
+          }
+        }
+        if (window.Quarto?.typesetMath) {
+          window.Quarto.typesetMath(container);
+        }
+        return container.innerHTML
+      } else {
+        if (window.Quarto?.typesetMath) {
+          window.Quarto.typesetMath(note);
+        }
+        return note.innerHTML;
+      }
+    } else {
+      // Remove any anchor links if they are present
+      const anchorLink = note.querySelector('a.anchorjs-link');
+      if (anchorLink) {
+        anchorLink.remove();
+      }
+      if (window.Quarto?.typesetMath) {
+        window.Quarto.typesetMath(note);
+      }
+      if (note.classList.contains("callout")) {
+        return note.outerHTML;
+      } else {
+        return note.innerHTML;
+      }
+    }
+  }
+  for (var i=0; i<xrefs.length; i++) {
+    const xref = xrefs[i];
+    tippyHover(xref, undefined, function(instance) {
+      instance.disable();
+      let url = xref.getAttribute('href');
+      let hash = undefined; 
+      if (url.startsWith('#')) {
+        hash = url;
+      } else {
+        try { hash = new URL(url).hash; } catch {}
+      }
+      if (hash) {
+        const id = hash.replace(/^#\/?/, "");
+        const note = window.document.getElementById(id);
+        if (note !== null) {
+          try {
+            const html = processXRef(id, note.cloneNode(true));
+            instance.setContent(html);
+          } finally {
+            instance.enable();
+            instance.show();
+          }
+        } else {
+          // See if we can fetch this
+          fetch(url.split('#')[0])
+          .then(res => res.text())
+          .then(html => {
+            const parser = new DOMParser();
+            const htmlDoc = parser.parseFromString(html, "text/html");
+            const note = htmlDoc.getElementById(id);
+            if (note !== null) {
+              const html = processXRef(id, note);
+              instance.setContent(html);
+            } 
+          }).finally(() => {
+            instance.enable();
+            instance.show();
+          });
+        }
+      } else {
+        // See if we can fetch a full url (with no hash to target)
+        // This is a special case and we should probably do some content thinning / targeting
+        fetch(url)
+        .then(res => res.text())
+        .then(html => {
+          const parser = new DOMParser();
+          const htmlDoc = parser.parseFromString(html, "text/html");
+          const note = htmlDoc.querySelector('main.content');
+          if (note !== null) {
+            // This should only happen for chapter cross references
+            // (since there is no id in the URL)
+            // remove the first header
+            if (note.children.length > 0 && note.children[0].tagName === "HEADER") {
+              note.children[0].remove();
+            }
+            const html = processXRef(null, note);
+            instance.setContent(html);
+          } 
+        }).finally(() => {
+          instance.enable();
+          instance.show();
+        });
+      }
+    }, function(instance) {
+    });
+  }
+      let selectedAnnoteEl;
+      const selectorForAnnotation = ( cell, annotation) => {
+        let cellAttr = 'data-code-cell="' + cell + '"';
+        let lineAttr = 'data-code-annotation="' +  annotation + '"';
+        const selector = 'span[' + cellAttr + '][' + lineAttr + ']';
+        return selector;
+      }
+      const selectCodeLines = (annoteEl) => {
+        const doc = window.document;
+        const targetCell = annoteEl.getAttribute("data-target-cell");
+        const targetAnnotation = annoteEl.getAttribute("data-target-annotation");
+        const annoteSpan = window.document.querySelector(selectorForAnnotation(targetCell, targetAnnotation));
+        const lines = annoteSpan.getAttribute("data-code-lines").split(",");
+        const lineIds = lines.map((line) => {
+          return targetCell + "-" + line;
+        })
+        let top = null;
+        let height = null;
+        let parent = null;
+        if (lineIds.length > 0) {
+            //compute the position of the single el (top and bottom and make a div)
+            const el = window.document.getElementById(lineIds[0]);
+            top = el.offsetTop;
+            height = el.offsetHeight;
+            parent = el.parentElement.parentElement;
+          if (lineIds.length > 1) {
+            const lastEl = window.document.getElementById(lineIds[lineIds.length - 1]);
+            const bottom = lastEl.offsetTop + lastEl.offsetHeight;
+            height = bottom - top;
+          }
+          if (top !== null && height !== null && parent !== null) {
+            // cook up a div (if necessary) and position it 
+            let div = window.document.getElementById("code-annotation-line-highlight");
+            if (div === null) {
+              div = window.document.createElement("div");
+              div.setAttribute("id", "code-annotation-line-highlight");
+              div.style.position = 'absolute';
+              parent.appendChild(div);
+            }
+            div.style.top = top - 2 + "px";
+            div.style.height = height + 4 + "px";
+            div.style.left = 0;
+            let gutterDiv = window.document.getElementById("code-annotation-line-highlight-gutter");
+            if (gutterDiv === null) {
+              gutterDiv = window.document.createElement("div");
+              gutterDiv.setAttribute("id", "code-annotation-line-highlight-gutter");
+              gutterDiv.style.position = 'absolute';
+              const codeCell = window.document.getElementById(targetCell);
+              const gutter = codeCell.querySelector('.code-annotation-gutter');
+              gutter.appendChild(gutterDiv);
+            }
+            gutterDiv.style.top = top - 2 + "px";
+            gutterDiv.style.height = height + 4 + "px";
+          }
+          selectedAnnoteEl = annoteEl;
+        }
+      };
+      const unselectCodeLines = () => {
+        const elementsIds = ["code-annotation-line-highlight", "code-annotation-line-highlight-gutter"];
+        elementsIds.forEach((elId) => {
+          const div = window.document.getElementById(elId);
+          if (div) {
+            div.remove();
+          }
+        });
+        selectedAnnoteEl = undefined;
+      };
+        // Handle positioning of the toggle
+    window.addEventListener(
+      "resize",
+      throttle(() => {
+        elRect = undefined;
+        if (selectedAnnoteEl) {
+          selectCodeLines(selectedAnnoteEl);
+        }
+      }, 10)
+    );
+    function throttle(fn, ms) {
+    let throttle = false;
+    let timer;
+      return (...args) => {
+        if(!throttle) { // first call gets through
+            fn.apply(this, args);
+            throttle = true;
+        } else { // all the others get throttled
+            if(timer) clearTimeout(timer); // cancel #2
+            timer = setTimeout(() => {
+              fn.apply(this, args);
+              timer = throttle = false;
+            }, ms);
+        }
+      };
+    }
+      // Attach click handler to the DT
+      const annoteDls = window.document.querySelectorAll('dt[data-target-cell]');
+      for (const annoteDlNode of annoteDls) {
+        annoteDlNode.addEventListener('click', (event) => {
+          const clickedEl = event.target;
+          if (clickedEl !== selectedAnnoteEl) {
+            unselectCodeLines();
+            const activeEl = window.document.querySelector('dt[data-target-cell].code-annotation-active');
+            if (activeEl) {
+              activeEl.classList.remove('code-annotation-active');
+            }
+            selectCodeLines(clickedEl);
+            clickedEl.classList.add('code-annotation-active');
+          } else {
+            // Unselect the line
+            unselectCodeLines();
+            clickedEl.classList.remove('code-annotation-active');
+          }
+        });
+      }
+  const findCites = (el) => {
+    const parentEl = el.parentElement;
+    if (parentEl) {
+      const cites = parentEl.dataset.cites;
+      if (cites) {
+        return {
+          el,
+          cites: cites.split(' ')
+        };
+      } else {
+        return findCites(el.parentElement)
+      }
+    } else {
+      return undefined;
+    }
+  };
+  var bibliorefs = window.document.querySelectorAll('a[role="doc-biblioref"]');
+  for (var i=0; i<bibliorefs.length; i++) {
+    const ref = bibliorefs[i];
+    const citeInfo = findCites(ref);
+    if (citeInfo) {
+      tippyHover(citeInfo.el, function() {
+        var popup = window.document.createElement('div');
+        citeInfo.cites.forEach(function(cite) {
+          var citeDiv = window.document.createElement('div');
+          citeDiv.classList.add('hanging-indent');
+          citeDiv.classList.add('csl-entry');
+          var biblioDiv = window.document.getElementById('ref-' + cite);
+          if (biblioDiv) {
+            citeDiv.innerHTML = biblioDiv.innerHTML;
+          }
+          popup.appendChild(citeDiv);
+        });
+        return popup.innerHTML;
+      });
+    }
+  }
+});
+</script>
+</div> <!-- /content -->
+<footer class="footer">
+  <div class="nav-footer">
+    <div class="nav-footer-left">
+      &nbsp;
+    </div>   
+    <div class="nav-footer-center">
+<p>The content on this website is licensed under a <a href="https://creativecommons.org/licenses/by/4.0/">Creative Commons Attribution Licence</a></p>
+</div>
+    <div class="nav-footer-right">
+      &nbsp;
+    </div>
+  </div>
+</footer>
+
+
+
+
+</body></html>

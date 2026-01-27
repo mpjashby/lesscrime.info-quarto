@@ -1,0 +1,975 @@
+---
+title: "Homicide in England and Wales, Part 2: Victims of homicide"
+date: 2026-01-26
+fig-cap-location: top
+format: 
+  html:
+    css: "../homicide_theme.css"
+bibliography: "../homicide-bibliography.bib"
+execute:
+  echo: false
+  freeze: auto
+tags: 
+  - homicide
+  - crime
+  - "Homicide problem profile"
+---
+
+```{r}
+#| label: setup
+#| include: false
+
+# Load packages, functions and data
+source("../homicide_functions.R")
+
+social_post(
+  str_glue(
+    "Each week, about {victims_weekly_median_count} people are killed in ",
+    "homicides in England and Wales. But who is most likely to be killed?\n\n",
+    "This thread summarises what we know about who is most likely to be a ",
+    "victim of homicide."
+  ),
+  add = FALSE
+)
+
+social_post(
+  "This thread is the second in a series of threads about homicide in England ",
+  "and Wales.\n\n",
+  "All the threads: https://lesscrime.info/post/homicide-profile/\n\n",
+  "Full report: https://library.college.police.uk/docs/Patterns-trends-homicide-problem-profile-2025.pdf"
+)
+```
+
+This is the second in a [series of blog posts summarising the nature of homicide in England and Wales](../homicide-profile/). Each post covers a different aspect of homicide, based on data from the Home Office Homicide Index. This post looks at who the victims of homicide are. This post is a summary of part of a longer [national problem profile of homicide in England and Wales](https://library.college.police.uk/docs/Patterns-trends-homicide-problem-profile-2025.pdf) written by me and Prof Iain Brennan.
+
+
+```{r}
+#| label: trend-rate-change 
+#| eval: false
+
+historical_homicides_change <- historical_homicides_rate |> 
+  filter(year %in% make_date(c(2000, 2015))) |> 
+  mutate(change = (last(rate) - first(rate)) / abs(first(rate))) |> 
+  pluck("change", 1) |> 
+  abs() |> 
+  percent()
+```
+
+
+```{r}
+#| label: victims
+
+victims_total <- nrow(victims)
+victims_total_rate <- (victims_total / 3) / (sum(pull(pop, "n")) / 1000000)
+victims_adult <- victims |> count(adult_child) |> drop_na()
+victims_sex <- count(victims, victim_sex)
+victims_ethnicity <- count(victims, victim_ethnicity)
+
+```
+
+From 2019 to 2022 an average of `r comma(victims_total / 3)` people were victims of homicide each year in England and Wales. That's equivalent to about `r victims_weekly_median_count` homicides per week. Put another way, it means that each year about one in every 100,000 people is murdered each year in England and Wales. As we saw in the [first post in this series](../homicide-profile/), that is low by international standards.
+
+
+
+### Men are more likely to be victims of homicide than women
+
+```{r}
+#| label: fig-vic-age-sex
+#| fig-cap: "Homicide rate by age and sex"
+#| fig-alt: "A bar chart displays annual homicide victimisation rates per million people by age group and sex in five-year categories from birth to age 90+. Dark blue bars represent male victims, and light blue bars represent female victims. Male victimisation rates are highest between ages 15–34, peaking at over 30 per million. Female rates remain lower across all ages but rise among those aged 85 and over. The male rate declines steadily after age 34. The data source is the Home Office Homicide Index, based on 99.9% of homicides where victim age and sex were known. A legend distinguishes male and female bars."
+#| warning: false
+
+pop_age_groups_sex <- pop |> 
+  mutate(
+    age = if_else(age > 90, 90, age),
+    age_upper = ceiling((age + 1) / 5) * 5,
+    age_lower = age_upper - 5
+  ) |> 
+  count(sex, age_lower, wt = n, name = "population")
+
+fig_vic_age_sex <- victims |> 
+  filter(victim_sex %in% c("Female", "Male")) |> 
+  mutate(
+    victim_age = if_else(victim_age > 90, 90, victim_age),
+    age_upper = ceiling((victim_age + 1) / 5) * 5,
+    age_lower = age_upper - 5
+  ) |> 
+  count(victim_sex, age_lower, name = "victims") |> 
+  left_join(pop_age_groups_sex, by = c("victim_sex" = "sex", "age_lower")) |> 
+  mutate(rate = (victims / (population / 1000000)) / 3) |> 
+  ggplot(aes(x = age_lower, y = rate, fill = victim_sex)) + 
+  geom_col(position = "dodge", just = 0) +
+  scale_x_continuous(
+    breaks = seq(0, 90, by = 5),
+    expand = c(0, 0)
+  ) +
+  scale_y_continuous(expand = expansion(c(0, 0.05))) +
+  scale_fill_manual(
+    values = c("Female" = ucl_brand[["b"]], "Male" = ucl_brand[["d"]]),
+    labels = c("Female" = "female victims", "Male" = "male victims")
+  ) +
+  labs(
+    # caption = "excludes victims for which age was unknown",
+    x = "age (in five-year categories)",
+    y = "annual homicide victimisation rate per million people",
+    fill = NULL
+  ) +
+  theme_homicide()
+
+social_figure(
+  fig_vic_age_sex, 
+  title = "Men (especially young men) are much more likely than women to be homicide victims", 
+  subtitle = "For men, the risk of being a victim of homicide peaks between ages 15 and 24. Homicide risk for women is lower, but remains largely constant throughout adulthood. Very young children also have higher homicide rates: the female homicide rate is higher before age one than at any other single year of age.", 
+  caption = str_glue('Source: Home Office Homicide Index<br>Base: the {prop_base(victims, victim_sex %in% c("Female", "Male"))} of homicides for which victim age and sex were known'),
+  "vic_age_sex"
+)
+
+social_post(
+  str_glue(
+    'Men (especially young men) are much more likely to be victims of ',
+    'homicide than women are: about ',
+    '{prop_from_table(victims_sex, victim_sex == "Male")} of homicide victims ',
+    'are male.'
+  )
+)
+
+social_post(
+  "For men, homicide risk peaks at 15–24 then drops. For women, risk is ",
+  "largely constant through adulthood.\n\n",
+  "Young children are at high risk: girls are more likely to be killed before ",
+  "their 1st birthday than at any other time in their lives.",
+  image = "vic_age_sex",
+  alt = "A bar chart displays annual homicide victimisation rates per million people by age group and sex in five-year categories from birth to age 90+. Dark blue bars represent male victims, and light blue bars represent female victims. Male victimisation rates are highest between ages 15–34, peaking at over 30 per million. Female rates remain lower across all ages but rise among those aged 85 and over. The male rate declines steadily after age 34. The data source is the Home Office Homicide Index, based on 99.9% of homicides where victim age and sex were known. A legend distinguishes male and female bars."
+)
+
+fig_vic_age_sex + 
+  labs(
+    caption = str_glue('Source: Home Office Homicide Index<br>Base: the {prop_base(victims, victim_sex %in% c("Female", "Male"))} of homicides for which victim age and sex were known')
+  )
+```
+
+
+Men are much more likely than women to be victims of homicide (@fig-vic-age-sex). From 2019 to 2022, about `r prop_from_table(victims_sex, victim_sex == "Male")` of victims were male and `r prop_from_table(victims_sex, victim_sex == "Female")` were female. Homicide victimisation also varies with age: for men and boys, homicide risk peaked between the ages of 15 and 24, before decreasing throughout the rest of adulthood. For female victims the picture was different, with victimisation risk remaining largely constant from ages 25 to 80.
+
+Two other patterns are worth noting in @fig-vic-age-sex. First, very-young children (both boys and girls) were much more likely to be homicide victims than older children were. The rate of female homicide victimisation was higher for girls aged less than one year than for any other single year of age. Secondly, homicide risk for women appears to have been higher after age 70, although the smaller number of female victims makes it harder to be certain about this.
+
+
+### Most homicide victims are White, but Black people are at higher risk
+
+A majority of homicide victims (`r prop_from_table(victims_ethnicity, victim_ethnicity == "White")`) were White, with `r prop_from_table(victims_ethnicity, victim_ethnicity == "Black")` being Black, `r prop_from_table(victims_ethnicity, victim_ethnicity == "Asian")` Asian and the remaining `r prop_from_table(victims_ethnicity, victim_ethnicity %in% c("Mixed/Multiple", "Not known/not recorded", "Other"))` being of other or unknown ethnicities (@fig-vic-age-ethnicity). In all age groups, Black people had a higher rate of victimisation than the population as a whole. White people and victims with mixed/multiple ethnicity had lower homicide victimisation rates than the population as a whole at all ages.
+
+```{r}
+#| label: fig-vic-age-ethnicity
+#| fig-cap: "Homicide victimisation rate by age and ethnicity"
+#| fig-alt: "Bar chart showing homicide victimisation rates per million people in England and Wales by age group and ethnicity, based on data from the Home Office Homicide Index. The chart is divided into five panels by ethnicity: All victims, Asian, Black, Mixed/Multiple, and White victims. Each panel displays vertical bars for age groups in ten-year intervals from 0 to 80+, with darker bars indicating lower or equal homicide rates compared to the total population of the same age, and red bars indicating higher rates. A stepped line overlays each panel, showing the homicide rate for all ethnicities for reference. The chart highlights significantly higher homicide rates among young Black victims at all ages, peaking at over 100 victims per million at age aged 20–29. Other ethnic groups generally show lower or comparable homicide rates to the overall population, with slight increases among certain age groups. The data is based on the 95.1% of homicides for which both age and ethnicity were known. The purpose of the chart is to reveal disparities in homicide victimisation rates across different ethnic groups and age ranges."
+#| warning: false
+
+rates_ethnicity <- victims |> 
+  filter(victim_ethnicity != "Other") |> 
+  mutate(
+    victim_age = if_else(victim_age > 90, 90, victim_age),
+    age_upper = ceiling((victim_age + 1) / 10) * 10,
+    age_lower = age_upper - 10
+  ) |> 
+  count(victim_ethnicity, age_lower, name = "victims") |> 
+  left_join(
+    pop_age_groups_ethnicity, 
+    by = c("victim_ethnicity" = "ethnic_group", "age_lower")
+  ) |> 
+  mutate(rate = (victims / (population / 1000000)) / 3)
+
+rates_ethnicity_all <- rates_ethnicity |> 
+  summarise(
+    across(c(victims, population), \(x) sum(x, na.rm = TRUE)), 
+    .by = age_lower
+  ) |> 
+  mutate(rate = (victims / (population / 1000000)) / 3)
+
+ fig_vic_age_ethnicity <- rates_ethnicity_all |> 
+  mutate(victim_ethnicity = "All") |> 
+  bind_rows(rates_ethnicity) |> 
+  filter(victim_ethnicity != "Not known/not recorded") |> 
+  left_join(
+    select(rates_ethnicity_all, age_lower, rate_all = rate), 
+    by = "age_lower"
+  ) |>
+  mutate(
+    higher = rate > rate_all,
+    victim_ethnicity = str_glue("{victim_ethnicity} victims")
+  ) |> 
+  ggplot(aes(x = age_lower, y = rate)) +
+  geom_col(aes(fill = higher), na.rm = TRUE, position = position_nudge(x = 5)) +
+  geom_step(data = rates_ethnicity_all, colour = "white", linewidth = 1.5) +
+  geom_step(data = rates_ethnicity_all, colour = ucl_brand[["b"]]) +
+  facet_grid(cols = vars(victim_ethnicity), labeller = label_wrap_gen(10)) +
+  scale_x_continuous(
+    breaks = seq(0, 90, by = 20),
+    expand = c(0, 0)
+  ) +
+  scale_y_continuous(expand = expansion(c(0, 0.05))) +
+  scale_fill_manual(
+    values = c(`FALSE` = ucl_brand[["b"]], `TRUE` = ucl_brand[["e"]]),
+    labels = c(
+      `FALSE` = "lower/equal homicide rate", 
+      `TRUE` = "higher homicide rate"
+    )
+  ) +
+  labs(
+    subtitle = "",
+    x = "age (in ten-year categories)",
+    y = "annual homicide victimisation rate per million people",
+    fill = "compared to total\npopulation of same age"
+  ) +
+  theme_homicide()
+
+social_figure(
+  fig_vic_age_ethnicity, 
+  title = "Black people have a higher risk of being victims of homicide", 
+  subtitle = "Two thirds of homicide victims in England and Wales are White, but the likelihood of being a homicide victim is much higher for Black people, especially between the ages of 10 and 29.", 
+  caption = str_glue('Note: The stepped line shows homicide victimisation rate for all ethnic groups (also shown in left panel)<br>Source: Home Office Homicide Index<br>Base: the {prop_base(victims, victim_ethnicity != "Other")} of homicides for which victim age and ethnicity were known<br>Note: The stepped line shows homicide victimisation rate for all ethnic groups (also shown in left panel)'),
+  "vic_age_ethnicity"
+)
+
+social_post(
+  str_glue(
+    'Two thirds of homicide victims in England and Wales are White, ',
+    '{prop_from_table(victims_ethnicity, victim_ethnicity == "Black")} are ',
+    'Black, {prop_from_table(victims_ethnicity, victim_ethnicity == "Asian")} ',
+    'are Asian and ',
+    '{prop_from_table(victims_ethnicity, victim_ethnicity %in% c("Mixed/Multiple", "Not known/not recorded", "Other"))} ',
+    'are of other or unknown ethnicities.'
+  )
+)
+
+social_post(
+  "Black people in England and Wales have a higher homicide victimisation ",
+  "rate than the population as a whole at every age, as do Asian adolescents. ",
+  "People from mixed/multiple ethnic backgrounds are less likely to be ",
+  "homicide victims.",
+  image = "vic_age_ethnicity",
+  alt = "Bar chart showing homicide victimisation rates per million people in England and Wales by age group and ethnicity, based on data from the Home Office Homicide Index. The chart is divided into five panels by ethnicity: All victims, Asian, Black, Mixed/Multiple, and White victims. Each panel displays vertical bars for age groups in ten-year intervals from 0 to 80+, with darker bars indicating lower or equal homicide rates compared to the total population of the same age, and red bars indicating higher rates. A stepped line overlays each panel, showing the homicide rate for all ethnicities for reference. The chart highlights significantly higher homicide rates among young Black victims at all ages, peaking at over 100 victims per million at age aged 20–29. Other ethnic groups generally show lower or comparable homicide rates to the overall population, with slight increases among certain age groups. The data is based on the 95.1% of homicides for which both age and ethnicity were known. The purpose of the chart is to reveal disparities in homicide victimisation rates across different ethnic groups and age ranges."
+)
+
+fig_vic_age_ethnicity + 
+  labs(
+    caption = str_glue('Source: Home Office Homicide Index<br>Base: the {prop_base(victims, victim_ethnicity != "Other")} of homicides for which victim age and ethnicity were known<br>Note: The stepped line shows homicide victimisation rate for all ethnic groups (also shown in left panel)')
+  )
+```
+
+```{r}
+#| label: ethnic-disparity
+
+pop_ethnic_disparity <- pop |> 
+  mutate(
+    age_group = cut(
+      age, 
+      breaks = c(0, 10, 18, 30, 65, Inf), 
+      labels = c("0–9", "10–17", "18–29", "30–64", "65+"), 
+      right = FALSE,
+      ordered_result = TRUE
+    )
+  ) |> 
+  count(sex, ethnic_group, age_group, wt = n, name = "population")
+
+disparity_categories <- victims |> 
+  filter(
+    victim_ethnicity != "Not known/not recorded",
+    victim_sex %in% c("Female", "Male")
+  ) |> 
+  mutate(
+    age_group = cut(
+      victim_age, 
+      breaks = c(0, 10, 18, 30, 65, Inf), 
+      labels = c("0–9", "10–17", "18–29", "30–64", "65+"), 
+      right = FALSE,
+      ordered_result = TRUE
+    )
+  ) |> 
+  count(victim_sex, victim_ethnicity, age_group, name = "victims") |> 
+  complete(victim_sex, victim_ethnicity, age_group, fill = list(victims = 0)) |> 
+  left_join(
+    pop_ethnic_disparity, 
+    by = c("victim_sex" = "sex", "victim_ethnicity" = "ethnic_group", "age_group")
+  ) |> 
+  mutate(
+    rate = if_else(victims < 5, NA, victims / (population / 1000000))
+  ) |> 
+  mutate(rate_white = last(rate), .by = c(victim_sex, age_group)) |> 
+  mutate(disparity = rate / rate_white) |> 
+  filter(victim_ethnicity %in% c("Asian", "Black", "Other"))
+
+disparity_max <- disparity_categories |> 
+  slice_max(order_by = disparity, n = 2) |> 
+  mutate(
+    sex_age = case_when(
+      age_group %in% c("0–9", "10–17") & victim_sex == "Female" ~ "girl", 
+      age_group %in% c("0–9", "10–17") & victim_sex == "Male" ~ "boy", 
+      victim_sex == "Female" ~ "woman", 
+      victim_sex == "Male" ~ "man", 
+      TRUE ~ NA_character_
+    ), 
+    category = str_glue(
+      "a {victim_ethnicity} {sex_age} aged {age_group} is ",
+      "{number(disparity, accuracy = 0.1)} times as likely to be a victim of ",
+      "homicide as a White {sex_age} of the same age"
+    )
+  ) |> 
+  pull("category") |> 
+  combine_words(and = ", while ")
+```
+
+@fig-ethnic-disparity shows ethnic _disparities_ in homicide victimisation: how the likelihood of a person being a victim of homicide compares to the likelihood of being a victim for a White person of the same age and sex. This shows that even after controlling for age and sex, Black people in particular have higher homicide victimisation rates than White people. For example, all else being equal `r disparity_max`. 
+
+```{r}
+#| label: fig-ethnic-disparity
+#| fig-cap: "Age-standardised ethnic disparity in homicide victimisation"
+#| fig-alt: "A heatmap chart showing homicide disparity ratios in England and Wales by victim ethnicity, sex, and age group. Rows represent ethnic groups (Asian, Black, and Other) and columns represent age groups for female and male victims. The number in each cell shows the rate of homicides in of people of a particular ethnicity relative to the rate of homicides for White people of the same age and sex. The darkest red cells, indicating highest relative risk, appear for Black males aged 10–17 and 18–29, with risk ratios of ×13.4 and ×13.3 respectively. Other males aged 18–29 and Black females 65+ also show elevated risks. Cells with fewer than 5 homicides are marked with a dash (–). Source: Home Office Homicide Index. Base: 96.2% of homicides with known age, sex, and ethnicity."
+#| fig-asp: 0.5
+
+fig_ethnic_disparity <- disparity_categories |>
+  ggplot(
+    aes(
+      x = str_glue("{age_group}\nyrs"), 
+      y = fct_rev(victim_ethnicity), 
+      colour = between(disparity, 0.5, 4),
+      fill = disparity, 
+      label = replace_na(number(disparity, accuracy = 0.1, prefix = "×"), "–")
+    )
+  ) + 
+  geom_tile(colour = NA) +
+  geom_text() +
+  facet_grid(cols = vars(victim_sex)) +
+  scale_x_discrete(position = "top") +
+  scale_colour_manual(values = c(`FALSE` = "white", `TRUE` = "black")) +
+  scale_fill_gradient2(
+    low = ucl_brand[["a"]], 
+    mid = "white", 
+    high = ucl_brand[["d"]],
+    na.value = "white",
+    trans = transform_log()
+  ) +
+  coord_fixed() +
+  labs(
+    x = NULL, 
+    y = NULL
+  ) +
+  theme_homicide() +
+  theme(
+    axis.ticks = element_blank(),
+    legend.position = "none",
+    panel.grid = element_blank()
+  )
+
+social_figure(
+  fig_ethnic_disparity, 
+  title = "Homicide victimisation is 13 times higher for Black boys aged 10–17 than for White boys of the same age", 
+  subtitle = "Each number represents the rate of homicide victimisation for people in that group, relative to the rate for White people of the same age. Relative homicide rates are much higher for young Black men and boys, for young men and boys from other non-White ethnic groups, and for young women from other ethnic groups.", 
+  caption = str_glue(
+    'Source: Home Office Homicide Index<br>Base: the {prop_base(victims, victim_ethnicity != "Not known/not recorded" & !is.na(victim_age) & victim_sex %in% c("Female", "Male"))} of homicides for which victim age, sex and ethnicity were known<br>Note: excludes any combination of age, ethnicity and sex with fewer than 5 homicides, i.e. all categories for mixed/multiple ethnicities and those categories marked with \'–\'.'
+  ),
+  "ethnic_disparity"
+  # asp = 0.5
+)
+
+social_post(
+  "Black men and boys are particularly likely to be victims of homicide: ",
+  str_replace(str_extract(disparity_max, "^.+?\\,"), "\\,", "."),
+  image = "ethnic_disparity",
+  alt = "A heatmap chart showing homicide disparity ratios in England and Wales by victim ethnicity, sex, and age group. Rows represent ethnic groups (Asian, Black, and Other) and columns represent age groups for female and male victims. The number in each cell shows the rate of homicides in of people of a particular ethnicity relative to the rate of homicides for White people of the same age and sex. The darkest red cells, indicating highest relative risk, appear for Black males aged 10–17 and 18–29, with risk ratios of ×13.4 and ×13.3 respectively. Other males aged 18–29 and Black females 65+ also show elevated risks. Cells with fewer than 5 homicides are marked with a dash (–). Source: Home Office Homicide Index. Base: 96.2% of homicides with known age, sex, and ethnicity."
+)
+
+fig_ethnic_disparity + 
+  labs(
+    caption = str_glue(
+      'Source: Home Office Homicide Index<br>Base: the {prop_base(victims, victim_ethnicity != "Not known/not recorded" & !is.na(victim_age) & victim_sex %in% c("Female", "Male"))} of homicides for which victim age, sex and ethnicity were known<br>Note: excludes any combination of age, ethnicity and sex with fewer than 5 homicides, i.e. all categories for mixed/multiple ethnicities and those categories marked with \'–\'.'
+    )
+  )
+```
+
+
+@fig-vic-cluster shows the rate of homicide victimisation by ethnicity in the different [Home Office homicide sub-types](../homicide-profile/#subtypes). Black people were at highest risk in all sub-types except sub-type 4 (female victims of non-domestic homicide). However, since most of the population of England and Wales is White, the largest _number_ of victims were White in all sub-types except sub-type 3 (male victims up to age 25 killed in a public place),  in which Black victims had a risk of victimisation more than four times higher than other ethnic groups.
+
+
+```{r}
+#| label: fig-vic-cluster
+#| fig-asp: 0.75
+#| fig-cap: "Homicide victimisation risk for ethnic groups in each Home Office sub-type"
+#| fig-alt: "A set of eight horizontal bar charts compares annual homicide victimisation rates per million people across different ethnic groups in England and Wales, segmented by victim Home Office homicide sub-type. Each chart includes five ethnic groups: Black, Other, Asian, White, and Mixed/Multiple. Dashed lines show the average for each sub-type. Black individuals consistently show higher victimisation rates, especially among male victims under 25 killed in public (peaking near 60 per million). Data is from the Home Office Homicide Index, excluding the Grays lorry deaths."
+
+vic_cluster_risk <- victims |> 
+  filter(
+    victim_ethnicity != "Not known/not recorded",
+    !(offence_date == ymd("2019-10-23") & police_force_name == "Essex")
+  ) |> 
+  count(cluster, victim_ethnicity, name = "victims") |> 
+  mutate(cluster_id = str_extract(cluster, "^\\w+")) |> 
+  full_join(pop_clusters, by = c("cluster_id", "victim_ethnicity")) |> 
+  arrange(cluster_id) |> 
+  fill(cluster) |> 
+  replace_na(list(victims = 0)) |> 
+  mutate(
+    rate = (victims / (population / 1000000)) / 3,
+    victim_ethnicity = fct_relevel(
+      victim_ethnicity, 
+      c("White", "Black", "Asian", "Mixed/Multiple", "Other")
+    )
+  )
+
+vic_cluster_risk_all <- vic_cluster_risk |> 
+  summarise(
+    victims = sum(victims), 
+    population = sum(population),
+    .by = cluster
+  ) |> 
+  mutate(rate = (victims / (population / 1000000)) / 3)
+
+vic_cluster_risk_ethnicity <- vic_cluster_risk |> 
+  summarise(
+    victims = sum(victims), 
+    population = sum(population), 
+    .by = victim_ethnicity
+  ) |> 
+  mutate(
+    rate = (victims / (population / 1000000)) / 3, 
+    victim_ethnicity = fct_reorder(victim_ethnicity, desc(rate))
+  ) |> 
+  pull("victim_ethnicity") |> 
+  levels()
+
+fig_vic_cluster <- vic_cluster_risk |> 
+  mutate(
+    victim_ethnicity = factor(victim_ethnicity, vic_cluster_risk_ethnicity)
+  ) |> 
+  ggplot(aes(x = rate, y = fct_rev(victim_ethnicity))) +
+  geom_col(aes(fill = victim_ethnicity)) +
+  geom_segment(
+    aes(y = -Inf, yend = Inf), 
+    data = vic_cluster_risk_all,
+    linetype = "22"
+  ) +
+  facet_wrap(
+    vars(cluster), 
+    scales = "free_x", 
+    ncol = 4, 
+    labeller = label_wrap_gen(width = 20)
+  ) +
+  scale_x_continuous(expand = expansion(c(0, 0.02))) +
+  scale_fill_manual(
+    values = c(
+      "Black" = ucl_brand[["c"]],
+      "Other" = ucl_brand[["e"]],
+      "Asian" = ucl_brand[["a"]],
+      "White" = ucl_brand[["d"]],
+      "Mixed/Multiple" = ucl_brand[["b"]]
+    ), 
+    guide = guide_legend(reverse = TRUE)
+  ) +
+  labs(
+    subtitle = "The dashed lines show homicide victimisation rate for all ethnic groups in that sub-type. Note the horizontal chart axis is different for each sub-type.",
+    x = "annual homicide victimisation rate per million people", 
+    y = NULL, 
+    fill = "victim ethnicity"
+  ) +
+  theme_homicide() +
+  theme(
+    axis.ticks.y = element_blank(),
+    legend.position = "none",
+    panel.grid.major.x = element_line(),
+    panel.grid.major.y = element_blank(),
+    panel.grid.minor.y = element_blank(),
+    panel.spacing = unit(1, "lines")
+  )
+
+
+social_figure(
+  fig_vic_cluster, 
+  title = "Black people are at higher risk of being killed in almost all types of homicide", 
+  subtitle = "The dashed lines show homicide victimisation rate for all ethnic groups in that sub-type.", 
+  caption = str_glue('Source: Home Office Homicide Index<br>Base: the {prop_base(victims, victim_ethnicity != "Not known/not recorded")} of homicides for which victim ethnicity was known<br>Note: excludes 9 female and 30 male victims who died in the Grays lorry incident'),
+  name = "vic_cluster"
+)
+
+social_post(
+  "Black people are at a higher risk of being killed for all types of ",
+  "homicide except non-domestic homicides of women. Asian men are also at ",
+  "higher risk than White men of being killed in domestic homicides.",
+  image = "vic_cluster",
+  alt = "A set of eight horizontal bar charts compares annual homicide victimisation rates per million people across different ethnic groups in England and Wales, segmented by victim Home Office homicide sub-type. Each chart includes five ethnic groups: Black, Other, Asian, White, and Mixed/Multiple. Dashed lines show the average for each sub-type. Black individuals consistently show higher victimisation rates, especially among male victims under 25 killed in public (peaking near 60 per million). Data is from the Home Office Homicide Index, excluding the Grays lorry deaths."
+)
+
+fig_vic_cluster + 
+  labs(
+    caption = str_glue('Source: Home Office Homicide Index<br>Base: the {prop_base(victims, victim_ethnicity != "Not known/not recorded")} of homicides for which victim ethnicity was known<br>Note: excludes 9 female and 30 male victims who died in the Grays lorry incident')
+  )
+```
+
+
+
+::: {#imp-ethnicity-reasons .callout-important}
+#### Why are Black people at higher risk?
+
+A person's vulnerability to homicide depends on a wide range of factors from how they spend their time to how able they are (physically and cognitively, but also economically) to protect themselves. 
+
+The Homicide Index is the most-detailed dataset for studying homicide at the national level, but it is still limited in the information it contains. Most social and economic factors are related to one another in some way, for example some groups in society are on-average more deprived than others, so ethnicity and deprivation are related. That means that when we can measure some factors but not others, it's possible that a relationship caused by a factor we can't measure (like deprivation) might appear to be caused by a related factor we can measure (e.g. ethnicity). 
+
+It is therefore crucial to remember that **people in a group being more at risk does not mean they are more at risk _because_ they are members of that group**. For example, young men aren't at greater risk of homicide because they're young men; they're at greater risk of homicide because being a young man (which is recorded in the Homicide Index) generally means you are likely to spend more time in the sorts of places where violence is more common (which isn't recorded in the Homicide Index).
+
+Ultimately, how likely someone is to be a victim of homicide depends on a combination of factors related to disadvantage, vulnerability and opportunity. No one factor can explain homicide vulnerability on its own.
+:::
+
+
+
+```{r}
+#| label: victim-employment
+
+victim_employment <- victims |> 
+  filter(victim_age >= 16) |> 
+  count(victim_employment_status) |> 
+  left_join(econ_act, by = c("victim_employment_status" = "status")) |> 
+  drop_na() |> 
+  janitor::adorn_totals() |> 
+  mutate(
+    rate = n / (people / 1000000), 
+    disparity = rate / last(rate), 
+    disparity_employed = rate / first(rate)
+  )
+```
+
+
+
+### Unemployed people are much more likely to be victims of homicide
+
+Unemployed people were `r number(pluck(filter(victim_employment, victim_employment_status == "Unemployed"), "disparity", 1))` times more likely to be victims of homicide than the population as a whole. The only other groups with higher victimisation rates than the rate for employed people (who make up the largest proportion of adults) were full-time students (who were `r number(pluck(filter(victim_employment, victim_employment_status == "Student"), "disparity_employed", 1), accuracy = 0.1)` times more likely to be a victim than employed people) and retired people (`r number(pluck(filter(victim_employment, victim_employment_status == "Retired"), "disparity_employed", 1), accuracy = 0.1)` times more likely).
+
+
+```{r}
+#| label: victim-overall-profiles
+
+victim_profiles <- victims |> 
+  drop_na(method, victim_age, victim_employment_status, victim_ethnicity, victim_sex) |> 
+  mutate(
+    victim_age = if_else(victim_age > 90, 90, victim_age),
+    age_upper = ceiling((victim_age + 1) / 10) * 10,
+    age_lower = age_upper - 10
+  ) |> 
+  count(age_lower, victim_employment_status, victim_ethnicity, victim_sex, sort = TRUE) |> 
+  mutate(
+    sex_desc = case_when(
+      age_lower == 10 & victim_sex == "Female" ~ "female teenagers", 
+      age_lower == 10 & victim_sex == "Male" ~ "male teenagers",
+      victim_sex == "Female" ~ str_glue("women in their {age_lower}s"), 
+      victim_sex == "Male" ~ str_glue("men in their {age_lower}s")
+    ),
+    prop = n / sum(n),
+    label = str_glue(
+      "{str_to_lower(victim_employment_status)} {victim_ethnicity} ",
+      "{sex_desc} ({percent(prop)} of victims)"
+    ),
+    label = if_else(row_number() == 1, label, str_remove(label, " of victims"))
+  ) |> 
+  slice_max(order_by = prop, n = 3)
+
+
+# Estimate what proportion of people are unemployed White men in their 20s, 30s
+# or 40s. Note that census data isn't available in that detail, so we have to
+# use data on White men in their 20s, 30s and 40s then apply the proportion of
+# the population that is unemployed to that.
+unemployed_rate <- econ_act |> 
+  n_from_table(status == "Unemployed", accuracy = 0.01, column = "prop") |> 
+  as.numeric()
+unemployed_white_men_20_40 <- pop_age_groups_ethnicity |> 
+  mutate(prop = population / sum(population)) |> 
+  filter(ethnic_group == "White", between(age_lower, 20, 40)) |> 
+  summarise(prop = sum(prop) * unemployed_rate) |> 
+  pluck("prop")
+
+social_post(
+  str_glue(
+    'Unemployed people are ',
+    number(pluck(filter(victim_employment, victim_employment_status == "Unemployed"), "disparity", 1)),
+    ' times more likely to be victims of homicide than the population as a ',
+    'whole. Unemployed men aged 30–49 make up ',
+    '{percent(unemployed_white_men_20_40, accuracy = 0.1)} of the population ',
+    'but {percent(sum(pull(victim_profiles, "prop")))} of all homicide victims.'
+  )
+)
+```
+
+
+For victims with known age, employment status, ethnic group and sex, the most common categories of victim were `r combine_words(pull(victim_profiles, "label"))`. Between them, these three categories make up `r percent(sum(pull(victim_profiles, "prop")))` of all homicide victims, despite making up about `r percent(unemployed_white_men_20_40, accuracy = 0.1)` of the overall population.
+
+
+```{r}
+#| label: fig-vic-risk
+#| fig-cap: "Homicide victimisation risk by age, sex and ethnic group"
+#| fig-alt: "Horizontal bar chart showing annual homicide victimisation rates per 100,000 people in England and Wales, broken down by age, sex, and ethnicity. The highest rates are for Black males aged 16–24 (21.5) and 25–34 (14.4), followed by Asian males 16–24 (3.2). Most victims with higher rates are young to middle-aged males, especially Black males. Females across all groups show significantly lower rates, all below 1.2. Bars are colored red for males and blue for females. Data is sourced from the Home Office Homicide Index, covering 90.6% of cases where victim demographics were known, excluding mixed/other ethnicities."
+#| fig-asp: 1
+
+pop_vic_risk <- pop |> 
+  mutate(
+    age_group = cut(
+      age, 
+      breaks = c(0, 16, 25, 35, 60, Inf), 
+      labels = c("under 16", "16–24", "25–34", "35–60", "over 60"),
+      right = FALSE
+    )
+  ) |> 
+  count(
+    victim_sex = sex, 
+    victim_ethnicity = ethnic_group, 
+    age_group, 
+    wt = n, 
+    name = "pop"
+  )
+
+vic_risk <- victims |> 
+  filter(
+    !is.na(victim_age),
+    !victim_ethnicity %in% c("Not known/not recorded", "Mixed/Multiple", "Other"),
+    !is.na(victim_sex)
+  ) |> 
+  mutate(
+    age_group = cut(
+      victim_age, 
+      breaks = c(0, 16, 25, 35, 60, Inf), 
+      labels = c("under 16", "16–24", "25–34", "35–60", "over 60"),
+      right = FALSE
+    )
+  ) |> 
+  count(victim_sex, age_group, victim_ethnicity, name = "homicides") |> 
+  left_join(
+    pop_vic_risk, 
+    by = c("victim_sex", "age_group", "victim_ethnicity")
+  ) |> 
+  mutate(
+    rate = homicides / (pop / 100000) / 3,
+    chance = pop / (homicides / 3),
+    ethnicity2 = str_remove(victim_ethnicity, "\\/.+$"),
+    label = str_glue(
+      "{ethnicity2}, {str_to_lower(victim_sex)}, {age_group}"
+    ),
+    label = fct_reorder(label, rate),
+    label2 = number(rate, accuracy = 0.1),
+    label3 = str_glue(
+      "{victim_ethnicity} {str_to_lower(victim_sex)} aged {age_group}"
+    )
+  )
+
+fig_vic_risk <- vic_risk |> 
+  mutate(
+    chance_label = comma(
+      floor(chance / 1000) * 1000, 
+      prefix = " 1-in-", 
+      suffix = " "
+    ),
+    is_max = rate == max(rate),
+    chance_label = if_else(
+      is_max, 
+      str_glue("{chance_label}annual chance of being a homicide victim "), 
+      chance_label
+    )
+  ) |> 
+  ggplot() + 
+  aes(
+    x = 1 / chance, 
+    y = label, 
+    colour = is_max, 
+    fill = victim_sex,
+    hjust = as.numeric(is_max), 
+    label = chance_label
+  ) + 
+  geom_label(colour = "white", fill = "white", linewidth = 0, size = 3) +
+  geom_col(colour = NA) + 
+  geom_text(size = 3) +
+  scale_x_continuous(expand = expansion(c(0, 0.05))) +
+  scale_colour_manual(
+    values = c(`TRUE` = "white", `FALSE` = ucl_brand[["b"]]),
+    guide = guide_none()
+  ) +
+  scale_fill_manual(
+    values = c("Female" = ucl_brand[["b"]], "Male" = ucl_brand[["d"]])
+  ) +
+  labs(
+    x = "annual risk of being killed in a homicide", 
+    y = NULL, 
+    fill = NULL
+  ) +
+  theme_homicide() +
+  theme(
+    axis.text.x = element_blank(),
+    axis.ticks.y = element_blank(),
+    legend.justification = c(1, 0),
+    legend.position.inside = c(1, 0),
+    panel.grid.major.x = element_line(),
+    panel.grid.major.y = element_blank(),
+    panel.grid.minor.x = element_line(),
+    panel.grid.minor.y = element_blank()
+  )
+
+social_figure(
+  figure = fig_vic_risk, 
+  title = "Some groups in society are much more likely to be victims of homicide", 
+  subtitle = str_glue(
+    'Homicide is a rare event for every group in society, but some groups are ',
+    'at much higher risk than others. A randomly chosen ',
+    '{pluck(slice_max(vic_risk, order_by = rate), "label3")} has a ',
+    '1-in-{comma(floor(pluck(slice_max(vic_risk, order_by = rate), "chance") / 1000) * 1000)} ',
+    'chance of being a victim of homicide, compared to a ',
+    '1-in-{comma(floor(pluck(slice_min(vic_risk, order_by = rate), "chance") / 1000) * 1000)} ',
+    'chance for a randomly chosen ',
+    '{pluck(slice_min(vic_risk, order_by = rate), "label3")}'
+  ), 
+  caption = str_glue(
+    'Source: Home Office Homicide Index<br>Base: the ',
+    '{prop_base(victims, !is.na(victim_age) & !victim_ethnicity %in% c("Not known/not recorded", "Mixed/Multiple", "Other") & !is.na(victim_sex))} ',
+    'of homicides for which victim age, sex and ethnicity were known, excluding victims with Mixed/Multiple or Other ethnicity'
+  ),
+  name = "vic_risk",
+  asp = 1
+)
+
+social_post(
+  str_glue(
+    'So while homicide is a rare event for every group in society, it\'s much ',
+    'more common for some groups than others. For example, all else being ',
+    'equal a {pluck(slice_max(vic_risk, order_by = rate), "label3")} is more ',
+    'than {floor((pluck(slice_max(vic_risk, order_by = rate), "rate") / pluck(slice_min(vic_risk, order_by = rate), "rate")) / 100) * 100} ',
+    'times more likely to be a victim than an ',
+    '{pluck(slice_min(vic_risk, order_by = rate), "label3")}.'
+  ),
+  image = "fig_vic_risk",
+  alt = "Horizontal bar chart showing annual homicide victimisation rates per 100,000 people in England and Wales, broken down by age, sex, and ethnicity. The highest rates are for Black males aged 16–24 (21.5) and 25–34 (14.4), followed by Asian males 16–24 (3.2). Most victims with higher rates are young to middle-aged males, especially Black males. Females across all groups show significantly lower rates, all below 1.2. Bars are colored red for males and blue for females. Data is sourced from the Home Office Homicide Index, covering 90.6% of cases where victim demographics were known, excluding mixed/other ethnicities."
+)
+
+fig_vic_risk +
+  labs(
+    caption = str_glue(
+      'Source: Home Office Homicide Index<br>Base: the ',
+      '{prop_base(victims, !is.na(victim_age) & !victim_ethnicity %in% c("Not known/not recorded", "Mixed/Multiple", "Other") & !is.na(victim_sex))} ',
+      'of homicides for which victim age, sex and ethnicity were known, excluding victims with Mixed/Multiple or Other ethnicity'
+    )
+  )
+```
+
+
+Despite some groups in society being at much higher risk of homicide victimisation than others, homicide remained a rare event for every group in society (@fig-vic-risk). For example, a randomly chosen `r pluck(slice_max(vic_risk, order_by = rate), "label3")` had a less than 1-in-`r comma(floor(pluck(slice_max(vic_risk, order_by = rate), "chance") / 1000) * 1000)` chance of being a victim of homicide in 2022, but this was over `r floor((pluck(slice_max(vic_risk, order_by = rate), "rate") / pluck(slice_min(vic_risk, order_by = rate), "rate")) / 100) * 100` times higher than the chance of a randomly chosen `r pluck(slice_min(vic_risk, order_by = rate), "label3")` being a victim of homicide (where the risk of being a homicide victim was less than 1-in-`r comma(floor(pluck(slice_min(vic_risk, order_by = rate), "chance") / 1000) * 1000)`).
+
+```{r}
+#| label: circumstances-prep
+
+circs <- victims |> 
+  drop_na(suspect_victim_relationship) |> 
+  count(circumstance_group, suspect_victim_relationship) |> 
+  mutate(prop = n / sum(n)) |> 
+  mutate(
+    prop_sum = sum(prop), 
+    prop_group = n / sum(n), 
+    .by = circumstance_group
+  ) |> 
+  mutate(prop_rel = n / sum(n), .by = suspect_victim_relationship)
+
+circs_total <- circs |> 
+  count(circumstance_group, wt = n) |> 
+  mutate(prop = n / sum(n))
+
+circs_top <- circs |> 
+  filter(circumstance_group %in% pull(slice_max(circs_total, order_by = n, n = 2), "circumstance_group", 1)) |> 
+  slice_max(order_by = n, n = 2, by = circumstance_group) |> 
+  arrange(desc(prop_sum), desc(n)) |> 
+  mutate(
+    label = str_glue(
+      "in {percent(prop_group)} of those cases the suspects were ",
+      "{suspect_victim_relationship}s"
+    ),
+    label = if_else(
+      row_number() == 1, 
+      str_glue("{label} ({percent(prop)} of all homicides)"), 
+      label
+    )
+  )
+
+circs_stranger <- circs |> 
+  filter(
+    suspect_victim_relationship == "stranger", 
+    !str_detect(circumstance_group, "circumstances")
+  ) |> 
+  slice_max(order_by = n, n = 3) |> 
+  mutate(
+    circumstance_group = case_match(
+      circumstance_group, 
+      "Reckless act" ~ "as a result of reckless acts", 
+      .default = circumstance_group
+    ), 
+    label = str_glue(
+      "{str_to_lower(circumstance_group)} ({percent(prop_rel)} of homicides ",
+      "by strangers)"
+    )
+  ) |> 
+  pull("label") |> 
+  combine_words(and = "or ")
+
+fig_circumstances_data <- circs |>
+  mutate(
+    circumstance_label = case_match(
+      circumstance_group, 
+      "Irrational act" ~ "Irrational act\n(e.g. by disturbed individual)",
+      "Fights, brawls, etc." ~ 
+        "Fights, brawls, etc.\n(e.g. pub fight, argument over girlfriend)",
+      "In the course of another crime" ~
+        "In the course of another crime\n(e.g. burglary, robbery)",
+      "Long running disputes" ~ 
+        "Long running disputes\n(e.g. neighbour disputes, feuds)",
+      "Reckless act" ~ "Reckless act\n(e.g. gross negligence)",
+      "Sexual" ~ "Sexual motive",
+      "Unknown" ~ "Unknown circumstances",
+      .default = circumstance_group
+    ),
+    circumstance_label = fct_reorder(circumstance_label, prop_sum),
+    circumstance_label = fct_relevel(
+      circumstance_label, 
+      "Unknown circumstances", 
+      "Other known circumstances"
+    ),
+    suspect_victim_relationship = factor(
+      suspect_victim_relationship, 
+      levels = c("partner/ex-partner", "family member", "acquaintance", "stranger")
+    )
+  )
+
+fig_circumstances_data_sum <- fig_circumstances_data |> 
+  summarise(
+    n = sum(n), 
+    prop = sum(prop), 
+    .by = c(circumstance_group, circumstance_label)
+  ) |> 
+  arrange(desc(n))
+```
+
+
+::: {.callout-important}
+#### Average risks for groups can never tell the whole story
+
+It is critical to remember that the patterns identified in this series of blog posts are overall patterns for groups of people, not predications about individuals. Each one of us is unique in many ways that will influence how likely we are to be killed in a homicide. While Black men in their 20s are _in-general_ at much higher risk of homicide than White women in their 60s, it's still entirely possible that the individual circumstances of a _specific_ women in her 60s might put her at higher risk than a specific Black man in his 20s.
+:::
+
+
+### Most homicides occur during brawls or domestic abuse {#circs}
+
+The Homicide Index categorises homicides into different types based on the circumstances in which they occur (@fig-circumstances). The most common set of circumstances is homicides that occur during the course of `r str_replace_all(str_to_lower(pluck(slice_max(circs_total, n = 1, order_by = n), "circumstance_group", 1)), "\n", " ")` (`r percent(pluck(slice_max(circs_total, order_by = n, n = 1), "prop", 1))` of all homicides). Of those incidents, `r combine_words(pull(filter(circs_top, circumstance_group == first(circumstance_group)), "label"))`. 
+The second most-common circumstance was `r str_to_lower(pluck(slice_max(circs_total, n = 2, order_by = n), "circumstance_group", 2))` (`r percent(pluck(slice_max(circs_total, order_by = n, n = 2), "prop", 2))` of all homicides).
+ <!-- `r str_to_sentence(pluck(filter(circs_top, circumstance_group != first(circumstance_group)), "label", 1))`.  -->
+
+`r str_to_sentence(str_flatten(pull(slice_max(fig_circumstances_data_sum, order_by = n, n = 2), "circumstance_group"), last = " and "))` together made up `r percent(sum(pull(slice_max(fig_circumstances_data_sum, order_by = n, n = 2), "prop")))` of all homicides in England and Wales. Media representations of homicide -- both in the news and in fiction -- tend to focus on pre-meditated homicides by strangers, but most actual homicides occur in much more everyday circumstances and involve victims and suspects who know one another.
+
+
+```{r}
+#| label: fig-circumstances
+#| fig-cap: "Homicide circumstances by suspect–victim relationship"
+#| fig-alt: "A horizontal bar chart shows the percentage of homicides in England and Wales by circumstance and the suspect’s relationship to the victim. Categories include “Fights, brawls, etc.”, “Domestic abuse”, and “In the course of another crime,” among others. The four suspect relationship types are color-coded: partner/ex-partner (dark blue), family member (light blue), acquaintance (pink), and stranger (burgundy). “Fights, brawls, etc.” is the most common category overall, with a majority committed by acquaintances and strangers. “Domestic abuse” is the second most common, predominantly involving partners/ex-partners and family members. Homicides during other crimes and long-running disputes also rank high, largely involving strangers and acquaintances. Less frequent categories include child abuse, irrational acts, reckless acts, sexual motives, and terrorism. A significant portion of cases fall under “Unknown circumstances.” The data source is the Home Office Homicide Index, based on 67.6% of homicides where the suspect–victim relationship was known."
+
+fig_circumstances <- fig_circumstances_data |> 
+  ggplot() + 
+  aes(x = prop, y = circumstance_label, fill = suspect_victim_relationship) +
+  geom_col() + 
+  scale_x_continuous(labels = label_percent(), expand = c(0, 0)) +
+  scale_fill_manual(
+    values = c(
+      "acquaintance" = ucl_brand[["d"]],
+      "family member" = ucl_brand[["c"]],
+      "partner/ex-partner" = ucl_brand[["a"]],
+      "stranger" = ucl_brand[["h"]]
+    )
+  ) + 
+  labs(
+    x = "percentage of homicides", 
+    y = NULL, 
+    fill = "suspect\nrelationship\nto victim"
+  ) +
+  theme_homicide() + 
+  theme(
+    axis.ticks.y = element_blank(),
+    legend.justification = c(1, 0),
+    legend.position = "inside",
+    legend.position.inside = c(1, 0),
+    panel.grid.major.x = element_line(),
+    panel.grid.minor.x = element_line(),
+    panel.grid.major.y = element_blank(),
+    panel.grid.minor.y = element_blank()
+  )
+
+social_figure(
+  fig_circumstances,
+  title = "Most homicides occur during brawls or domestic abuse",
+  subtitle = str_glue(
+    '{str_to_sentence(str_flatten(pull(slice_max(fig_circumstances_data_sum, order_by = n, n = 2), "circumstance_group"), last = " and "))} ',
+    'together made up ',
+    '{percent(sum(pull(slice_max(fig_circumstances_data_sum, order_by = n, n = 2), "prop")))} ',
+    'of all homicides in England and Wales. Media representations of homicide ',
+    '-- both in the news and in fiction -- tend to focus on pre-meditated ',
+    'homicides by strangers, but most actual homicides occur in much more ',
+    'everyday circumstances and involve victims and suspects who know one ',
+    'another.'
+  ),
+  caption = str_glue(
+    'Source: Home Office Homicide Index<br>Base: the ',
+    '{prop_base(victims, !is.na(suspect_victim_relationship))} of homicides ',
+    'for which suspect--victim relationship was known'
+  ),
+  name = "circumstances"
+)
+
+social_post(
+  'Most homicides occur during non-domestic fights (mostly between ',
+  'acquaintances, sometimes strangers) or domestic abuse (mainly between ',
+  'partners, sometimes family members).\n\nAll homicides are tragedies, but ',
+  'most happen in tragically everyday circumstances.',
+  image = "circumstances"
+)
+
+social_post(
+  str_glue(
+    'Other types of homicide are much rarer: only ',
+    '{percent(pluck(filter(fig_circumstances_data_sum, circumstance_group == "Sexual"), "prop"))} ',
+    'of homicides had a sexual motive and only ',
+    '{percent(pluck(filter(fig_circumstances_data_sum, circumstance_group == "Terrorism"), "prop"), accuracy = 0.1)} ',
+    'occurred during terrorist attacks, even though those types of homicide ',
+    'often dominate public debates about public safety.'
+  )
+)
+
+fig_circumstances +
+  labs(
+    caption = str_glue(
+      'Source: Home Office Homicide Index<br>Base: the ',
+      '{prop_base(victims, !is.na(suspect_victim_relationship))} of homicides ',
+      'for which suspect--victim relationship was known'
+    )
+  )
+```
+
+
+Among homicides where the suspects were strangers, the most common circumstances were homicides committed during `r circs_stranger`.  We will return to [domestic-abuse homicides in part six of this series](../homicide-profile-vulnerable/).
+
+
+```{r}
+#| label: final-social-posts
+
+social_post(
+  "This analysis of homicide victims in England and Wales comes from a report ",
+  "written by me and Prof Iain Brennan for the UK College of Policing. You ",
+  "can get more detail at https://lesscrime.info/post/homicide-profile-victims/"
+)
+
+social_post(
+  "This is the second in a series of seven threads summarising different ",
+  "aspects of homicide in England and Wales. You can find links to the ",
+  "other threads at https://lesscrime.info/post/homicide-profile/"
+)
+```
+
+
+### In summary
+
+While homicide is rare for all groups in society, some groups are at much higher risk of being killed. This includes men (especially young men) being at higher risk than women, and Black people (especially young Black men) being at much higher risk than White people of the same age and sex.
+
+The next post in this series looks at [homicide offenders](../homicide-profile-offenders/).

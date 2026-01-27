@@ -1,0 +1,793 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en"><head>
+
+<meta charset="utf-8">
+<meta name="generator" content="quarto-1.6.40">
+
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+
+<meta name="author" content="Matt Ashby">
+<meta name="dcterms.date" content="2026-01-26">
+
+<title>Homicide in England and Wales, Part 5: Homicide hotspots – Matt Ashby</title>
+<style>
+code{white-space: pre-wrap;}
+span.smallcaps{font-variant: small-caps;}
+div.columns{display: flex; gap: min(4vw, 1.5em);}
+div.column{flex: auto; overflow-x: auto;}
+div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+ul.task-list{list-style: none;}
+ul.task-list li input[type="checkbox"] {
+  width: 0.8em;
+  margin: 0 0.8em 0.2em -1em; /* quarto-specific, see https://github.com/quarto-dev/quarto-cli/issues/4556 */ 
+  vertical-align: middle;
+}
+</style>
+
+
+<script src="../../site_libs/quarto-nav/quarto-nav.js"></script>
+<script src="../../site_libs/quarto-nav/headroom.min.js"></script>
+<script src="../../site_libs/clipboard/clipboard.min.js"></script>
+<script src="../../site_libs/quarto-search/autocomplete.umd.js"></script>
+<script src="../../site_libs/quarto-search/fuse.min.js"></script>
+<script src="../../site_libs/quarto-search/quarto-search.js"></script>
+<meta name="quarto:offset" content="../../">
+<script src="../../site_libs/quarto-html/quarto.js"></script>
+<script src="../../site_libs/quarto-html/popper.min.js"></script>
+<script src="../../site_libs/quarto-html/tippy.umd.min.js"></script>
+<script src="../../site_libs/quarto-html/anchor.min.js"></script>
+<link href="../../site_libs/quarto-html/tippy.css" rel="stylesheet">
+<link href="../../site_libs/quarto-html/quarto-syntax-highlighting-549806ee2085284f45b00abea8c6df48.css" rel="stylesheet" id="quarto-text-highlighting-styles">
+<script src="../../site_libs/bootstrap/bootstrap.min.js"></script>
+<link href="../../site_libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
+<link href="../../site_libs/bootstrap/bootstrap-ee5d4d5833c2e32a258b66c087c6b3f6.min.css" rel="stylesheet" append-hash="true" id="quarto-bootstrap" data-mode="light">
+<script id="quarto-search-options" type="application/json">{
+  "location": "navbar",
+  "copy-button": false,
+  "collapse-after": 3,
+  "panel-placement": "end",
+  "type": "overlay",
+  "limit": 50,
+  "keyboard-shortcut": [
+    "f",
+    "/",
+    "s"
+  ],
+  "show-item-context": false,
+  "language": {
+    "search-no-results-text": "No results",
+    "search-matching-documents-text": "matching documents",
+    "search-copy-link-title": "Copy link to search",
+    "search-hide-matches-text": "Hide additional matches",
+    "search-more-match-text": "more match in this document",
+    "search-more-matches-text": "more matches in this document",
+    "search-clear-button-title": "Clear",
+    "search-text-placeholder": "",
+    "search-detached-cancel-button-title": "Cancel",
+    "search-submit-button-title": "Submit",
+    "search-label": "Search"
+  }
+}</script>
+
+
+<link rel="stylesheet" href="../../styles.css">
+<link rel="stylesheet" href="../homicide_theme.css">
+</head>
+
+<body class="nav-fixed">
+
+<div id="quarto-search-results"></div>
+  <header id="quarto-header" class="headroom fixed-top">
+    <nav class="navbar navbar-expand-lg " data-bs-theme="dark">
+      <div class="navbar-container container-fluid">
+      <div class="navbar-brand-container mx-auto">
+    <a class="navbar-brand" href="../../index.html">
+    <span class="navbar-title">Matt Ashby</span>
+    </a>
+  </div>
+            <div id="quarto-search" class="" title="Search"></div>
+          <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarCollapse" aria-controls="navbarCollapse" role="menu" aria-expanded="false" aria-label="Toggle navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">
+  <span class="navbar-toggler-icon"></span>
+</button>
+          <div class="collapse navbar-collapse" id="navbarCollapse">
+            <ul class="navbar-nav navbar-nav-scroll me-auto">
+  <li class="nav-item">
+    <a class="nav-link" href="../../index.html"> 
+<span class="menu-text">Home</span></a>
+  </li>  
+  <li class="nav-item">
+    <a class="nav-link" href="../../post/index.html"> 
+<span class="menu-text">Blog posts</span></a>
+  </li>  
+  <li class="nav-item">
+    <a class="nav-link" href="../../publication/index.html"> 
+<span class="menu-text">Publications</span></a>
+  </li>  
+  <li class="nav-item">
+    <a class="nav-link" href="../../talk/index.html"> 
+<span class="menu-text">Talks</span></a>
+  </li>  
+  <li class="nav-item">
+    <a class="nav-link" href="../../cv/index.pdf"> 
+<span class="menu-text">CV</span></a>
+  </li>  
+  <li class="nav-item">
+    <a class="nav-link" href="../../crimpapers/"> 
+<span class="menu-text">CrimPapers</span></a>
+  </li>  
+  <li class="nav-item dropdown ">
+    <a class="nav-link dropdown-toggle" href="#" id="nav-menu-r-packages" role="link" data-bs-toggle="dropdown" aria-expanded="false">
+ <span class="menu-text">R Packages</span>
+    </a>
+    <ul class="dropdown-menu" aria-labelledby="nav-menu-r-packages">    
+        <li>
+    <a class="dropdown-item" href="https://pkgs.lesscrime.info/crimedata">
+ <span class="dropdown-text">crimedata</span></a>
+  </li>  
+        <li>
+    <a class="dropdown-item" href="https://pkgs.lesscrime.info/crimemappingdata">
+ <span class="dropdown-text">crimemappingdata</span></a>
+  </li>  
+        <li>
+    <a class="dropdown-item" href="https://pkgs.lesscrime.info/sfhotspot">
+ <span class="dropdown-text">sfhotspot</span></a>
+  </li>  
+    </ul>
+  </li>
+</ul>
+          </div> <!-- /navcollapse -->
+            <div class="quarto-navbar-tools">
+</div>
+      </div> <!-- /container-fluid -->
+    </nav>
+</header>
+<!-- content -->
+<div id="quarto-content" class="quarto-container page-columns page-rows-contents page-layout-article page-navbar">
+<!-- sidebar -->
+<!-- margin-sidebar -->
+    <div id="quarto-margin-sidebar" class="sidebar margin-sidebar">
+        <nav id="TOC" role="doc-toc" class="toc-active">
+    <h2 id="toc-title">On this page</h2>
+   
+  <ul>
+  <li><a href="#half-of-all-homicide-occurs-in-six-police-force-areas" id="toc-half-of-all-homicide-occurs-in-six-police-force-areas" class="nav-link active" data-scroll-target="#half-of-all-homicide-occurs-in-six-police-force-areas">Half of all homicide occurs in six police-force areas</a></li>
+  <li><a href="#homicides-of-men-and-women-are-concentrated-in-different-police-areas" id="toc-homicides-of-men-and-women-are-concentrated-in-different-police-areas" class="nav-link" data-scroll-target="#homicides-of-men-and-women-are-concentrated-in-different-police-areas">Homicides of men and women are concentrated in different police areas</a></li>
+  <li><a href="#some-local-authorities-have-much-higher-homicide-rates-than-others" id="toc-some-local-authorities-have-much-higher-homicide-rates-than-others" class="nav-link" data-scroll-target="#some-local-authorities-have-much-higher-homicide-rates-than-others">Some local authorities have much higher homicide rates than others</a></li>
+  <li><a href="#homicide-is-concentrated-in-a-small-number-of-neighbourhoods" id="toc-homicide-is-concentrated-in-a-small-number-of-neighbourhoods" class="nav-link" data-scroll-target="#homicide-is-concentrated-in-a-small-number-of-neighbourhoods">Homicide is concentrated in a small number of neighbourhoods</a></li>
+  <li><a href="#homicide-is-concentrated-in-deprived-areas" id="toc-homicide-is-concentrated-in-deprived-areas" class="nav-link" data-scroll-target="#homicide-is-concentrated-in-deprived-areas">Homicide is concentrated in deprived areas</a></li>
+  <li><a href="#most-female-and-older-male-victims-are-killed-at-home" id="toc-most-female-and-older-male-victims-are-killed-at-home" class="nav-link" data-scroll-target="#most-female-and-older-male-victims-are-killed-at-home">Most female and older male victims are killed at home</a></li>
+  <li><a href="#in-summary" id="toc-in-summary" class="nav-link" data-scroll-target="#in-summary">In summary</a></li>
+  </ul>
+</nav>
+    </div>
+<!-- main -->
+<main class="content page-columns page-full" id="quarto-document-content">
+
+<header id="title-block-header" class="quarto-title-block default">
+<div class="quarto-title">
+<h1 class="title">Homicide in England and Wales, Part 5: Homicide hotspots</h1>
+</div>
+
+
+
+<div class="quarto-title-meta">
+
+    <div>
+    <div class="quarto-title-meta-heading">Author</div>
+    <div class="quarto-title-meta-contents">
+             <p>Matt Ashby </p>
+          </div>
+  </div>
+    
+    <div>
+    <div class="quarto-title-meta-heading">Published</div>
+    <div class="quarto-title-meta-contents">
+      <p class="date">26 Jan 2026</p>
+    </div>
+  </div>
+  
+    
+  </div>
+  
+
+
+</header>
+
+
+<p>This is the fifth in a <a href="../homicide-profile/">series of blog posts summarising the nature of homicide in England and Wales</a>. Each post covers a different aspect of homicide, based on data from the Home Office Homicide Index. This post looks at where in England and Wales homicide is geographically concentrated. This post is a summary of part of a longer <a href="https://library.college.police.uk/docs/Patterns-trends-homicide-problem-profile-2025.pdf">national problem profile of homicide in England and Wales</a> written by me and Prof Iain Brennan.</p>
+<section id="half-of-all-homicide-occurs-in-six-police-force-areas" class="level3">
+<h3 class="anchored" data-anchor-id="half-of-all-homicide-occurs-in-six-police-force-areas">Half of all homicide occurs in six police-force areas</h3>
+<p>All types of crime are heavily geographically concentrated in a small number of places, although not necessarily the same places for all types of crime. As such, it’s not surprising that homicide is also strongly concentrated in a small number of places. About half of all homicides occurred in 6 police-force areas: Metropolitan Police, Greater Manchester, West Midlands, Essex, West Yorkshire, and Thames Valley<a href="#fn1" class="footnote-ref" id="fnref1" role="doc-noteref"><sup>1</sup></a>.</p>
+<p>Partly this is because these police-force areas have the largest populations, but that’s not the whole story. When taking population into account, the highest rates of homicide per million residents were in the Essex, Cleveland, and Greater Manchester police-force areas. However, the high rate in Essex is largely due to the 39 homicides recorded as a result of the manslaughter of 39 people who died while being smuggled into the UK in a lorry in Grays in October 2019. If these homicides are excluded, Essex had the 13th highest homicide rate among forces in England and Wales, with the highest rate instead being in Cleveland (<a href="#fig-pfa-all" class="quarto-xref">Figure&nbsp;1</a>). The homicide rate per million people in Cleveland was 5.4 times higher than the rate in Surrey.</p>
+<div class="cell">
+<div class="cell-output-display">
+<div id="fig-pfa-all" class="quarto-float quarto-figure quarto-figure-center anchored" alt="A choropleth map of England and Wales showing homicide rates per million residents by police force area, based on Home Office Homicide Index data. The map uses a gradient from light (lower rates) to dark blue (higher rates). Each police force region is outlined and numbered if it’s among the top ten for homicide rates. Cleveland ranks highest at 49.2 homicides per million, followed by Greater Manchester (46.7), West Midlands (45.6), and the Metropolitan Police area (45.0). Other top areas include Dyfed-Powys, Lincolnshire, West Mercia, Lancashire, and Warwickshire. A legend on the right indicates the color scale ranging from 10 to over 50 homicides per million. The map excludes 39 victims from the Grays lorry incident. Lighter-colored areas represent lower homicide rates, mainly in southern and rural regions, while darker areas are concentrated in some urban and northern regions.">
+<figure class="quarto-float quarto-float-fig figure">
+<figcaption class="quarto-float-caption-top quarto-float-caption quarto-float-fig" id="fig-pfa-all-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Figure&nbsp;1: Homicide rates by police-force area
+</figcaption>
+<div aria-describedby="fig-pfa-all-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<img src="index_files/figure-html/fig-pfa-all-1.png" class="img-fluid figure-img" alt="A choropleth map of England and Wales showing homicide rates per million residents by police force area, based on Home Office Homicide Index data. The map uses a gradient from light (lower rates) to dark blue (higher rates). Each police force region is outlined and numbered if it’s among the top ten for homicide rates. Cleveland ranks highest at 49.2 homicides per million, followed by Greater Manchester (46.7), West Midlands (45.6), and the Metropolitan Police area (45.0). Other top areas include Dyfed-Powys, Lincolnshire, West Mercia, Lancashire, and Warwickshire. A legend on the right indicates the color scale ranging from 10 to over 50 homicides per million. The map excludes 39 victims from the Grays lorry incident. Lighter-colored areas represent lower homicide rates, mainly in southern and rural regions, while darker areas are concentrated in some urban and northern regions." width="672">
+</div>
+</figure>
+</div>
+</div>
+</div>
+</section>
+<section id="homicides-of-men-and-women-are-concentrated-in-different-police-areas" class="level3 page-columns page-full">
+<h3 class="anchored" data-anchor-id="homicides-of-men-and-women-are-concentrated-in-different-police-areas">Homicides of men and women are concentrated in different police areas</h3>
+<p>Since most homicide victims were male, the overall homicide rates at police-force-area level are mainly driven by homicides of male victims. Homicides of female victims were less geographically concentrated than homicides of men, and in different places. While the highest rates of homicides involving male victims were in urban forces, homicide rates for female victims were highest in non-urban forces (<a href="#fig-pfa-sex" class="quarto-xref">Figure&nbsp;2</a>). The forces with the highest rates of female homicides were Dyfed-Powys, Warwickshire, Norfolk, Staffordshire, and West Mercia. This is likely to reflect the higher number of homicides of male victims that were related to drug markets, the night-time economy, etc. and the higher proportion of female victims who are killed in domestic homicides (see <a href="../homicide-profile-vulnerable/">part six of this series</a>).</p>
+<div class="cell page-columns page-full" data-layout-align="center">
+<div class="cell-output-display page-columns page-full">
+<div id="fig-pfa-sex" class="quarto-float quarto-figure quarto-figure-center anchored page-columns page-full" data-fig-align="center" alt="Side-by-side choropleth maps of England and Wales show homicide rates by police jurisdiction, separated by victim sex. The left map displays male homicide victims with a national rate of 45.4 per million residents. Darker shades indicate higher rates, with Cleveland (northeast) having the highest, followed by West Midlands Police (WMP), the Metropolitan Police Service (MPS), Greater Manchester Police (GMP), and Lincolnshire. The right map shows female homicide victims with a national rate of 16.6 homicides per million residents. Dyfed-Powys in Wales has the highest rate, followed by Warwickshire, Norfolk, Staffordshire, and West Mercia. Both maps use varying shades of blue to represent homicide rates per million, with a darker hue indicating a higher rate. A note clarifies that victims from the Grays lorry incident were excluded. The maps are sourced from the Home Office Homicide Index and based on data where victim sex was known, covering 99.9% of all homicides recorded.">
+<figure class="quarto-float quarto-float-fig figure page-columns page-full">
+<figcaption class="quarto-float-caption-top quarto-float-caption quarto-float-fig" id="fig-pfa-sex-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Figure&nbsp;2: Homicide rates by police-force area and victim sex
+</figcaption>
+<div aria-describedby="fig-pfa-sex-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca" class="page-columns page-full">
+<img src="index_files/figure-html/fig-pfa-sex-1.png" class="img-fluid quarto-figure quarto-figure-center figure-img column-body-outset" alt="Side-by-side choropleth maps of England and Wales show homicide rates by police jurisdiction, separated by victim sex. The left map displays male homicide victims with a national rate of 45.4 per million residents. Darker shades indicate higher rates, with Cleveland (northeast) having the highest, followed by West Midlands Police (WMP), the Metropolitan Police Service (MPS), Greater Manchester Police (GMP), and Lincolnshire. The right map shows female homicide victims with a national rate of 16.6 homicides per million residents. Dyfed-Powys in Wales has the highest rate, followed by Warwickshire, Norfolk, Staffordshire, and West Mercia. Both maps use varying shades of blue to represent homicide rates per million, with a darker hue indicating a higher rate. A note clarifies that victims from the Grays lorry incident were excluded. The maps are sourced from the Home Office Homicide Index and based on data where victim sex was known, covering 99.9% of all homicides recorded." width="960">
+</div>
+</figure>
+</div>
+</div>
+</div>
+</section>
+<section id="some-local-authorities-have-much-higher-homicide-rates-than-others" class="level3 page-columns page-full">
+<h3 class="anchored" data-anchor-id="some-local-authorities-have-much-higher-homicide-rates-than-others">Some local authorities have much higher homicide rates than others</h3>
+<p>Homicides were also concentrated at local authority district level<a href="#fn2" class="footnote-ref" id="fnref2" role="doc-noteref"><sup>2</sup></a>. Of the 317 local authority districts in England and Wales, half of homicides occurred in 56 districts, a quarter in 20 districts<a href="#fn3" class="footnote-ref" id="fnref3" role="doc-noteref"><sup>3</sup></a> and 10% in just 6 districts (Birmingham, Brent, Croydon, Greenwich, Manchester, and Sheffield).</p>
+<p><a href="#fig-lad" class="quarto-xref">Figure&nbsp;3</a> shows the homicide rate per 100,000 residents per year in local-authority districts, with districts labelled if they had a homicide rate higher than twice the national average<a href="#fn4" class="footnote-ref" id="fnref4" role="doc-noteref"><sup>4</sup></a>. While the homicide rate was higher in some regions than in others, there was substantial variation within each region. For example, while London had the highest regional homicide rate and the South East region the lowest, three London boroughs had homicide rates below the regional rate for the South East.</p>
+<div class="cell page-columns page-full" data-layout-align="center">
+<div class="cell-output-display page-columns page-full">
+<div id="fig-lad" class="quarto-float quarto-figure quarto-figure-center anchored page-columns page-full" data-fig-align="center" alt="Scatter plot showing the annual homicide victimisation rate per 100,000 residents across local authorities in England and Wales, grouped by region. Each dot represents a local authority, with red circles for mainly urban areas and blue for mainly rural. The x-axis shows homicide rates ranging from 0 to over 5; the y-axis lists regions like London, West Midlands, and East of England. Black bars represent the regional average homicide rate, while a dashed vertical line shows the national average. London shows many urban authorities with rates above 1. Some outliers with high rates include Lambeth, Greenwich, and Boston. South East and East of England have clusters of low-rate rural areas. The chart visualizes both the variability within regions and the urban-rural divide in homicide rates. Sourced from the Home Office Homicide Index, based on 94.4% of cases with known offence locations. Legend clarifies circle colors and rate markers.">
+<figure class="quarto-float quarto-float-fig figure page-columns page-full">
+<figcaption class="quarto-float-caption-top quarto-float-caption quarto-float-fig" id="fig-lad-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Figure&nbsp;3: Homicide rates in local-authority areas in England and Wales
+</figcaption>
+<div aria-describedby="fig-lad-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca" class="page-columns page-full">
+<img src="index_files/figure-html/fig-lad-1.png" class="img-fluid quarto-figure quarto-figure-center figure-img column-body-outset" alt="Scatter plot showing the annual homicide victimisation rate per 100,000 residents across local authorities in England and Wales, grouped by region. Each dot represents a local authority, with red circles for mainly urban areas and blue for mainly rural. The x-axis shows homicide rates ranging from 0 to over 5; the y-axis lists regions like London, West Midlands, and East of England. Black bars represent the regional average homicide rate, while a dashed vertical line shows the national average. London shows many urban authorities with rates above 1. Some outliers with high rates include Lambeth, Greenwich, and Boston. South East and East of England have clusters of low-rate rural areas. The chart visualizes both the variability within regions and the urban-rural divide in homicide rates. Sourced from the Home Office Homicide Index, based on 94.4% of cases with known offence locations. Legend clarifies circle colors and rate markers." width="960">
+</div>
+</figure>
+</div>
+</div>
+</div>
+<p>It would be easy to think of homicide as a purely urban phenomenon, but three of the 10 districts with the highest homicide rates (Boston, Pembrokeshire, and Pendle) were largely rural. While Black people are over-represented as both <a href="../homicide-profile-victims/">victims of homicide</a> and as <a href="../homicide-profile-offenders/">homicide offenders</a>, the district with the highest homicide rate (Boston in Lincolnshire) has a population that is more than 95% White.</p>
+</section>
+<section id="homicide-is-concentrated-in-a-small-number-of-neighbourhoods" class="level3 page-columns page-full">
+<h3 class="anchored" data-anchor-id="homicide-is-concentrated-in-a-small-number-of-neighbourhoods">Homicide is concentrated in a small number of neighbourhoods</h3>
+<p>Homicide was also concentrated within each local authority district. This is partly because homicide is a relatively rare event, so it is inevitable that most areas will have no homicides in a given period. Nevertheless, homicides were substantially more clustered in a few places than we would expect by chance.</p>
+<p>For example, in London homicides were tightly concentrated in a small number of areas (<a href="#fig-map-london" class="quarto-xref">Figure&nbsp;4</a>). It’s important to note that while I’ve chosen London for this map, a similar pattern of heavy concentration in a few areas would be apparent in maps of other parts of England and Wales.</p>
+<p>The strong concentration of homicide in a few neighbourhoods emphasises the importance of ensuring that efforts to tackle homicide were concentrated in the areas with the highest need.</p>
+<div class="cell page-columns page-full" data-layout-align="center">
+<div class="cell-output-display page-columns page-full">
+<div id="fig-map-london" class="quarto-float quarto-figure quarto-figure-center anchored page-columns page-full" data-fig-align="center" alt="A hexagonal heat map of London shows the density of homicides based on data from the Home Office Homicide Index. The map uses a gradient from light beige to dark red-orange to indicate areas of low to high homicide density. Central and southeastern parts of London, including areas around Stockwell, Warwick Avenue, and Newbury Park, show the highest concentrations, marked by darker red-orange hexagons. Other named areas include Turnpike Lane and Selhurst, which show moderate to lower densities. The map features borough boundaries and a scale bar indicating 8 km for reference. A legend at the bottom left explains the color gradient, and a note beneath it states that the data covers 94.4% of cases with known offence locations. The map emphasizes geographical variation in homicide frequency across Greater London.">
+<figure class="quarto-float quarto-float-fig figure page-columns page-full">
+<figcaption class="quarto-float-caption-top quarto-float-caption quarto-float-fig" id="fig-map-london-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Figure&nbsp;4: Spatial concentrations of homicide in and around London
+</figcaption>
+<div aria-describedby="fig-map-london-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca" class="page-columns page-full">
+<img src="index_files/figure-html/fig-map-london-1.png" class="img-fluid quarto-figure quarto-figure-center figure-img column-body-outset" alt="A hexagonal heat map of London shows the density of homicides based on data from the Home Office Homicide Index. The map uses a gradient from light beige to dark red-orange to indicate areas of low to high homicide density. Central and southeastern parts of London, including areas around Stockwell, Warwick Avenue, and Newbury Park, show the highest concentrations, marked by darker red-orange hexagons. Other named areas include Turnpike Lane and Selhurst, which show moderate to lower densities. The map features borough boundaries and a scale bar indicating 8 km for reference. A legend at the bottom left explains the color gradient, and a note beneath it states that the data covers 94.4% of cases with known offence locations. The map emphasizes geographical variation in homicide frequency across Greater London." width="960">
+</div>
+</figure>
+</div>
+</div>
+</div>
+</section>
+<section id="homicide-is-concentrated-in-deprived-areas" class="level3 page-columns page-full">
+<h3 class="anchored" data-anchor-id="homicide-is-concentrated-in-deprived-areas">Homicide is concentrated in deprived areas</h3>
+<p>Homicides are more likely to occur in neighbourhoods that have higher levels of deprivation (<a href="#fig-map-deprivation" class="quarto-xref">Figure&nbsp;5</a>)<a href="#fn5" class="footnote-ref" id="fnref5" role="doc-noteref"><sup>5</sup></a>. A quarter of all homicides occurred in the 11% of most-deprived neighbourhoods, while half of all homicides occurred in the 27% of most-deprived neighbourhoods.</p>
+<div class="cell page-columns page-full" data-layout-align="center">
+<div class="cell-output-display page-columns page-full">
+<div id="fig-map-deprivation" class="quarto-float quarto-figure quarto-figure-center anchored page-columns page-full" data-fig-align="center" alt="A bar chart shows the relationship between neighbourhood deprivation and homicide rates in England. The x-axis represents the population of England arranged by level of deprivation, from 0% (most deprived) to 100% (least deprived). Each bar represents 1% of the population and shows the annual number of homicides per million residents in that group. The y-axis ranges from 0 to 35 homicides per million. Homicide rates are highest in the most-deprived areas on the left side of the chart, with most-deprived percentile showing a rate over 30 homicides per million. The rates generally decline as deprivation decreases, although there are some fluctuations. The right side of the chart, representing less-deprived areas, shows consistently lower homicide rates, mostly below 10 homicides per million. Above the chart, a row of percentages indicates the share of total homicides that occurred in each decile of deprivation. These are: 23%, 16%, 14%, 12%, 10%, 8%, 7%, 5%, 4%, and 2%. An explanatory note states: “Each number shows the percentage of all homicides that happen in neighbourhoods containing 10% of the population of England, arranged in order of how deprived they were. If there were no relationship between deprivation and homicides, we would expect 10% of homicides to occur in each 10% of neighbourhoods.” Another note explains the bars: “Each bar represents neighbourhoods occupied by 1% of the population of England, arranged in order of how deprived those neighbourhoods were. The height of each bar represents the rate of homicides in an area inhabited by that 1% of the population.” The chart visually demonstrates a clear relationship: more-deprived neighbourhoods experience disproportionately higher homicide rates than less-deprived ones. Source: Home Office Homicide Index. Based on 94.4% of homicides with a known offence location. Excludes 39 homicides from the Grays lorry deaths incident.">
+<figure class="quarto-float quarto-float-fig figure page-columns page-full">
+<figcaption class="quarto-float-caption-top quarto-float-caption quarto-float-fig" id="fig-map-deprivation-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Figure&nbsp;5: Concentration of homicides in England by neighbourhood deprivation levels
+</figcaption>
+<div aria-describedby="fig-map-deprivation-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca" class="page-columns page-full">
+<img src="index_files/figure-html/fig-map-deprivation-1.png" class="img-fluid quarto-figure quarto-figure-center figure-img column-body-outset" alt="A bar chart shows the relationship between neighbourhood deprivation and homicide rates in England. The x-axis represents the population of England arranged by level of deprivation, from 0% (most deprived) to 100% (least deprived). Each bar represents 1% of the population and shows the annual number of homicides per million residents in that group. The y-axis ranges from 0 to 35 homicides per million. Homicide rates are highest in the most-deprived areas on the left side of the chart, with most-deprived percentile showing a rate over 30 homicides per million. The rates generally decline as deprivation decreases, although there are some fluctuations. The right side of the chart, representing less-deprived areas, shows consistently lower homicide rates, mostly below 10 homicides per million. Above the chart, a row of percentages indicates the share of total homicides that occurred in each decile of deprivation. These are: 23%, 16%, 14%, 12%, 10%, 8%, 7%, 5%, 4%, and 2%. An explanatory note states: “Each number shows the percentage of all homicides that happen in neighbourhoods containing 10% of the population of England, arranged in order of how deprived they were. If there were no relationship between deprivation and homicides, we would expect 10% of homicides to occur in each 10% of neighbourhoods.” Another note explains the bars: “Each bar represents neighbourhoods occupied by 1% of the population of England, arranged in order of how deprived those neighbourhoods were. The height of each bar represents the rate of homicides in an area inhabited by that 1% of the population.” The chart visually demonstrates a clear relationship: more-deprived neighbourhoods experience disproportionately higher homicide rates than less-deprived ones. Source: Home Office Homicide Index. Based on 94.4% of homicides with a known offence location. Excludes 39 homicides from the Grays lorry deaths incident." width="960">
+</div>
+</figure>
+</div>
+</div>
+</div>
+</section>
+<section id="most-female-and-older-male-victims-are-killed-at-home" class="level3">
+<h3 class="anchored" data-anchor-id="most-female-and-older-male-victims-are-killed-at-home">Most female and older male victims are killed at home</h3>
+<p>Homicide most-often occurred at someone’s home (<a href="#fig-location-types" class="quarto-xref">Figure&nbsp;6</a>). This was especially true for female victims: 78% of female victims were killed in a house or dwelling, compared to 41% of male victims. Conversely, only 14% of female victims were killed in a street or open space, compared to 47% of male victims.</p>
+<div class="cell">
+<div class="cell-output-display">
+<div id="fig-location-types" class="quarto-float quarto-figure quarto-figure-center anchored">
+<figure class="quarto-float quarto-float-fig figure">
+<figcaption class="quarto-float-caption-top quarto-float-caption quarto-float-fig" id="fig-location-types-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Figure&nbsp;6: Homicides by location type
+</figcaption>
+<div aria-describedby="fig-location-types-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<img src="index_files/figure-html/fig-location-types-1.png" class="img-fluid figure-img" width="672">
+</div>
+</figure>
+</div>
+</div>
+</div>
+<p>Some types of homicide we particularly likely to happen at home. 87% of homicides of female victims in which the suspect was a current or ex-partner occurred in a house or dwelling, along with 77% of homicides of male victims in which the suspect was a partner.</p>
+<p>However, in homicides in which the suspect was a stranger, 70% of male victims were killed in a street or other public place, compared to 61% of female victims – 26% of female victims killed by strangers were killed in a home.</p>
+<div class="cell">
+<div class="cell-output-display">
+<div id="fig-location-age" class="quarto-float quarto-figure quarto-figure-center anchored">
+<figure class="quarto-float quarto-float-fig figure">
+<figcaption class="quarto-float-caption-top quarto-float-caption quarto-float-fig" id="fig-location-age-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Figure&nbsp;7: Proportion of homicides in different types of location, by victim age and sex
+</figcaption>
+<div aria-describedby="fig-location-age-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<img src="index_files/figure-html/fig-location-age-1.png" class="img-fluid figure-img" width="672">
+</div>
+</figure>
+</div>
+</div>
+</div>
+<p>A large majority of female victims were killed in a dwelling at all ages except 10–19 years – more than 80% of female victims aged 20 or over were killed in a residential location (<a href="#fig-location-age" class="quarto-xref">Figure&nbsp;7</a>). Male victims aged 10–40 were more likely to be killed in a street or open space than in a residential location, while for male victims under 10 or over 50, most homicides occurred in residences.</p>
+<p>We can combine homicide circumstances (which I covered in <a href="../homicide-profile-victims/#circs">Part 2 of this series</a>) and location types to further understand where homicide is most concentrated. For male victims:</p>
+<ul>
+<li>25% of homicides occurred in the context of non-domestic fights, brawls, etc. (e.g.&nbsp;pub fight, argument over girlfriend) in a street or open space</li>
+<li>13% in the context of non-domestic fights, brawls, etc. in a house or dwelling</li>
+<li>9% in the context of domestic abuse in a house or dwelling</li>
+</ul>
+<p>Meanwhile for female victims:</p>
+<ul>
+<li>52% of homicides occurred in the context of domestic abuse in a house or dwelling</li>
+<li>7% in the context of child abuse in a house or dwelling</li>
+<li>4% in the context of domestic abuse in a street or open space</li>
+</ul>
+</section>
+<section id="in-summary" class="level3">
+<h3 class="anchored" data-anchor-id="in-summary">In summary</h3>
+<p>Like all other types of crime, homicide his heavily concentrated in a few places. In England and Wales, half of homicides occur in six of the 43 police-force areas, and in 56 of the 317 local authority districts. Homicides of male victims are more concentrated in urban areas, while homicides of female victims are more concentrated in rural police-force areas. Homicides are also concentrated at local level, and are particularly likely to occur in deprived areas.</p>
+
+
+</section>
+
+
+<div id="quarto-appendix" class="default"><section id="footnotes" class="footnotes footnotes-end-of-document" role="doc-endnotes"><h2 class="anchored quarto-appendix-heading">Footnotes</h2>
+
+<ol>
+<li id="fn1"><p>In this analysis, homicides in the City of London are analysed as if they occurred in the Metropolitan Police District<a href="#fnref1" class="footnote-back" role="doc-backlink">↩︎</a></p></li>
+<li id="fn2"><p>This includes districts within administrative counties, and unitary authorities.<a href="#fnref2" class="footnote-back" role="doc-backlink">↩︎</a></p></li>
+<li id="fn3"><p>Birmingham, Brent, Bristol, Coventry, Croydon, Enfield, Greenwich, Haringey, Kirklees, Lambeth, Leeds, Leicester, Liverpool, Manchester, Milton Keynes, Newham, Redbridge, Salford, Sheffield, and Southwark<a href="#fnref3" class="footnote-back" role="doc-backlink">↩︎</a></p></li>
+<li id="fn4"><p>15 districts had a homicide rate that was greater than twice the national homicide rate: Blackpool, Bolsover, Boston, Brent, Croydon, Greenwich, Haringey, Lambeth, North East Derbyshire, Pembrokeshire, Pendle, Redbridge, Redditch, Salford, and Southend-on-Sea<a href="#fnref4" class="footnote-back" role="doc-backlink">↩︎</a></p></li>
+<li id="fn5"><p>Deprivation data were taken from the government English Indices of Deprivation 2019. This analysis includes only homicides that occurred in England, since comparable deprivation data were not available for neighbourhoods in Wales.<a href="#fnref5" class="footnote-back" role="doc-backlink">↩︎</a></p></li>
+</ol>
+</section></div></main> <!-- /main -->
+<script id="quarto-html-after-body" type="application/javascript">
+window.document.addEventListener("DOMContentLoaded", function (event) {
+  const toggleBodyColorMode = (bsSheetEl) => {
+    const mode = bsSheetEl.getAttribute("data-mode");
+    const bodyEl = window.document.querySelector("body");
+    if (mode === "dark") {
+      bodyEl.classList.add("quarto-dark");
+      bodyEl.classList.remove("quarto-light");
+    } else {
+      bodyEl.classList.add("quarto-light");
+      bodyEl.classList.remove("quarto-dark");
+    }
+  }
+  const toggleBodyColorPrimary = () => {
+    const bsSheetEl = window.document.querySelector("link#quarto-bootstrap");
+    if (bsSheetEl) {
+      toggleBodyColorMode(bsSheetEl);
+    }
+  }
+  toggleBodyColorPrimary();  
+  const icon = "";
+  const anchorJS = new window.AnchorJS();
+  anchorJS.options = {
+    placement: 'right',
+    icon: icon
+  };
+  anchorJS.add('.anchored');
+  const isCodeAnnotation = (el) => {
+    for (const clz of el.classList) {
+      if (clz.startsWith('code-annotation-')) {                     
+        return true;
+      }
+    }
+    return false;
+  }
+  const onCopySuccess = function(e) {
+    // button target
+    const button = e.trigger;
+    // don't keep focus
+    button.blur();
+    // flash "checked"
+    button.classList.add('code-copy-button-checked');
+    var currentTitle = button.getAttribute("title");
+    button.setAttribute("title", "Copied!");
+    let tooltip;
+    if (window.bootstrap) {
+      button.setAttribute("data-bs-toggle", "tooltip");
+      button.setAttribute("data-bs-placement", "left");
+      button.setAttribute("data-bs-title", "Copied!");
+      tooltip = new bootstrap.Tooltip(button, 
+        { trigger: "manual", 
+          customClass: "code-copy-button-tooltip",
+          offset: [0, -8]});
+      tooltip.show();    
+    }
+    setTimeout(function() {
+      if (tooltip) {
+        tooltip.hide();
+        button.removeAttribute("data-bs-title");
+        button.removeAttribute("data-bs-toggle");
+        button.removeAttribute("data-bs-placement");
+      }
+      button.setAttribute("title", currentTitle);
+      button.classList.remove('code-copy-button-checked');
+    }, 1000);
+    // clear code selection
+    e.clearSelection();
+  }
+  const getTextToCopy = function(trigger) {
+      const codeEl = trigger.previousElementSibling.cloneNode(true);
+      for (const childEl of codeEl.children) {
+        if (isCodeAnnotation(childEl)) {
+          childEl.remove();
+        }
+      }
+      return codeEl.innerText;
+  }
+  const clipboard = new window.ClipboardJS('.code-copy-button:not([data-in-quarto-modal])', {
+    text: getTextToCopy
+  });
+  clipboard.on('success', onCopySuccess);
+  if (window.document.getElementById('quarto-embedded-source-code-modal')) {
+    const clipboardModal = new window.ClipboardJS('.code-copy-button[data-in-quarto-modal]', {
+      text: getTextToCopy,
+      container: window.document.getElementById('quarto-embedded-source-code-modal')
+    });
+    clipboardModal.on('success', onCopySuccess);
+  }
+    var localhostRegex = new RegExp(/^(?:http|https):\/\/localhost\:?[0-9]*\//);
+    var mailtoRegex = new RegExp(/^mailto:/);
+      var filterRegex = new RegExp('/' + window.location.host + '/');
+    var isInternal = (href) => {
+        return filterRegex.test(href) || localhostRegex.test(href) || mailtoRegex.test(href);
+    }
+    // Inspect non-navigation links and adorn them if external
+ 	var links = window.document.querySelectorAll('a[href]:not(.nav-link):not(.navbar-brand):not(.toc-action):not(.sidebar-link):not(.sidebar-item-toggle):not(.pagination-link):not(.no-external):not([aria-hidden]):not(.dropdown-item):not(.quarto-navigation-tool):not(.about-link)');
+    for (var i=0; i<links.length; i++) {
+      const link = links[i];
+      if (!isInternal(link.href)) {
+        // undo the damage that might have been done by quarto-nav.js in the case of
+        // links that we want to consider external
+        if (link.dataset.originalHref !== undefined) {
+          link.href = link.dataset.originalHref;
+        }
+      }
+    }
+  function tippyHover(el, contentFn, onTriggerFn, onUntriggerFn) {
+    const config = {
+      allowHTML: true,
+      maxWidth: 500,
+      delay: 100,
+      arrow: false,
+      appendTo: function(el) {
+          return el.parentElement;
+      },
+      interactive: true,
+      interactiveBorder: 10,
+      theme: 'quarto',
+      placement: 'bottom-start',
+    };
+    if (contentFn) {
+      config.content = contentFn;
+    }
+    if (onTriggerFn) {
+      config.onTrigger = onTriggerFn;
+    }
+    if (onUntriggerFn) {
+      config.onUntrigger = onUntriggerFn;
+    }
+    window.tippy(el, config); 
+  }
+  const noterefs = window.document.querySelectorAll('a[role="doc-noteref"]');
+  for (var i=0; i<noterefs.length; i++) {
+    const ref = noterefs[i];
+    tippyHover(ref, function() {
+      // use id or data attribute instead here
+      let href = ref.getAttribute('data-footnote-href') || ref.getAttribute('href');
+      try { href = new URL(href).hash; } catch {}
+      const id = href.replace(/^#\/?/, "");
+      const note = window.document.getElementById(id);
+      if (note) {
+        return note.innerHTML;
+      } else {
+        return "";
+      }
+    });
+  }
+  const xrefs = window.document.querySelectorAll('a.quarto-xref');
+  const processXRef = (id, note) => {
+    // Strip column container classes
+    const stripColumnClz = (el) => {
+      el.classList.remove("page-full", "page-columns");
+      if (el.children) {
+        for (const child of el.children) {
+          stripColumnClz(child);
+        }
+      }
+    }
+    stripColumnClz(note)
+    if (id === null || id.startsWith('sec-')) {
+      // Special case sections, only their first couple elements
+      const container = document.createElement("div");
+      if (note.children && note.children.length > 2) {
+        container.appendChild(note.children[0].cloneNode(true));
+        for (let i = 1; i < note.children.length; i++) {
+          const child = note.children[i];
+          if (child.tagName === "P" && child.innerText === "") {
+            continue;
+          } else {
+            container.appendChild(child.cloneNode(true));
+            break;
+          }
+        }
+        if (window.Quarto?.typesetMath) {
+          window.Quarto.typesetMath(container);
+        }
+        return container.innerHTML
+      } else {
+        if (window.Quarto?.typesetMath) {
+          window.Quarto.typesetMath(note);
+        }
+        return note.innerHTML;
+      }
+    } else {
+      // Remove any anchor links if they are present
+      const anchorLink = note.querySelector('a.anchorjs-link');
+      if (anchorLink) {
+        anchorLink.remove();
+      }
+      if (window.Quarto?.typesetMath) {
+        window.Quarto.typesetMath(note);
+      }
+      if (note.classList.contains("callout")) {
+        return note.outerHTML;
+      } else {
+        return note.innerHTML;
+      }
+    }
+  }
+  for (var i=0; i<xrefs.length; i++) {
+    const xref = xrefs[i];
+    tippyHover(xref, undefined, function(instance) {
+      instance.disable();
+      let url = xref.getAttribute('href');
+      let hash = undefined; 
+      if (url.startsWith('#')) {
+        hash = url;
+      } else {
+        try { hash = new URL(url).hash; } catch {}
+      }
+      if (hash) {
+        const id = hash.replace(/^#\/?/, "");
+        const note = window.document.getElementById(id);
+        if (note !== null) {
+          try {
+            const html = processXRef(id, note.cloneNode(true));
+            instance.setContent(html);
+          } finally {
+            instance.enable();
+            instance.show();
+          }
+        } else {
+          // See if we can fetch this
+          fetch(url.split('#')[0])
+          .then(res => res.text())
+          .then(html => {
+            const parser = new DOMParser();
+            const htmlDoc = parser.parseFromString(html, "text/html");
+            const note = htmlDoc.getElementById(id);
+            if (note !== null) {
+              const html = processXRef(id, note);
+              instance.setContent(html);
+            } 
+          }).finally(() => {
+            instance.enable();
+            instance.show();
+          });
+        }
+      } else {
+        // See if we can fetch a full url (with no hash to target)
+        // This is a special case and we should probably do some content thinning / targeting
+        fetch(url)
+        .then(res => res.text())
+        .then(html => {
+          const parser = new DOMParser();
+          const htmlDoc = parser.parseFromString(html, "text/html");
+          const note = htmlDoc.querySelector('main.content');
+          if (note !== null) {
+            // This should only happen for chapter cross references
+            // (since there is no id in the URL)
+            // remove the first header
+            if (note.children.length > 0 && note.children[0].tagName === "HEADER") {
+              note.children[0].remove();
+            }
+            const html = processXRef(null, note);
+            instance.setContent(html);
+          } 
+        }).finally(() => {
+          instance.enable();
+          instance.show();
+        });
+      }
+    }, function(instance) {
+    });
+  }
+      let selectedAnnoteEl;
+      const selectorForAnnotation = ( cell, annotation) => {
+        let cellAttr = 'data-code-cell="' + cell + '"';
+        let lineAttr = 'data-code-annotation="' +  annotation + '"';
+        const selector = 'span[' + cellAttr + '][' + lineAttr + ']';
+        return selector;
+      }
+      const selectCodeLines = (annoteEl) => {
+        const doc = window.document;
+        const targetCell = annoteEl.getAttribute("data-target-cell");
+        const targetAnnotation = annoteEl.getAttribute("data-target-annotation");
+        const annoteSpan = window.document.querySelector(selectorForAnnotation(targetCell, targetAnnotation));
+        const lines = annoteSpan.getAttribute("data-code-lines").split(",");
+        const lineIds = lines.map((line) => {
+          return targetCell + "-" + line;
+        })
+        let top = null;
+        let height = null;
+        let parent = null;
+        if (lineIds.length > 0) {
+            //compute the position of the single el (top and bottom and make a div)
+            const el = window.document.getElementById(lineIds[0]);
+            top = el.offsetTop;
+            height = el.offsetHeight;
+            parent = el.parentElement.parentElement;
+          if (lineIds.length > 1) {
+            const lastEl = window.document.getElementById(lineIds[lineIds.length - 1]);
+            const bottom = lastEl.offsetTop + lastEl.offsetHeight;
+            height = bottom - top;
+          }
+          if (top !== null && height !== null && parent !== null) {
+            // cook up a div (if necessary) and position it 
+            let div = window.document.getElementById("code-annotation-line-highlight");
+            if (div === null) {
+              div = window.document.createElement("div");
+              div.setAttribute("id", "code-annotation-line-highlight");
+              div.style.position = 'absolute';
+              parent.appendChild(div);
+            }
+            div.style.top = top - 2 + "px";
+            div.style.height = height + 4 + "px";
+            div.style.left = 0;
+            let gutterDiv = window.document.getElementById("code-annotation-line-highlight-gutter");
+            if (gutterDiv === null) {
+              gutterDiv = window.document.createElement("div");
+              gutterDiv.setAttribute("id", "code-annotation-line-highlight-gutter");
+              gutterDiv.style.position = 'absolute';
+              const codeCell = window.document.getElementById(targetCell);
+              const gutter = codeCell.querySelector('.code-annotation-gutter');
+              gutter.appendChild(gutterDiv);
+            }
+            gutterDiv.style.top = top - 2 + "px";
+            gutterDiv.style.height = height + 4 + "px";
+          }
+          selectedAnnoteEl = annoteEl;
+        }
+      };
+      const unselectCodeLines = () => {
+        const elementsIds = ["code-annotation-line-highlight", "code-annotation-line-highlight-gutter"];
+        elementsIds.forEach((elId) => {
+          const div = window.document.getElementById(elId);
+          if (div) {
+            div.remove();
+          }
+        });
+        selectedAnnoteEl = undefined;
+      };
+        // Handle positioning of the toggle
+    window.addEventListener(
+      "resize",
+      throttle(() => {
+        elRect = undefined;
+        if (selectedAnnoteEl) {
+          selectCodeLines(selectedAnnoteEl);
+        }
+      }, 10)
+    );
+    function throttle(fn, ms) {
+    let throttle = false;
+    let timer;
+      return (...args) => {
+        if(!throttle) { // first call gets through
+            fn.apply(this, args);
+            throttle = true;
+        } else { // all the others get throttled
+            if(timer) clearTimeout(timer); // cancel #2
+            timer = setTimeout(() => {
+              fn.apply(this, args);
+              timer = throttle = false;
+            }, ms);
+        }
+      };
+    }
+      // Attach click handler to the DT
+      const annoteDls = window.document.querySelectorAll('dt[data-target-cell]');
+      for (const annoteDlNode of annoteDls) {
+        annoteDlNode.addEventListener('click', (event) => {
+          const clickedEl = event.target;
+          if (clickedEl !== selectedAnnoteEl) {
+            unselectCodeLines();
+            const activeEl = window.document.querySelector('dt[data-target-cell].code-annotation-active');
+            if (activeEl) {
+              activeEl.classList.remove('code-annotation-active');
+            }
+            selectCodeLines(clickedEl);
+            clickedEl.classList.add('code-annotation-active');
+          } else {
+            // Unselect the line
+            unselectCodeLines();
+            clickedEl.classList.remove('code-annotation-active');
+          }
+        });
+      }
+  const findCites = (el) => {
+    const parentEl = el.parentElement;
+    if (parentEl) {
+      const cites = parentEl.dataset.cites;
+      if (cites) {
+        return {
+          el,
+          cites: cites.split(' ')
+        };
+      } else {
+        return findCites(el.parentElement)
+      }
+    } else {
+      return undefined;
+    }
+  };
+  var bibliorefs = window.document.querySelectorAll('a[role="doc-biblioref"]');
+  for (var i=0; i<bibliorefs.length; i++) {
+    const ref = bibliorefs[i];
+    const citeInfo = findCites(ref);
+    if (citeInfo) {
+      tippyHover(citeInfo.el, function() {
+        var popup = window.document.createElement('div');
+        citeInfo.cites.forEach(function(cite) {
+          var citeDiv = window.document.createElement('div');
+          citeDiv.classList.add('hanging-indent');
+          citeDiv.classList.add('csl-entry');
+          var biblioDiv = window.document.getElementById('ref-' + cite);
+          if (biblioDiv) {
+            citeDiv.innerHTML = biblioDiv.innerHTML;
+          }
+          popup.appendChild(citeDiv);
+        });
+        return popup.innerHTML;
+      });
+    }
+  }
+});
+</script>
+</div> <!-- /content -->
+<footer class="footer">
+  <div class="nav-footer">
+    <div class="nav-footer-left">
+      &nbsp;
+    </div>   
+    <div class="nav-footer-center">
+<p>The content on this website is licensed under a <a href="https://creativecommons.org/licenses/by/4.0/">Creative Commons Attribution Licence</a></p>
+</div>
+    <div class="nav-footer-right">
+      &nbsp;
+    </div>
+  </div>
+</footer>
+
+
+
+
+</body></html>

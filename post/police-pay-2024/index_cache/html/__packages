@@ -1,0 +1,17 @@
+readxl
+ggtext
+httr
+httr2
+janitor
+patchwork
+scales
+tidyverse
+ggplot2
+tibble
+tidyr
+readr
+purrr
+dplyr
+stringr
+forcats
+lubridate

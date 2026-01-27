@@ -1,0 +1,86 @@
+Homicide (like all types of crime) is heavily concentrated in a small number of places – half of all homicides in England and Wales happen in six police-force areas. But where are different types of homicide most concentrated?
+
+🧵 [229 chrs]
+
+----
+
+This thread is the fifth in a series of threads about homicide in England and Wales.
+
+All the threads: https://lesscrime.info/post/homicide-profile/
+
+Full report: https://library.college.police.uk/docs/Patterns-trends-homicide-problem-profile-2025.pdf [251 chrs]
+
+----
+
+Half of all homicides occur in six police-force areas: Metropolitan Police, Greater Manchester, West Midlands, Essex, West Yorkshire, and Thames Valley. But the highest homicides per million people were in the Cleveland and Greater Manchester force areas. [255 chrs]
+
+[pfa_all.png]
+
+Alt text: A choropleth map of England and Wales showing homicide rates per million residents by police force area, based on Home Office Homicide Index data. The map uses a gradient from light (lower rates) to dark blue (higher rates). Each police force region is outlined and numbered if it’s among the top ten for homicide rates. Cleveland ranks highest at 49.2 homicides per million, followed by Greater Manchester (46.7), West Midlands (45.6), and the Metropolitan Police area (45.0). Other top areas include Dyfed-Powys, Lincolnshire, West Mercia, Lancashire, and Warwickshire. A legend on the right indicates the color scale ranging from 10 to over 50 homicides per million. The map excludes 39 victims from the Grays lorry incident. Lighter-colored areas represent lower homicide rates, mainly in southern and rural regions, while darker areas are concentrated in some urban and northern regions.
+
+----
+
+Homicides of men are most concentrated in urban police-force areas such as Cleveland and the West Midlands. But homicides of women are more concentrated in suburban and rural police-force areas such as Dyfed-Powys, Warwickshire and Norfolk. [240 chrs]
+
+[pfa_sex.png]
+
+Alt text: Side-by-side choropleth maps of England and Wales show homicide rates by police jurisdiction, separated by victim sex. The left map displays male homicide victims with a national rate of 45.4 per million residents. Darker shades indicate higher rates, with Cleveland (northeast) having the highest, followed by West Midlands Police (WMP), the Metropolitan Police Service (MPS), Greater Manchester Police (GMP), and Lincolnshire. The right map shows female homicide victims with a national rate of 16.6 homicides per million residents. Dyfed-Powys in Wales has the highest rate, followed by Warwickshire, Norfolk, Staffordshire, and West Mercia. Both maps use varying shades of blue to represent homicide rates per million, with a darker hue indicating a higher rate. A note clarifies that victims from the Grays lorry incident were excluded. The maps are sourced from the Home Office Homicide Index and based on data where victim sex was known, covering 99.9% of all homicides recorded.
+
+----
+
+Homicide is heavily concentrated in a few local-authority areas, but not not always those you might think. Some London boroughs have high homicide rates, but the highest rates are in deprived coastal areas such as Boston and Blackpool. [235 chrs]
+
+[fig_lad.png]
+
+Alt text: Scatter plot showing the annual homicide victimisation rate per 100,000 residents across local authorities in England and Wales, grouped by region. Each dot represents a local authority, with red circles for mainly urban areas and blue for mainly rural. The x-axis shows homicide rates ranging from 0 to over 5; the y-axis lists regions like London, West Midlands, and East of England. Black bars represent the regional average homicide rate, while a dashed vertical line shows the national average. London shows many urban authorities with rates above 1. Some outliers with high rates include Lambeth, Greenwich, and Boston. South East and East of England have clusters of low-rate rural areas. The chart visualizes both the variability within regions and the urban-rural divide in homicide rates. Sourced from the Home Office Homicide Index, based on 94.4% of cases with known offence locations. Legend clarifies circle colors and rate markers.
+
+----
+
+Homicide is also heavily concentrated in a few neighbourhoods.
+
+For example, homicide in London is heavily concentrated in a small number of areas. But it's worth noting that not all of those areas are in the inner city where you might expect. [243 chrs]
+
+[map_london.png]
+
+Alt text: A hexagonal heat map of London shows the density of homicides based on data from the Home Office Homicide Index. The map uses a gradient from light beige to dark red-orange to indicate areas of low to high homicide density. Central and southeastern parts of London, including areas around Stockwell, Warwick Avenue, and Newbury Park, show the highest concentrations, marked by darker red-orange hexagons. Other named areas include Turnpike Lane and Selhurst, which show moderate to lower densities. The map features borough boundaries and a scale bar indicating 8 km for reference. A legend at the bottom left explains the color gradient, and a note beneath it states that the data covers 94.4% of cases with known offence locations. The map emphasizes geographical variation in homicide frequency across Greater London.
+
+----
+
+Homicides concentrated in areas with high levels of deprivation: a quarter of all homicides occurred in the 11% of most-deprived neighbourhoods in England. [155 chrs]
+
+[map_deprivation.png]
+
+Alt text: A bar chart shows the relationship between neighbourhood deprivation and homicide rates in England. The x-axis represents the population of England arranged by level of deprivation, from 0% (most deprived) to 100% (least deprived). Each bar represents 1% of the population and shows the annual number of homicides per million residents in that group. The y-axis ranges from 0 to 35 homicides per million. Homicide rates are highest in the most-deprived areas on the left side of the chart, with most-deprived percentile showing a rate over 30 homicides per million. The rates generally decline as deprivation decreases, although there are some fluctuations. The right side of the chart, representing less-deprived areas, shows consistently lower homicide rates, mostly below 10 homicides per million. Above the chart, a row of percentages indicates the share of total homicides that occurred in each decile of deprivation. These are: 23%, 16%, 14%, 12%, 10%, 8%, 7%, 5%, 4%, and 2%. An explanatory note states: “Each number shows the percentage of all homicides that happen in neighbourhoods containing 10% of the population of England, arranged in order of how deprived they were. If there were no relationship between deprivation and homicides, we would expect 10% of homicides to occur in each 10% of neighbourhoods.” Another note explains the bars: “Each bar represents neighbourhoods occupied by 1% of the population of England, arranged in order of how deprived those neighbourhoods were. The height of each bar represents the rate of homicides in an area inhabited by that 1% of the population.” The chart visually demonstrates a clear relationship: more-deprived neighbourhoods experience disproportionately higher homicide rates than less-deprived ones. Source: Home Office Homicide Index. Based on 94.4% of homicides with a known offence location. Excludes 39 homicides from the Grays lorry deaths incident.
+
+----
+
+A majority of homicides occurred in homes, especially for female victims: 78% of female victims were killed in a dwelling, compared to 41% of male victims.
+
+Almost all homicides in dwellings were committed by someone the victim knew.  [234 chrs]
+
+[location_types.png]
+
+----
+
+Intimate-partner homicides almost always occur in a home: among victims killed by a current/ex-partner 87% of female victims and 77% of male victims were killed in a house or dwelling. [184 chrs]
+
+----
+
+Women were much more likely to be killed in a residence by someone they knew than a stranger in public. Each year about 8 women were killed by strangers in an outdoor public place, compared to about 90 women killed in a dwelling by someone they knew. [250 chrs]
+
+----
+
+While female victims were most likely to be killed in a dwelling at almost all ages, male victims between 10 and 40 were more likely to be killed in a public place. [164 chrs]
+
+[location_age.png]
+
+----
+
+This analysis of homicide methods in England and Wales comes from a report written by me and Prof Iain Brennan for the UK College of Policing. You can get more detail at https://lesscrime.info/post/homicide-profile-hotspots/ [224 chrs]
+
+----
+
+This is the fifth in a series of seven threads summarising different aspects of homicide in England and Wales. You can find links to the other threads at https://lesscrime.info/post/homicide-profile/ [199 chrs]
+
+----
+
