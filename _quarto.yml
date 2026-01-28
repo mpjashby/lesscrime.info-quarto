@@ -3,6 +3,8 @@ project:
 
 website:
   title: "Matt Ashby"
+  open-graph: true
+  twitter-card: true
   navbar:
     left:
       - href: index.qmd
