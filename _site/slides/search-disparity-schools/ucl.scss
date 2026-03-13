@@ -1,0 +1,74 @@
+/*-- scss:defaults --*/
+
+// fonts
+$font-family-sans-serif: "UCL Sans", "Aptos", sans-serif !default;
+
+// colors
+$body-bg: #FFF !default;
+$body-color: #1A1A1A !default;
+$link-color: #000 !default;
+$selection-bg: #26351c !default;
+
+// headings
+$presentation-heading-font: "UCL Sans", "Aptos", sans-serif !default;
+$presentation-heading-color: #3A1857 !default;
+$presentation-heading-line-height: 1;
+$presentation-title-slide-text-align: left;
+$presentation-h1-font-size: 2em;
+$presentation-h2-font-size: 1em;
+
+/*-- scss:rules --*/
+
+h1.title {
+  margin-bottom: 1em;
+}
+
+h2 {
+  margin-bottom: 1em;
+  padding: 0.25em;
+  background-color: $body-bg;
+}
+
+aside {
+  padding: 0.25em !important;
+  background-color: $body-bg;
+  font-size: 0.5em !important;
+}
+
+.reveal .slide-logo {
+  height: 75px !important;
+  max-height: unset !important;
+}
+
+.top-space {
+  margin-top: 2em;
+}
+
+.inline-box-dark-purple {
+  display: inline-block;
+  padding: 0.1em 0.3em;
+  background-color: #361a54;
+  color: #FFFFFF;
+  box-decoration-break: clone;
+  -webkit-box-decoration-break: clone;  
+}
+
+.box-dark-purple {
+  margin: 1%;
+  padding: 1%;
+  color: #FFFFFF;
+  background-color: #361a54;
+}
+
+.box-mid-purple {
+  margin: 1%;
+  padding: 1%;
+  color: #000000;
+  background-color: #ddbdff;
+}
+
+.no-bullets ul {
+  list-style-type: none;
+  margin-left: 0;
+  padding-left: 0;
+}
