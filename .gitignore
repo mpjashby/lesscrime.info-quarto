@@ -6,10 +6,11 @@
 .RData
 .Ruserdata
 
-# knitr and R markdown default cache directories
-/*_cache/
-/cache/
-*/index_cache/*
+# Quarto, knitr, R Markdown, and map-tile cache directories
+**/*_cache/
+**/cache/
+**/index_cache/
+**/rosm.cache/
 
 # Temporary files created by R markdown
 *.utf8.md
@@ -23,6 +24,9 @@
 /post/policing-2010-2024/*.xls
 /post/policing-2010-2024/*.xlsx
 /post/policing-2010-2024/*.ods
+/post/policing-2010-2024/ukdetailedtimeseries2001to2020.zip
 
 /.quarto/
 /_freeze/
+
+**/*.quarto_ipynb
