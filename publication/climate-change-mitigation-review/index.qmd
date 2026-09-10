@@ -1,0 +1,10 @@
+---
+title: "Mapping current and potential criminal and security issues associated with climate change mitigation technologies"
+date: "2026-07-25"
+---
+
+Citation: Zheng, S Y, Johnson, S D, Ekblom, P, Maslin, M A, Borrion, H, Young, L, Nikolovska, M, Ashby, M P J, Pasculli, L (2026). Mapping current and potential criminal and security issues associated with climate change mitigation technologies. _Sustainable Futures_, 8, 102036.
+
+[Published version (open access)](https://doi.org/10.1016/j.sftr.2026.102036){.btn .btn-primary}
+
+Our transition to a low-carbon future critically depends on technologies to mitigate climate change (CCMTs). These include renewable energies, carbon capture, utilisation and sequestration (CCUS), and electric vehicles. As many of them are still evolving technologies, they will likely present novel crime and security risks. Unfortunately, knowledge about such risks is still limited and fragmentary. This scoping review aims to bridge this gap and inform policymakers to prevent such emerging risks. We found 97 relevant articles from a total of 1139 papers we screened from academic and non-academic sources across disciplines. They revealed 20 distinct crime threats of six different natures: property offences, cyber-attacks, financial crime and corruption, environmental threats, human rights abuse, and national security threats. Notable examples of criminogenic situations are CCUS-related environmental threats, greenwashing, and territorial conflicts over “green projects” that require adequate future crime prevention strategies. To that end, we also found 22 (potential) countermeasures, mostly of a legal or policy nature. This comprehensive overview highlights what appears to be an under-researched aspect of sustainable development, which we believe should include ensuring safety and security throughout climate mitigation supply chains.

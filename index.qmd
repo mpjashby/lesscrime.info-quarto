@@ -163,7 +163,7 @@ The sfhotspot package provides functions for analysing hotspots and other concen
 
 ```{r office-map}
 leaflet() |> 
-  addProviderTiles(providers$CartoDB.Voyager) |>
+  addProviderTiles(providers$Stadia.OSMBright) |>
   setView(-0.1298, 51.5249, zoom = 15) |> 
   addMarkers(-0.1298, 51.5249)
 ```

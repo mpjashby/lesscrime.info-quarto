@@ -1,0 +1,12 @@
+---
+title: "Patterns and trends in homicide in England and Wales and their implications for policing"
+date: "2025-08-19"
+---
+
+Citation: Ashby, M., & Brennan, I. (2025). _Patterns and trends in homicide in England and Wales and their implications for policing_. College of Policing.
+
+[Published version (open access)](https://www.college.police.uk/guidance/homicide-prevention/patterns-trends-homicide-implications-policing){.btn .btn-primary}
+
+This report presents a national problem profile for homicide in England and Wales, to help police and government understand in detail the nature of homicide.
+
+This report is summarised in [a series of blog posts](/post/homicide-profile/).

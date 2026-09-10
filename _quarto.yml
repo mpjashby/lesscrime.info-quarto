@@ -1,5 +1,7 @@
 project:
   type: website
+  resources:
+  - "slides"
 
 website:
   title: "Matt Ashby"
@@ -40,3 +42,6 @@ format:
 
 author:
   - name: Matt Ashby
+
+execute:
+  freeze: auto

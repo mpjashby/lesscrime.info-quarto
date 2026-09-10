@@ -1,0 +1,17 @@
+---
+title: "Understanding changing demand for police during the coronavirus pandemic"
+date: "2025-04-18"
+---
+
+Citation: Solymosi, R., Ashby, M., Kennar, N. et al. (2025). Understanding changing demand for police during the coronavirus pandemic. _Crime Science_ 14, 6.
+
+[Published version (open access)](https://doi.org/10.1186/s40163-025-00249-7){.btn .btn-primary}
+
+This study examines the impact of the COVID- 19 pandemic on policing, focusing on changes in calls for service and spatial and demographic patterns of demand, and the experiences of call handlers. It explores how policing and community behaviours are adapted under crisis conditions. By examining shifts in demand and police response during the pandemic, we offer insights into how policing strategies and community behaviours evolved.
+
+The study employs a mixed-methods approach, combining quantitative analysis of call data with qualitative interviews. The dataset covers calls for service from 2015 to 2020, aggregated at neighbourhood level. We used time series forecasting to create a counterfactual against which to compare observed data. Spatial analysis was performed using a Gini coefficient and Location Quotient to measure concentration within LSOAs and by linking call data with the Index of Multiple Deprivation to consider socio-demographic shifts. Thematic analysis of semi-structured interviews with call handlers examined their experiences.
+
+Call volumes dropped overall, but reports of anti-social behaviour (ASB) related to lockdown breaches and drug incidents increased, and became less spatially concentrated. Call handlers reported stress related to managing complex public health-related queries but a positive ability to resolve more calls remotely. They also reported changes in the nature of calls, such as around domestic incidents and harassment. Police attended a higher percentage of calls and reduced time spent on scene.
+
+Call patterns during the pandemic shifted in nature, spatial distribution, and socio-demographic trends, highlighting the need for ongoing monitoring and adaptive resource allocation. Insights from call handlers are crucial for understanding these changes and guiding strategies to support staff and respond effectively to evolving community needs.
+

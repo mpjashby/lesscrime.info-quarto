@@ -1,0 +1,17 @@
+---
+title: "Is There More Violence Around Schools? Five Tests Across Nine Cities"
+date: "2026-08-05"
+---
+
+Citation: Ashby, M (2026). Is There More Violence Around Schools? Five Tests Across Nine Cities. _Law and Criminology Journal_, 3(1) 213–262.
+
+[Published version (open access)](https://doi.org/10.21825/lcj.100817){.btn .btn-primary}
+
+Research on violence around schools has produced inconsistent findings, partly because of methodological differences. This study advances the evidence using a novel open-data source. 
+
+Police-recorded assault and personal robbery data from nine large US cities were analyzed using fixed-effects models of daily census block-group crime counts to test five hypotheses. Results can be interpreted causally under reasonable assumptions. 
+
+Public secondary schools increased assault counts on school days but not on non-school weekdays, with larger effects for larger schools. Effects for elementary schools were weaker and less consistent. School days increased assaults during school-related hours but not during evenings or overnight, although effects varied across cities. No consistent relationships were found for personal robbery. 
+
+The findings are consistent with the routine activities approach and suggest that schools help shape the spatio-temporal distribution of neighborhood violence. Open data can facilitate multi-city research on crime and place.
+

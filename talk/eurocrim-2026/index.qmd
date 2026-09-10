@@ -1,0 +1,13 @@
+---
+title: "Estimating the effect of Europe’s largest street party on crime in London"
+date: '2026-09-10'
+---
+
+Presentation at the European Society of Criminology Annual Meeting in Warsaw, Poland, estimating the effect of Notting Hill Carnival on 10 types of crime in London.
+
+[**Presentation slides**](/slides/eurocrim-2026/)
+
+
+```{=html}
+<iframe width="800" height="500" src="/slides/eurocrim-2026/"></iframe>
+```

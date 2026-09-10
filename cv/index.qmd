@@ -152,7 +152,9 @@ funding <- tribble(
 	"Research project", "Building blocks for knife crime", 2020, 2021, "£122,000", "College of Policing", "co-investigator",
 	"Knowledge transfer", "Implementing problem-oriented and evidence-based responses for reducing violent crime in London", 2021, 2022, "£264,000", "Metropolitan Police Service", "co-investigator",
 	"Research project", "Benchmarking crime in London against other global cities", 2022, NA, "£10,000", "Metropolitan Police Service", "Principal investigator",
-	"Research project", "National homicide and near-miss homicide problem profile", 2023, 2024, "£63,000", "College of Policing", "Principal investigator"
+	"Research project", "National homicide and near-miss homicide problem profile", 2023, 2024, "£63,000", "College of Policing", "Principal investigator",
+  "Research project", "Benchmarking crime in London against other global cities", 2024, 2024, "£18,000", "Metropolitan Police Service", "Principal investigator",
+  "Research project", "Stop and search disparity in Bedfordshire", 2025, 2026, "£20,000", "Bedfordshire Police", "Principal investigator"
 ) |> 
 	arrange(desc(start_date)) |> 
   mutate(
@@ -192,7 +194,7 @@ service <- tribble(
   "Crime Open Database", 2018, NA, "I maintain the Crime Open Database, a dataset of harmonised open crime data for 18 large cities in the United States, as well as the associated `crimedata` R package", "http://osf.io/zyaqn/",
   "Associate editor of the journal _Crime Science_", 2019, 2024, NA, NA,
   "Judge at the London Problem Solving Awards", 2019, 2021, "I was a judge for the joint problem-solving awards run by the three main police forces in London", NA,
-  "Sift judge for the Tilley Awards", 2023, NA, "I am a judge for the initial round of the Tilley Awards for problem solving run by UK police forces", NA,
+  "Sift judge for the Tilley Awards", 2023, 2025, "I am a judge for the initial round of the Tilley Awards for problem solving run by UK police forces", NA,
   "Editorial board of the journal _Criminology_", 2024, NA, NA, NA
 ) |> 
   arrange(desc(start_date)) |> 
